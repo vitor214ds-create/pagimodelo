@@ -4463,7 +4463,7 @@ svg {
 /* Canvas-based frame-by-frame tailoring sequence */
 .tailoring-canvas-sequence {
   --sequence-w: min(50vw, 560px);
-  --sequence-h: calc(var(--sequence-w) * 1.333);
+  --sequence-h: calc(var(--sequence-w) * 1.52);
 }
 
 .tailoring-canvas-sequence .assembly-stage {
@@ -4475,7 +4475,7 @@ svg {
 .tailoring-frame-canvas {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 56%;
   width: var(--sequence-w);
   height: var(--sequence-h);
   transform: translate(-50%, -50%);
@@ -4500,6 +4500,7 @@ svg {
 
 .tailoring-canvas-sequence .assembly-final-renan {
   z-index: 12;
+  top: 56%;
   width: min(48vw, 610px) !important;
   height: min(84vh, 820px) !important;
   opacity: var(--portrait) !important;
@@ -4538,13 +4539,13 @@ svg {
   }
 
   .tailoring-frame-canvas {
-    top: 52%;
+    top: 58%;
   }
 
   .tailoring-canvas-sequence .assembly-final-renan {
     width: 82vw !important;
     height: 58vh !important;
-    top: 52%;
+    top: 58%;
   }
 }
 
