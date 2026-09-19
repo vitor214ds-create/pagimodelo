@@ -2884,3 +2884,332 @@ svg {
     bottom: 10px;
   }
 }
+
+
+/* photo-driven anatomy sequence */
+.anatomy-photo-lineup {
+  isolation: isolate;
+}
+
+.photo-stage {
+  --visibility: var(--stage-reveal, 0);
+  min-width: 0;
+  opacity: calc(.05 + var(--visibility) * .95);
+  transform:
+    translateY(calc((1 - var(--visibility)) * 58px))
+    translateZ(calc(var(--visibility) * 28px))
+    scale(calc(.88 + var(--visibility) * .12));
+  filter:
+    blur(calc((1 - var(--visibility)) * 8px))
+    brightness(calc(.48 + var(--visibility) * .52))
+    saturate(calc(.38 + var(--visibility) * .62));
+}
+
+.photo-stage.is-past {
+  opacity: .52;
+  filter:
+    blur(0)
+    brightness(.62)
+    saturate(.5);
+  transform:
+    translateY(10px)
+    translateZ(0)
+    scale(.95);
+}
+
+.photo-stage.is-active {
+  z-index: 16;
+  opacity: 1;
+  filter:
+    blur(0)
+    brightness(1)
+    saturate(.86);
+  transform:
+    translateY(-4px)
+    translateZ(52px)
+    scale(1.045);
+}
+
+.photo-stage-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: grid;
+  place-items: end center;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(224,193,142,.09), transparent 44%),
+    linear-gradient(180deg, rgba(17,25,34,.08), rgba(6,11,16,.84));
+  border: 1px solid rgba(255,255,255,.035);
+  box-shadow:
+    0 26px 70px rgba(0,0,0,.25),
+    inset 0 1px rgba(255,255,255,.025);
+  isolation: isolate;
+}
+
+.photo-stage-frame img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  transform:
+    scale(calc(1.08 - var(--visibility) * .08))
+    translateY(calc((1 - var(--visibility)) * 14px));
+  filter:
+    grayscale(.2)
+    sepia(.08)
+    saturate(.74)
+    contrast(1.12)
+    brightness(.78);
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 8%, #000 86%, transparent 100%);
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 8%, #000 86%, transparent 100%);
+  transition:
+    filter .45s ease,
+    transform .7s cubic-bezier(.2,.8,.2,1);
+}
+
+.photo-stage:nth-child(1) .photo-stage-frame img {
+  object-fit: contain;
+  object-position: center 52%;
+  mix-blend-mode: screen;
+  filter:
+    grayscale(.15)
+    sepia(.28)
+    saturate(.72)
+    contrast(1.24)
+    brightness(.78);
+  -webkit-mask-image:
+    radial-gradient(ellipse at 50% 48%, #000 0 42%, rgba(0,0,0,.96) 58%, transparent 78%);
+  mask-image:
+    radial-gradient(ellipse at 50% 48%, #000 0 42%, rgba(0,0,0,.96) 58%, transparent 78%);
+}
+
+.photo-stage:nth-child(2) .photo-stage-frame img {
+  object-position: 64% 50%;
+}
+
+.photo-stage:nth-child(3) .photo-stage-frame img {
+  object-position: 50% 42%;
+}
+
+.photo-stage:nth-child(4) .photo-stage-frame img {
+  object-position: 52% 38%;
+}
+
+.photo-stage:nth-child(5) .photo-stage-frame img {
+  object-position: 50% 46%;
+}
+
+.photo-stage.is-active .photo-stage-frame img {
+  filter:
+    grayscale(.08)
+    sepia(.05)
+    saturate(.88)
+    contrast(1.1)
+    brightness(.9);
+}
+
+.photo-stage-overlay {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(5,9,13,.86), transparent 34%),
+    linear-gradient(90deg, rgba(5,9,13,.22), transparent 42%, rgba(5,9,13,.1)),
+    radial-gradient(circle at 50% 35%, transparent 0 22%, rgba(6,11,16,.18) 74%);
+}
+
+.photo-stage-scan {
+  position: absolute;
+  z-index: 5;
+  left: 8%;
+  right: 8%;
+  top: calc(20% + var(--visibility) * 58%);
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(224,193,142,.58),
+      rgba(255,255,255,.24),
+      transparent
+    );
+  box-shadow:
+    0 0 16px rgba(224,193,142,.16),
+    0 0 30px rgba(224,193,142,.08);
+  opacity: calc(.12 + var(--visibility) * .7);
+  pointer-events: none;
+}
+
+.photo-stage.is-active .lineup-stage-halo {
+  border-color: rgba(224,193,142,.28);
+  box-shadow:
+    0 0 42px rgba(224,193,142,.07),
+    inset 0 0 48px rgba(224,193,142,.025);
+}
+
+.renan-photo-stage {
+  overflow: visible;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.renan-photo-stage img {
+  object-fit: contain;
+  object-position: center bottom;
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 8%, #000 91%, transparent 100%);
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 8%, #000 91%, transparent 100%);
+  filter:
+    saturate(.92)
+    contrast(1.08)
+    brightness(.96)
+    drop-shadow(0 36px 64px rgba(0,0,0,.44));
+}
+
+.lineup-renan.is-active {
+  transform:
+    translateY(-10px)
+    translateZ(78px)
+    scale(1.08);
+}
+
+.lineup-renan.is-active .renan-halo {
+  border-color: rgba(224,193,142,.42);
+  box-shadow:
+    0 0 65px rgba(224,193,142,.13),
+    inset 0 0 72px rgba(224,193,142,.045);
+}
+
+/* make the sticky scene feel like the approved cinematic reference */
+.anatomy-stage {
+  background:
+    radial-gradient(circle at 79% 36%, rgba(182,142,85,.14), transparent 24%),
+    radial-gradient(circle at 55% 105%, rgba(255,255,255,.025), transparent 30%),
+    linear-gradient(145deg, #071019 0%, #0c151e 58%, #071019 100%);
+}
+
+.anatomy-stage::before {
+  opacity: .86;
+}
+
+.lineup-track {
+  perspective: 1800px;
+}
+
+@media (max-width: 1180px) {
+  .photo-stage-frame img {
+    object-position: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .anatomy-scroll {
+    height: 600vh;
+  }
+
+  .anatomy-visual {
+    overflow: hidden;
+  }
+
+  .anatomy-lineup {
+    width: 100vw;
+    height: 60vh;
+    overflow: hidden;
+  }
+
+  .lineup-track {
+    left: 0;
+    right: auto;
+    top: 3%;
+    bottom: 9%;
+    width: 600vw;
+    display: grid;
+    grid-template-columns: repeat(6, 100vw);
+    gap: 0;
+    transform:
+      translate3d(calc(var(--mobile-stage, 0) * -100vw), 0, 0);
+    transition: transform .45s cubic-bezier(.2,.8,.2,1);
+  }
+
+  .photo-stage {
+    width: 100vw;
+    height: 100%;
+    padding: 0 12vw;
+    opacity: .08;
+    filter:
+      blur(10px)
+      brightness(.44)
+      saturate(.35);
+    transform:
+      translateY(24px)
+      scale(.9);
+  }
+
+  .photo-stage.is-active {
+    opacity: 1;
+    filter:
+      blur(0)
+      brightness(1)
+      saturate(.9);
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+  .photo-stage.is-past {
+    opacity: .12;
+    filter:
+      blur(7px)
+      brightness(.5);
+  }
+
+  .photo-stage-frame {
+    width: 76vw;
+    height: 100%;
+    margin: 0 auto;
+    border-radius: 4px;
+  }
+
+  .photo-stage-frame img {
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .photo-stage:nth-child(1) .photo-stage-frame img,
+  .renan-photo-stage img {
+    object-fit: contain;
+  }
+
+  .lineup-stage-halo {
+    width: 54%;
+  }
+
+  .lineup-stage-label {
+    bottom: -12px;
+  }
+
+  .lineup-stage-label span {
+    font-size: 18px;
+  }
+
+  .lineup-stage-label strong {
+    font-size: 7px;
+  }
+
+  .lineup-renan {
+    width: 100vw;
+    height: 100%;
+  }
+
+  .renan-photo-stage {
+    width: 78vw;
+  }
+}
