@@ -73,7 +73,10 @@ const anatomyLabels = [
   "Renan Durso",
 ];
 
-const tailoringSprite = "/anatomia/tailoring-sprite.webp";
+const tailoringSpriteChunks = Array.from(
+  { length: 13 },
+  (_, index) => `/anatomia/safe-${String(index).padStart(2, "0")}.txt`,
+);
 
 function clamp(value, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value));
@@ -103,11 +106,62 @@ function PortraitImage({ alt = "", className = "" }) {
 }
 
 function AnatomyFigure({ step }) {
+  const [spriteUrl, setSpriteUrl] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    let objectUrl = "";
+
+    const loadSprite = async () => {
+      try {
+        const parts = await Promise.all(
+          tailoringSpriteChunks.map(async (url) => {
+            const response = await fetch(url, { cache: "force-cache" });
+            if (!response.ok) {
+              throw new Error(`Falha ao carregar ${url}: ${response.status}`);
+            }
+            return response.text();
+          }),
+        );
+
+        const base64 = parts.join("");
+        if (base64.length !== 74276) {
+          throw new Error(
+            `Sprite incompleto: ${base64.length} de 74276 caracteres`,
+          );
+        }
+
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let index = 0; index < binary.length; index += 1) {
+          bytes[index] = binary.charCodeAt(index);
+        }
+
+        objectUrl = URL.createObjectURL(
+          new Blob([bytes], { type: "image/webp" }),
+        );
+
+        if (!cancelled) {
+          setSpriteUrl(objectUrl);
+        }
+      } catch (error) {
+        console.error("Erro ao reconstruir a animação de alfaiataria:", error);
+      }
+    };
+
+    loadSprite();
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, []);
+
   return (
     <div
       className="tailoring-assembly"
       aria-label="Montagem visual do traje do advogado"
-      style={{ "--tailoring-sprite": `url("${tailoringSprite}")` }}
+      style={{ "--tailoring-sprite": spriteUrl ? `url("${spriteUrl}")` : "none" }}
     >
       <div className="assembly-grid" aria-hidden="true" />
       <div className="assembly-aura" aria-hidden="true" />
