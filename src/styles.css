@@ -4148,3 +4148,313 @@ svg {
     --fitted-w: 82vw;
   }
 }
+
+
+
+/* Professional piece-by-piece dressing animation */
+.tailoring-wear {
+  --wear-w: min(46vw, 500px);
+  --wear-h: calc(var(--wear-w) * 1.25);
+  --shirt-left: 0;
+  --shirt-right: 0;
+  --shirt-body: 0;
+  --shirt-collar: 0;
+  --tie-knot: 0;
+  --vest-left: 0;
+  --vest-right: 0;
+  --jacket-left: 0;
+  --jacket-right: 0;
+}
+
+.tailoring-wear .assembly-stage {
+  overflow: visible;
+  perspective: 1700px;
+}
+
+.tailoring-wear .wear-layer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--wear-w);
+  height: var(--wear-h);
+  background-image: var(--tailoring-sprite);
+  background-repeat: no-repeat;
+  background-size: 500% 100%;
+  background-position-y: 50%;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  will-change: transform, opacity, filter, clip-path;
+  backface-visibility: hidden;
+  filter:
+    drop-shadow(0 26px 44px rgba(0,0,0,.34))
+    drop-shadow(0 0 16px rgba(224,193,142,.06));
+}
+
+.tailoring-wear .wear-frame-0 { background-position-x: 0%; }
+.tailoring-wear .wear-frame-1 { background-position-x: 25%; }
+.tailoring-wear .wear-frame-2 { background-position-x: 50%; }
+.tailoring-wear .wear-frame-3 { background-position-x: 75%; }
+.tailoring-wear .wear-frame-4 { background-position-x: 100%; }
+
+/* Body remains fixed while the clothes are put on. */
+.tailoring-wear .wear-base {
+  z-index: 1;
+  opacity: calc(1 - var(--portrait));
+  transform: translate(-50%, -50%) scale(1);
+  filter:
+    saturate(.92)
+    contrast(1.08)
+    brightness(.92)
+    drop-shadow(0 0 24px rgba(224,193,142,.15))
+    drop-shadow(0 30px 46px rgba(0,0,0,.34));
+}
+
+/* Shirt: torso settles first, sleeves slide over each arm, collar closes last. */
+.tailoring-wear .wear-shirt-body {
+  z-index: 2;
+  clip-path: polygon(31% 13%,69% 13%,73% 18%,72% 68%,66% 82%,34% 82%,28% 68%,27% 18%);
+  opacity: calc(var(--shirt-body) * (1 - var(--portrait)));
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--shirt-body)) * -74px))
+    translateZ(calc((1 - var(--shirt-body)) * 90px))
+    scaleX(calc(.88 + var(--shirt-body) * .12))
+    scaleY(calc(.94 + var(--shirt-body) * .06));
+}
+
+.tailoring-wear .wear-shirt-left {
+  z-index: 2;
+  clip-path: polygon(0 8%,35% 8%,39% 70%,31% 96%,0 96%);
+  opacity: calc(var(--shirt-left) * (1 - var(--portrait)));
+  transform:
+    translate(-50%, -50%)
+    translateX(calc((1 - var(--shirt-left)) * -190px))
+    translateY(calc((1 - var(--shirt-left)) * -22px))
+    rotateZ(calc((1 - var(--shirt-left)) * -18deg))
+    rotateY(calc((1 - var(--shirt-left)) * 30deg));
+  transform-origin: 34% 22%;
+}
+
+.tailoring-wear .wear-shirt-right {
+  z-index: 2;
+  clip-path: polygon(65% 8%,100% 8%,100% 96%,69% 96%,61% 70%);
+  opacity: calc(var(--shirt-right) * (1 - var(--portrait)));
+  transform:
+    translate(-50%, -50%)
+    translateX(calc((1 - var(--shirt-right)) * 190px))
+    translateY(calc((1 - var(--shirt-right)) * -22px))
+    rotateZ(calc((1 - var(--shirt-right)) * 18deg))
+    rotateY(calc((1 - var(--shirt-right)) * -30deg));
+  transform-origin: 66% 22%;
+}
+
+.tailoring-wear .wear-shirt-collar {
+  z-index: 3;
+  clip-path: polygon(31% 4%,69% 4%,67% 27%,33% 27%);
+  opacity: calc(var(--shirt-collar) * (1 - var(--portrait)));
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--shirt-collar)) * -58px))
+    translateZ(calc((1 - var(--shirt-collar)) * 110px))
+    scale(calc(.88 + var(--shirt-collar) * .12));
+}
+
+/* Tie: the knot snaps into the collar, then the blade falls down the center line. */
+.tailoring-wear .wear-tie {
+  z-index: 5;
+  clip-path: polygon(44% 19%,56% 19%,57% 73%,50% 86%,43% 73%);
+  opacity: calc(var(--tie) * (1 - var(--portrait)));
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--tie)) * -145px))
+    translateZ(calc((1 - var(--tie)) * 130px))
+    scaleY(calc(.72 + var(--tie) * .28))
+    rotateX(calc((1 - var(--tie)) * 16deg));
+  transform-origin: 50% 20%;
+}
+
+.tailoring-wear .wear-tie-knot {
+  z-index: 6;
+  clip-path: polygon(42% 13%,58% 13%,57% 27%,50% 34%,43% 27%);
+  opacity: calc(var(--tie-knot) * (1 - var(--portrait)));
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--tie-knot)) * -70px))
+    translateZ(calc((1 - var(--tie-knot)) * 160px))
+    scale(calc(.72 + var(--tie-knot) * .28));
+}
+
+/* Waistcoat: both halves wrap around the torso and meet on the buttons. */
+.tailoring-wear .wear-vest-left {
+  z-index: 4;
+  clip-path: polygon(18% 13%,51% 13%,51% 88%,28% 88%,15% 50%);
+  opacity: calc(var(--vest-left) * (1 - var(--portrait)));
+  transform:
+    translate(-50%, -50%)
+    translateX(calc((1 - var(--vest-left)) * -155px))
+    translateZ(calc((1 - var(--vest-left)) * 100px))
+    rotateY(calc((1 - var(--vest-left)) * 38deg))
+    scaleX(calc(.94 + var(--vest-left) * .06));
+  transform-origin: 50% 48%;
+}
+
+.tailoring-wear .wear-vest-right {
+  z-index: 4;
+  clip-path: polygon(49% 13%,82% 13%,85% 50%,72% 88%,49% 88%);
+  opacity: calc(var(--vest-right) * (1 - var(--portrait)));
+  transform:
+    translate(-50%, -50%)
+    translateX(calc((1 - var(--vest-right)) * 155px))
+    translateZ(calc((1 - var(--vest-right)) * 100px))
+    rotateY(calc((1 - var(--vest-right)) * -38deg))
+    scaleX(calc(.94 + var(--vest-right) * .06));
+  transform-origin: 50% 48%;
+}
+
+/* Jacket: two broad shells swing in from the sides, like putting arms through the sleeves. */
+.tailoring-wear .wear-jacket-left {
+  z-index: 7;
+  clip-path: inset(5% 49.4% 1% 0);
+  opacity: calc(var(--jacket-left) * (1 - var(--portrait)));
+  transform:
+    translate(-50%, -50%)
+    translateX(calc((1 - var(--jacket-left)) * -245px))
+    translateZ(calc((1 - var(--jacket-left)) * 150px))
+    rotateY(calc((1 - var(--jacket-left)) * 52deg))
+    rotateZ(calc((1 - var(--jacket-left)) * -7deg))
+    scale(calc(.96 + var(--jacket-left) * .04));
+  transform-origin: 49.4% 38%;
+}
+
+.tailoring-wear .wear-jacket-right {
+  z-index: 7;
+  clip-path: inset(5% 0 1% 49.4%);
+  opacity: calc(var(--jacket-right) * (1 - var(--portrait)));
+  transform:
+    translate(-50%, -50%)
+    translateX(calc((1 - var(--jacket-right)) * 245px))
+    translateZ(calc((1 - var(--jacket-right)) * 150px))
+    rotateY(calc((1 - var(--jacket-right)) * -52deg))
+    rotateZ(calc((1 - var(--jacket-right)) * 7deg))
+    scale(calc(.96 + var(--jacket-right) * .04));
+  transform-origin: 50.6% 38%;
+}
+
+.tailoring-wear .wear-fit-glow {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  top: 49%;
+  width: calc(var(--wear-w) * .46);
+  height: calc(var(--wear-h) * .54);
+  transform:
+    translate(-50%, -50%)
+    scale(calc(.82 + var(--complete) * .18));
+  border-radius: 46%;
+  opacity: calc(var(--complete) * (1 - var(--portrait)));
+  background: radial-gradient(circle, rgba(224,193,142,.16), transparent 68%);
+  filter: blur(24px);
+  pointer-events: none;
+}
+
+/* Renan enters only after the complete suit has settled. */
+.tailoring-wear .assembly-final-renan {
+  z-index: 12;
+  opacity: var(--portrait) !important;
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--portrait)) * 22px))
+    translateZ(calc(var(--portrait) * 72px))
+    scale(calc(.96 + var(--portrait) * .04)) !important;
+}
+
+.tailoring-wear .assembly-scan {
+  z-index: 13;
+  opacity: calc(var(--complete) * (1 - var(--portrait))) !important;
+}
+
+@media (max-width: 900px) {
+  .tailoring-wear {
+    --wear-w: min(70vw, 460px);
+  }
+
+  .tailoring-wear .wear-shirt-left {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--shirt-left)) * -125px))
+      rotateZ(calc((1 - var(--shirt-left)) * -14deg))
+      rotateY(calc((1 - var(--shirt-left)) * 22deg));
+  }
+
+  .tailoring-wear .wear-shirt-right {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--shirt-right)) * 125px))
+      rotateZ(calc((1 - var(--shirt-right)) * 14deg))
+      rotateY(calc((1 - var(--shirt-right)) * -22deg));
+  }
+
+  .tailoring-wear .wear-jacket-left {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--jacket-left)) * -150px))
+      rotateY(calc((1 - var(--jacket-left)) * 38deg));
+  }
+
+  .tailoring-wear .wear-jacket-right {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--jacket-right)) * 150px))
+      rotateY(calc((1 - var(--jacket-right)) * -38deg));
+  }
+}
+
+@media (max-width: 760px) {
+  .tailoring-wear {
+    --wear-w: 82vw;
+  }
+
+  .tailoring-wear .wear-shirt-left {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--shirt-left)) * -88px))
+      rotateZ(calc((1 - var(--shirt-left)) * -10deg))
+      rotateY(calc((1 - var(--shirt-left)) * 18deg));
+  }
+
+  .tailoring-wear .wear-shirt-right {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--shirt-right)) * 88px))
+      rotateZ(calc((1 - var(--shirt-right)) * 10deg))
+      rotateY(calc((1 - var(--shirt-right)) * -18deg));
+  }
+
+  .tailoring-wear .wear-vest-left {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--vest-left)) * -82px))
+      rotateY(calc((1 - var(--vest-left)) * 28deg));
+  }
+
+  .tailoring-wear .wear-vest-right {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--vest-right)) * 82px))
+      rotateY(calc((1 - var(--vest-right)) * -28deg));
+  }
+
+  .tailoring-wear .wear-jacket-left {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--jacket-left)) * -104px))
+      rotateY(calc((1 - var(--jacket-left)) * 32deg));
+  }
+
+  .tailoring-wear .wear-jacket-right {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--jacket-right)) * 104px))
+      rotateY(calc((1 - var(--jacket-right)) * -32deg));
+  }
+}
