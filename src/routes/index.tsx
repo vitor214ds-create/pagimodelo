@@ -108,6 +108,7 @@ type Particle = {
   size: number;
   phase: number;
   glow: number;
+  alpha: number;
 };
 
 function clamp(value: number, min = 0, max = 1) {
@@ -119,10 +120,143 @@ function smoothstep(value: number) {
   return t * t * (3 - 2 * t);
 }
 
+function sampleOpaquePoints(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  desiredCount: number,
+) {
+  const image = ctx.getImageData(0, 0, width, height).data;
+  const points: Point[] = [];
+
+  for (let y = 0; y < height; y += 2) {
+    for (let x = 0; x < width; x += 2) {
+      const index = (y * width + x) * 4;
+      if (image[index + 3] > 26) {
+        points.push([(x / width) * 2 - 1, (y / height) * 2 - 1]);
+      }
+    }
+  }
+
+  if (!points.length) {
+    return Array.from({ length: desiredCount }, () => [0, 0] as Point);
+  }
+
+  const result: Point[] = [];
+  const step = points.length / desiredCount;
+
+  for (let i = 0; i < desiredCount; i++) {
+    result.push(points[Math.floor(i * step) % points.length]);
+  }
+
+  return result;
+}
+
+function buildSymbolPoints(
+  symbol: "cross" | "scales" | "pulse" | "shield",
+  count: number,
+) {
+  const offscreen = document.createElement("canvas");
+  offscreen.width = 420;
+  offscreen.height = 420;
+  const ctx = offscreen.getContext("2d");
+
+  if (!ctx) {
+    return Array.from({ length: count }, () => [0, 0] as Point);
+  }
+
+  ctx.clearRect(0, 0, offscreen.width, offscreen.height);
+  ctx.fillStyle = "#fff";
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 22;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  if (symbol === "cross") {
+    ctx.fillRect(167, 46, 86, 328);
+    ctx.fillRect(46, 167, 328, 86);
+  }
+
+  if (symbol === "scales") {
+    ctx.beginPath();
+    ctx.moveTo(210, 34);
+    ctx.lineTo(210, 338);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(92, 108);
+    ctx.lineTo(328, 108);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(210, 332);
+    ctx.lineTo(139, 370);
+    ctx.lineTo(281, 370);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(120, 108);
+    ctx.lineTo(76, 201);
+    ctx.moveTo(300, 108);
+    ctx.lineTo(344, 201);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(76, 217, 46, 0, Math.PI);
+    ctx.moveTo(298, 217);
+    ctx.arc(344, 217, 46, Math.PI, 0, true);
+    ctx.stroke();
+  }
+
+  if (symbol === "pulse") {
+    ctx.beginPath();
+    ctx.moveTo(34, 225);
+    ctx.lineTo(104, 225);
+    ctx.lineTo(139, 184);
+    ctx.lineTo(175, 275);
+    ctx.lineTo(218, 108);
+    ctx.lineTo(260, 252);
+    ctx.lineTo(300, 225);
+    ctx.lineTo(386, 225);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(210, 154);
+    ctx.bezierCurveTo(150, 78, 80, 136, 210, 315);
+    ctx.bezierCurveTo(340, 136, 270, 78, 210, 154);
+    ctx.stroke();
+  }
+
+  if (symbol === "shield") {
+    ctx.beginPath();
+    ctx.moveTo(210, 40);
+    ctx.lineTo(320, 86);
+    ctx.lineTo(301, 230);
+    ctx.lineTo(210, 365);
+    ctx.lineTo(119, 230);
+    ctx.lineTo(100, 86);
+    ctx.closePath();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(145, 210);
+    ctx.lineTo(192, 258);
+    ctx.lineTo(277, 160);
+    ctx.stroke();
+  }
+
+  return sampleOpaquePoints(
+    ctx,
+    offscreen.width,
+    offscreen.height,
+    count,
+  );
+}
+
 function ScrollParticles({
   storyRef,
 }: {
-  storyRef: React.RefObject<HTMLElement | null>;
+  storyRef: RefObject<HTMLElement | null>;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -138,7 +272,7 @@ function ScrollParticles({
     let width = 0;
     let height = 0;
     let dpr = 1;
-    let particleCount = 280;
+    let particleCount = 360;
     let particles: Particle[] = [];
     let targets: Point[][] = [];
     let storyProgress = 0;
@@ -147,154 +281,15 @@ function ScrollParticles({
     let pointerActive = false;
 
     const seeded = (index: number) => {
-      const x = Math.sin(index * 999.91 + 31.7) * 43758.5453;
-      return x - Math.floor(x);
-    };
-
-    const sampleLine = (
-      ax: number,
-      ay: number,
-      bx: number,
-      by: number,
-      count: number,
-    ): Point[] =>
-      Array.from({ length: count }, (_, i) => {
-        const t = count <= 1 ? 0 : i / (count - 1);
-        return [ax + (bx - ax) * t, ay + (by - ay) * t];
-      });
-
-    const normalize = (points: Point[]) =>
-      Array.from(
-        { length: particleCount },
-        (_, i) => points[i % points.length] ?? [0, 0],
-      );
-
-    const makeCloud = (): Point[] =>
-      Array.from({ length: particleCount }, (_, i) => {
-        const angle = seeded(i * 2) * Math.PI * 2;
-        const radius = 0.18 + seeded(i * 2 + 1) * 1.08;
-        return [
-          Math.cos(angle) * radius * (0.75 + seeded(i + 100) * 0.45),
-          Math.sin(angle) * radius * 0.78,
-        ];
-      });
-
-    const makeCross = (): Point[] => {
-      const points: Point[] = [];
-      for (let i = 0; i < particleCount; i++) {
-        const horizontal = i % 2 === 0;
-        const spread = seeded(i + 200);
-        const depth = seeded(i + 600);
-        const x = horizontal
-          ? -0.92 + spread * 1.84
-          : -0.25 + spread * 0.5;
-        const y = horizontal
-          ? -0.25 + depth * 0.5
-          : -0.94 + depth * 1.88;
-        points.push([x, y]);
-      }
-      return points;
-    };
-
-    const makeScales = (): Point[] => {
-      const points: Point[] = [];
-      points.push(...sampleLine(0, -0.9, 0, 0.72, 56));
-      points.push(...sampleLine(-0.82, -0.38, 0.82, -0.38, 60));
-      points.push(...sampleLine(-0.64, -0.38, -0.82, 0.18, 20));
-      points.push(...sampleLine(0.64, -0.38, 0.82, 0.18, 20));
-      points.push(...sampleLine(-0.98, 0.22, -0.64, 0.22, 18));
-      points.push(...sampleLine(0.64, 0.22, 0.98, 0.22, 18));
-
-      for (let i = 0; i < 28; i++) {
-        const t = Math.PI * (i / 27);
-        points.push([
-          -0.81 + Math.cos(t) * 0.25,
-          0.2 + Math.sin(t) * 0.19,
-        ]);
-        points.push([
-          0.81 + Math.cos(t) * 0.25,
-          0.2 + Math.sin(t) * 0.19,
-        ]);
-      }
-
-      points.push(...sampleLine(-0.44, 0.74, 0.44, 0.74, 34));
-      return normalize(points);
-    };
-
-    const makePulse = (): Point[] => {
-      const path: Point[] = [
-        [-1.02, 0.03],
-        [-0.62, 0.03],
-        [-0.47, -0.14],
-        [-0.26, 0.34],
-        [-0.03, -0.68],
-        [0.22, 0.25],
-        [0.4, 0.03],
-        [1.02, 0.03],
-      ];
-      const points: Point[] = [];
-      for (let i = 0; i < path.length - 1; i++) {
-        points.push(
-          ...sampleLine(
-            path[i][0],
-            path[i][1],
-            path[i + 1][0],
-            path[i + 1][1],
-            34,
-          ),
-        );
-      }
-
-      for (let i = 0; i < 120; i++) {
-        const t = (i / 119) * Math.PI * 2;
-        const x = 0.42 * Math.sin(t) ** 3;
-        const y =
-          -(0.34 *
-            (13 * Math.cos(t) -
-              5 * Math.cos(2 * t) -
-              2 * Math.cos(3 * t) -
-              Math.cos(4 * t))) /
-          17;
-        points.push([x, y - 0.02]);
-      }
-
-      return normalize(points);
-    };
-
-    const makeShield = (): Point[] => {
-      const outline: Point[] = [
-        [0, -0.96],
-        [0.72, -0.66],
-        [0.67, 0.15],
-        [0.43, 0.57],
-        [0, 0.95],
-        [-0.43, 0.57],
-        [-0.67, 0.15],
-        [-0.72, -0.66],
-        [0, -0.96],
-      ];
-      const points: Point[] = [];
-      for (let i = 0; i < outline.length - 1; i++) {
-        points.push(
-          ...sampleLine(
-            outline[i][0],
-            outline[i][1],
-            outline[i + 1][0],
-            outline[i + 1][1],
-            34,
-          ),
-        );
-      }
-      points.push(...sampleLine(-0.38, 0.02, -0.08, 0.31, 38));
-      points.push(...sampleLine(-0.08, 0.31, 0.43, -0.33, 58));
-      return normalize(points);
+      const value = Math.sin(index * 918.37 + 17.31) * 43758.5453;
+      return value - Math.floor(value);
     };
 
     const resize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      particleCount = width < 720 ? 150 : 280;
+      particleCount = width < 720 ? 210 : 360;
 
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
@@ -303,22 +298,21 @@ function ScrollParticles({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       targets = [
-        makeCloud(),
-        makeCross(),
-        makeScales(),
-        makePulse(),
-        makeShield(),
-        makeCloud(),
+        buildSymbolPoints("cross", particleCount),
+        buildSymbolPoints("scales", particleCount),
+        buildSymbolPoints("pulse", particleCount),
+        buildSymbolPoints("shield", particleCount),
       ];
 
       particles = Array.from({ length: particleCount }, (_, i) => ({
-        x: width * (0.35 + seeded(i + 14) * 0.5),
-        y: height * (0.1 + seeded(i + 44) * 0.8),
+        x: width * (0.56 + seeded(i + 10) * 0.28),
+        y: height * (0.22 + seeded(i + 40) * 0.56),
         vx: 0,
         vy: 0,
-        size: 0.65 + seeded(i + 90) * 1.85,
-        phase: seeded(i + 200) * Math.PI * 2,
-        glow: seeded(i + 500),
+        size: 0.75 + seeded(i + 90) * 1.65,
+        phase: seeded(i + 150) * Math.PI * 2,
+        glow: seeded(i + 320),
+        alpha: 0.34 + seeded(i + 510) * 0.5,
       }));
     };
 
@@ -349,62 +343,62 @@ function ScrollParticles({
       const local = stageFloat - stage;
       const eased = smoothstep(local);
 
-      const current = targets[stage];
-      const next = targets[stage + 1];
+      const from = targets[stage];
+      const to = targets[stage + 1];
       const mobile = width < 760;
-      const centerX = mobile ? width * 0.5 : width * 0.72;
-      const centerY = height * 0.5;
-      const scale = Math.min(width, height) * (mobile ? 0.28 : 0.33);
+      const centerX = mobile ? width * 0.5 : width * 0.73;
+      const centerY = mobile ? height * 0.64 : height * 0.5;
+      const scale = Math.min(width, height) * (mobile ? 0.27 : 0.32);
 
       for (let i = 0; i < particles.length; i++) {
         const particle = particles[i];
-        const a = current[i % current.length];
-        const b = next[i % next.length];
+        const a = from[i % from.length];
+        const b = to[i % to.length];
 
         const nx = a[0] + (b[0] - a[0]) * eased;
         const ny = a[1] + (b[1] - a[1]) * eased;
 
-        const breathingX =
-          Math.sin(time * 0.00042 + particle.phase) *
-          (2 + particle.glow * 5);
-        const breathingY =
-          Math.cos(time * 0.00034 + particle.phase) *
-          (2 + particle.glow * 4);
+        const idleX =
+          Math.sin(time * 0.001 + particle.phase) *
+          (0.75 + particle.glow * 1.5);
+        const idleY =
+          Math.cos(time * 0.0012 + particle.phase) *
+          (0.75 + particle.glow * 1.25);
 
-        let targetX = centerX + nx * scale + breathingX;
-        let targetY = centerY + ny * scale + breathingY;
+        let targetX = centerX + nx * scale + idleX;
+        let targetY = centerY + ny * scale + idleY;
 
         if (pointerActive && !mobile) {
           const dx = particle.x - pointerX;
           const dy = particle.y - pointerY;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          if (distance < 120 && distance > 0) {
-            const force = (1 - distance / 120) * 28;
+
+          if (distance < 105 && distance > 0) {
+            const force = (1 - distance / 105) * 15;
             targetX += (dx / distance) * force;
             targetY += (dy / distance) * force;
           }
         }
 
-        particle.vx += (targetX - particle.x) * 0.02;
-        particle.vy += (targetY - particle.y) * 0.02;
-        particle.vx *= 0.84;
-        particle.vy *= 0.84;
+        particle.vx += (targetX - particle.x) * 0.026;
+        particle.vy += (targetY - particle.y) * 0.026;
+        particle.vx *= 0.82;
+        particle.vy *= 0.82;
         particle.x += particle.vx;
         particle.y += particle.vy;
 
         const pulse =
-          0.72 + Math.sin(time * 0.002 + particle.phase) * 0.28;
-        const alpha = 0.24 + particle.glow * 0.5;
-        const white = i % 7 === 0;
+          0.85 + Math.sin(time * 0.0022 + particle.phase) * 0.15;
+        const white = i % 8 === 0;
 
         ctx.beginPath();
         ctx.fillStyle = white
-          ? `rgba(255,255,255,${alpha})`
-          : `rgba(213,181,121,${alpha})`;
-        ctx.shadowBlur = 5 + particle.glow * 11;
+          ? `rgba(255,255,255,${particle.alpha})`
+          : `rgba(220,189,128,${particle.alpha})`;
+        ctx.shadowBlur = 7 + particle.glow * 10;
         ctx.shadowColor = white
-          ? "rgba(255,255,255,.34)"
-          : "rgba(213,181,121,.48)";
+          ? "rgba(255,255,255,.36)"
+          : "rgba(220,189,128,.55)";
         ctx.arc(
           particle.x,
           particle.y,
@@ -441,7 +435,7 @@ function ScrollParticles({
   return (
     <canvas
       ref={canvasRef}
-      className="story-particles"
+      className="story-particles perfect-particles-canvas"
       aria-hidden="true"
     />
   );
@@ -713,11 +707,29 @@ function Index() {
             SAÚDE
           </div>
 
-          <div className="portrait-panel">
-            <div className="portrait-frame">
-              <img src={portraitUrl} alt="Renan Durso" />
-              <div className="portrait-scanline" />
-              <div className="portrait-vignette" />
+          <div className="portrait-scene-shell">
+            <div className="portrait-triptych">
+              <div
+                className="portrait-angle-panel portrait-angle-left"
+                aria-hidden="true"
+              >
+                <img src={portraitUrl} alt="" />
+              </div>
+
+              <div className="portrait-angle-panel portrait-angle-center">
+                <img src={portraitUrl} alt="Renan Durso" />
+              </div>
+
+              <div
+                className="portrait-angle-panel portrait-angle-right"
+                aria-hidden="true"
+              >
+                <img src={portraitUrl} alt="" />
+              </div>
+
+              <div className="portrait-depth-glow" aria-hidden="true" />
+              <div className="portrait-scan" aria-hidden="true" />
+              <div className="portrait-floor-shadow" aria-hidden="true" />
             </div>
 
             <div className="portrait-card">
