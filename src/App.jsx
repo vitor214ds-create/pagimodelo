@@ -73,43 +73,18 @@ const anatomyLabels = [
   "Renan Durso",
 ];
 
-const anatomyFrames = [
-  {
-    number: "01",
-    label: "Estrutura",
-    image: "https://cdn.pixabay.com/photo/2021/05/25/10/53/anatomy-6282617_1280.png",
-    reveal: "var(--anatomy)",
-    source: "Pixabay",
-  },
-  {
-    number: "02",
-    label: "Camisa",
-    image: "https://images.pexels.com/photos/4892778/pexels-photo-4892778.jpeg?auto=compress&cs=tinysrgb&w=1400",
-    reveal: "var(--shirt)",
-    source: "Pexels",
-  },
-  {
-    number: "03",
-    label: "Gravata",
-    image: "https://images.pexels.com/photos/34609653/pexels-photo-34609653.jpeg?auto=compress&cs=tinysrgb&w=1400",
-    reveal: "var(--tie)",
-    source: "Pexels",
-  },
-  {
-    number: "04",
-    label: "Colete",
-    image: "https://images.pexels.com/photos/12304559/pexels-photo-12304559.jpeg?auto=compress&cs=tinysrgb&w=1400",
-    reveal: "var(--vest)",
-    source: "Pexels",
-  },
-  {
-    number: "05",
-    label: "Paletó",
-    image: "https://images.pexels.com/photos/18320054/pexels-photo-18320054.jpeg?auto=compress&cs=tinysrgb&w=1400",
-    reveal: "var(--jacket)",
-    source: "Pexels",
-  },
-];
+const tailoringAssets = {
+  anatomy:
+    "https://cdn.pixabay.com/photo/2018/02/28/22/46/silhouette-3189331_1280.png",
+  shirt:
+    "https://cdn.pixabay.com/photo/2014/04/03/10/20/shirt-303371_1280.png",
+  tie:
+    "https://cdn.pixabay.com/photo/2016/10/16/16/31/tie-1745687_1280.png",
+  vest:
+    "https://cdn.pixabay.com/photo/2018/05/13/04/55/vest-3395391_1280.png",
+  jacket:
+    "https://cdn.pixabay.com/photo/2021/11/05/03/05/jacket-6770202_1280.png",
+};
 
 function clamp(value, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value));
@@ -141,71 +116,87 @@ function PortraitImage({ alt = "", className = "" }) {
 function AnatomyFigure({ step }) {
   return (
     <div
-      className="anatomy-figure anatomy-lineup anatomy-photo-lineup"
-      aria-label="Construção visual do advogado"
+      className="tailoring-assembly"
+      aria-label="Montagem visual do traje do advogado"
     >
-      <div className="lineup-halo lineup-halo-a" aria-hidden="true" />
-      <div className="lineup-halo lineup-halo-b" aria-hidden="true" />
-      <div className="lineup-axis" aria-hidden="true" />
-      <div className="lineup-floor" aria-hidden="true" />
+      <div className="assembly-grid" aria-hidden="true" />
+      <div className="assembly-aura" aria-hidden="true" />
+      <div className="assembly-floor" aria-hidden="true" />
+      <div className="assembly-axis" aria-hidden="true" />
 
-      <div className="lineup-track">
-        {anatomyFrames.map((item, index) => (
-          <article
-            key={item.label}
-            className={`lineup-stage photo-stage ${index === step ? "is-active" : ""} ${index < step ? "is-past" : "is-future"}`}
-            style={{
-              "--stage-reveal": item.reveal,
-              "--stage-index": index,
-            }}
-          >
-            <div className="lineup-stage-halo" aria-hidden="true" />
-            <div className="photo-stage-frame">
-              <img
-                src={item.image}
-                alt={item.label}
-                loading={index < 2 ? "eager" : "lazy"}
-                decoding="async"
-              />
-              <div className="photo-stage-overlay" aria-hidden="true" />
-              <div className="photo-stage-scan" aria-hidden="true" />
-            </div>
-            <div className="lineup-stage-label">
-              <span>{item.number}</span>
-              <strong>{item.label}</strong>
-            </div>
-          </article>
-        ))}
+      <div className="assembly-stage">
+        <img
+          src={tailoringAssets.anatomy}
+          alt=""
+          className="assembly-piece assembly-anatomy"
+          decoding="async"
+          loading="eager"
+        />
 
-        <article
-          className={`lineup-stage lineup-renan photo-stage ${step === 5 ? "is-active" : "is-future"}`}
-          style={{ "--stage-reveal": "var(--portrait)", "--stage-index": 5 }}
-        >
-          <div className="lineup-stage-halo renan-halo" aria-hidden="true" />
-          <div className="lineup-renan-frame photo-stage-frame renan-photo-stage">
-            <PortraitImage alt="Renan Durso" />
-            <div className="photo-stage-overlay" aria-hidden="true" />
-            <div className="lineup-renan-light" aria-hidden="true" />
-            <div className="lineup-renan-rim" aria-hidden="true" />
-          </div>
-          <div className="lineup-stage-label lineup-renan-label">
-            <span>06</span>
-            <strong>Renan Durso</strong>
-          </div>
-        </article>
+        <img
+          src={tailoringAssets.shirt}
+          alt=""
+          className="assembly-piece assembly-shirt"
+          decoding="async"
+          loading="eager"
+        />
+
+        <img
+          src={tailoringAssets.tie}
+          alt=""
+          className="assembly-piece assembly-tie"
+          decoding="async"
+          loading="eager"
+        />
+
+        <img
+          src={tailoringAssets.vest}
+          alt=""
+          className="assembly-piece assembly-vest"
+          decoding="async"
+          loading="lazy"
+        />
+
+        <div className="assembly-piece assembly-jacket assembly-jacket-left">
+          <img
+            src={tailoringAssets.jacket}
+            alt=""
+            decoding="async"
+            loading="lazy"
+          />
+        </div>
+
+        <div className="assembly-piece assembly-jacket assembly-jacket-right">
+          <img
+            src={tailoringAssets.jacket}
+            alt=""
+            decoding="async"
+            loading="lazy"
+          />
+        </div>
+
+        <div className="assembly-final-renan">
+          <div className="assembly-renan-halo" aria-hidden="true" />
+          <PortraitImage alt="Renan Durso" />
+          <div className="assembly-renan-light" aria-hidden="true" />
+          <div className="assembly-renan-rim" aria-hidden="true" />
+        </div>
+
+        <div className="assembly-scan" aria-hidden="true" />
       </div>
 
-      <div className="lineup-caption" aria-hidden="true">
-        <span>estrutura</span>
-        <i />
-        <span>alfaiataria</span>
-        <i />
-        <span>presença</span>
-      </div>
-
-      <div className="anatomy-phase" aria-hidden="true">
+      <div className="assembly-stage-label" aria-hidden="true">
         <span>0{Math.min(step + 1, 6)}</span>
         <strong>{anatomyLabels[step]}</strong>
+      </div>
+
+      <div className="assembly-timeline" aria-hidden="true">
+        {anatomyLabels.map((label, index) => (
+          <i
+            key={label}
+            className={index <= step ? "active" : ""}
+          />
+        ))}
       </div>
     </div>
   );
