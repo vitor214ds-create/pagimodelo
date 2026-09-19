@@ -4066,3 +4066,85 @@ svg {
       scale(calc(.99 + var(--jacket) * .01)) !important;
   }
 }
+
+
+
+/* Fitted cumulative tailoring frames: all garment states share one anatomical axis */
+.tailoring-fitted {
+  --fitted-w: min(46vw, 500px);
+  --fitted-h: calc(var(--fitted-w) * 1.25);
+}
+
+.tailoring-fitted .assembly-stage {
+  overflow: visible;
+}
+
+.tailoring-fitted .assembly-frame {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--fitted-w);
+  height: var(--fitted-h);
+  transform: translate(-50%, -50%);
+  transform-origin: 50% 50%;
+  background-image: var(--tailoring-sprite);
+  background-repeat: no-repeat;
+  background-size: 500% 100%;
+  background-position-y: 50%;
+  image-rendering: auto;
+  pointer-events: none;
+  will-change: opacity;
+  filter:
+    drop-shadow(0 30px 44px rgba(0,0,0,.32))
+    drop-shadow(0 0 20px rgba(224,193,142,.08));
+}
+
+.tailoring-fitted .assembly-frame-0 {
+  z-index: 1;
+  background-position-x: 0%;
+  opacity: calc(1 - var(--shirt));
+}
+
+.tailoring-fitted .assembly-frame-1 {
+  z-index: 2;
+  background-position-x: 25%;
+  opacity: calc(var(--shirt) - var(--tie));
+}
+
+.tailoring-fitted .assembly-frame-2 {
+  z-index: 3;
+  background-position-x: 50%;
+  opacity: calc(var(--tie) - var(--vest));
+}
+
+.tailoring-fitted .assembly-frame-3 {
+  z-index: 4;
+  background-position-x: 75%;
+  opacity: calc(var(--vest) - var(--jacket));
+}
+
+.tailoring-fitted .assembly-frame-4 {
+  z-index: 5;
+  background-position-x: 100%;
+  opacity: calc(var(--jacket) - var(--portrait));
+}
+
+.tailoring-fitted .assembly-final-renan {
+  z-index: 8;
+}
+
+.tailoring-fitted .assembly-scan {
+  z-index: 10;
+}
+
+@media (max-width: 900px) {
+  .tailoring-fitted {
+    --fitted-w: min(70vw, 460px);
+  }
+}
+
+@media (max-width: 760px) {
+  .tailoring-fitted {
+    --fitted-w: 82vw;
+  }
+}
