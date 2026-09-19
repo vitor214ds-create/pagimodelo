@@ -46,6 +46,7 @@ function PortraitImage({
       className={className}
       loading="eager"
       decoding="async"
+      fetchPriority="high"
       onError={(event) => {
         const image = event.currentTarget;
         if (!image.src.includes("RENAN_DURSO_PEREIRA")) {
@@ -551,6 +552,7 @@ function Index() {
               const open = clamp((progress - 0.7) / 0.18);
               const copy = clamp((progress - 0.84) / 0.14);
               const shellWidth = 100 - copy * 52;
+              const copyWidth = copy * 52;
 
               element.style.setProperty("--advocate-intro", String(intro));
               element.style.setProperty("--advocate-shirt", String(shirt));
@@ -568,6 +570,10 @@ function Index() {
               element.style.setProperty(
                 "--portrait-shell-width",
                 `${shellWidth}%`,
+              );
+              element.style.setProperty(
+                "--portrait-copy-width",
+                `${copyWidth}%`,
               );
               element.style.setProperty(
                 "--portrait-copy-shift",
