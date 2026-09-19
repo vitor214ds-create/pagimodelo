@@ -106,6 +106,8 @@ function PortraitImage({ alt = "", className = "" }) {
 }
 
 function AnatomyFigure({ step }) {
+  const canvasRef = useRef(null);
+  const wrapperRef = useRef(null);
   const [spriteUrl, setSpriteUrl] = useState("");
 
   useEffect(() => {
@@ -157,11 +159,249 @@ function AnatomyFigure({ step }) {
     };
   }, []);
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const wrapper = wrapperRef.current;
+    if (!canvas || !wrapper || !spriteUrl) return undefined;
+
+    const image = new Image();
+    image.decoding = "async";
+    image.src = spriteUrl;
+
+    let raf = 0;
+    let stopped = false;
+    let lastFrame = -1;
+
+    const ease = (value) => {
+      const t = clamp(value);
+      return t * t * (3 - 2 * t);
+    };
+
+    const draw = () => {
+      if (stopped || !image.complete || !image.naturalWidth) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
+
+      const section = wrapper.closest(".anatomy-scroll");
+      const style = section ? getComputedStyle(section) : null;
+      const progress = clamp(
+        Number.parseFloat(style?.getPropertyValue("--anatomy-progress") || "0"),
+      );
+
+      const totalFrames = 96;
+      const frameIndex = Math.round(progress * (totalFrames - 1));
+      if (frameIndex === lastFrame) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
+      lastFrame = frameIndex;
+
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.max(1, Math.round(rect.width * dpr));
+      const height = Math.max(1, Math.round(rect.height * dpr));
+
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+
+      const context = canvas.getContext("2d", { alpha: true });
+      if (!context) return;
+
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.clearRect(0, 0, rect.width, rect.height);
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+
+      const frameWidth = image.naturalWidth / 5;
+      const frameHeight = image.naturalHeight;
+      const targetRatio = frameWidth / frameHeight;
+      const maxW = rect.width * (window.innerWidth <= 760 ? 0.96 : 0.88);
+      const maxH = rect.height * 0.92;
+
+      let drawW = maxW;
+      let drawH = drawW / targetRatio;
+      if (drawH > maxH) {
+        drawH = maxH;
+        drawW = drawH * targetRatio;
+      }
+
+      const baseX = (rect.width - drawW) / 2;
+      const baseY = (rect.height - drawH) / 2 + rect.height * 0.015;
+
+      const drawRegion = ({
+        sourceFrame,
+        x0 = 0,
+        y0 = 0,
+        x1 = 1,
+        y1 = 1,
+        dx = 0,
+        dy = 0,
+        scale = 1,
+        alpha = 1,
+      }) => {
+        if (alpha <= 0.001) return;
+        const sw = (x1 - x0) * frameWidth;
+        const sh = (y1 - y0) * frameHeight;
+        const sx = sourceFrame * frameWidth + x0 * frameWidth;
+        const sy = y0 * frameHeight;
+
+        const dw = (x1 - x0) * drawW * scale;
+        const dh = (y1 - y0) * drawH * scale;
+        const centerX = baseX + ((x0 + x1) / 2) * drawW + dx;
+        const centerY = baseY + ((y0 + y1) / 2) * drawH + dy;
+
+        context.save();
+        context.globalAlpha = clamp(alpha);
+        context.drawImage(
+          image,
+          sx,
+          sy,
+          sw,
+          sh,
+          centerX - dw / 2,
+          centerY - dh / 2,
+          dw,
+          dh,
+        );
+        context.restore();
+      };
+
+      // 00–12: fixed anatomical structure.
+      drawRegion({ sourceFrame: 0 });
+
+      // 13–37: shirt truly "dresses" the torso: body settles, then sleeves slide in.
+      const shirt = ease(range(frameIndex, 12, 37));
+      const shirtBody = ease(range(frameIndex, 12, 31));
+      const shirtLeft = ease(range(frameIndex, 14, 34));
+      const shirtRight = ease(range(frameIndex, 16, 36));
+      const collar = ease(range(frameIndex, 24, 37));
+
+      drawRegion({
+        sourceFrame: 1,
+        x0: 0.27,
+        x1: 0.73,
+        y0: 0.08,
+        y1: 0.79,
+        dy: -34 * (1 - shirtBody),
+        scale: 0.96 + 0.04 * shirtBody,
+        alpha: shirtBody,
+      });
+      drawRegion({
+        sourceFrame: 1,
+        x0: 0.03,
+        x1: 0.43,
+        y0: 0.12,
+        y1: 0.83,
+        dx: -135 * (1 - shirtLeft),
+        dy: -10 * (1 - shirtLeft),
+        alpha: shirtLeft,
+      });
+      drawRegion({
+        sourceFrame: 1,
+        x0: 0.57,
+        x1: 0.97,
+        y0: 0.12,
+        y1: 0.83,
+        dx: 135 * (1 - shirtRight),
+        dy: -10 * (1 - shirtRight),
+        alpha: shirtRight,
+      });
+      drawRegion({
+        sourceFrame: 1,
+        x0: 0.34,
+        x1: 0.66,
+        y0: 0.02,
+        y1: 0.29,
+        dy: -32 * (1 - collar),
+        alpha: collar,
+      });
+
+      // 38–51: tie drops from the collar along the center line.
+      const tie = ease(range(frameIndex, 37, 51));
+      drawRegion({
+        sourceFrame: 2,
+        x0: 0.40,
+        x1: 0.60,
+        y0: 0.10,
+        y1: 0.88,
+        dy: -120 * (1 - tie),
+        scale: 0.90 + 0.10 * tie,
+        alpha: tie,
+      });
+
+      // 52–67: waistcoat wraps the torso from both sides.
+      const vestLeft = ease(range(frameIndex, 51, 66));
+      const vestRight = ease(range(frameIndex, 53, 68));
+      drawRegion({
+        sourceFrame: 3,
+        x0: 0.17,
+        x1: 0.515,
+        y0: 0.10,
+        y1: 0.88,
+        dx: -115 * (1 - vestLeft),
+        alpha: vestLeft,
+      });
+      drawRegion({
+        sourceFrame: 3,
+        x0: 0.485,
+        x1: 0.83,
+        y0: 0.10,
+        y1: 0.88,
+        dx: 115 * (1 - vestRight),
+        alpha: vestRight,
+      });
+
+      // 68–88: jacket enters as two broad shells and closes over shoulders/chest.
+      const jacketLeft = ease(range(frameIndex, 67, 87));
+      const jacketRight = ease(range(frameIndex, 69, 89));
+      drawRegion({
+        sourceFrame: 4,
+        x0: 0,
+        x1: 0.505,
+        y0: 0.04,
+        y1: 0.96,
+        dx: -175 * (1 - jacketLeft),
+        scale: 0.97 + 0.03 * jacketLeft,
+        alpha: jacketLeft,
+      });
+      drawRegion({
+        sourceFrame: 4,
+        x0: 0.495,
+        x1: 1,
+        y0: 0.04,
+        y1: 0.96,
+        dx: 175 * (1 - jacketRight),
+        scale: 0.97 + 0.03 * jacketRight,
+        alpha: jacketRight,
+      });
+
+      // 89–95: lock the completed state so seams disappear before Renan is revealed.
+      const complete = ease(range(frameIndex, 88, 94));
+      drawRegion({
+        sourceFrame: 4,
+        alpha: complete,
+      });
+
+      raf = requestAnimationFrame(draw);
+    };
+
+    image.addEventListener("load", draw, { once: true });
+    raf = requestAnimationFrame(draw);
+
+    return () => {
+      stopped = true;
+      cancelAnimationFrame(raf);
+    };
+  }, [spriteUrl]);
+
   return (
     <div
-      className="tailoring-assembly tailoring-wear"
-      aria-label="Animação de um advogado vestindo o traje peça por peça"
-      style={{ "--tailoring-sprite": spriteUrl ? `url("${spriteUrl}")` : "none" }}
+      ref={wrapperRef}
+      className="tailoring-assembly tailoring-canvas-sequence"
+      aria-label="Animação quadro a quadro de um advogado vestindo o traje"
     >
       <div className="assembly-grid" aria-hidden="true" />
       <div className="assembly-aura" aria-hidden="true" />
@@ -169,23 +409,7 @@ function AnatomyFigure({ step }) {
       <div className="assembly-axis" aria-hidden="true" />
 
       <div className="assembly-stage">
-        <div className="wear-layer wear-base wear-frame-0" aria-hidden="true" />
-
-        <div className="wear-layer wear-shirt-body wear-frame-1" aria-hidden="true" />
-        <div className="wear-layer wear-shirt-left wear-frame-1" aria-hidden="true" />
-        <div className="wear-layer wear-shirt-right wear-frame-1" aria-hidden="true" />
-        <div className="wear-layer wear-shirt-collar wear-frame-1" aria-hidden="true" />
-
-        <div className="wear-layer wear-tie wear-frame-2" aria-hidden="true" />
-        <div className="wear-layer wear-tie-knot wear-frame-2" aria-hidden="true" />
-
-        <div className="wear-layer wear-vest-left wear-frame-3" aria-hidden="true" />
-        <div className="wear-layer wear-vest-right wear-frame-3" aria-hidden="true" />
-
-        <div className="wear-layer wear-jacket-left wear-frame-4" aria-hidden="true" />
-        <div className="wear-layer wear-jacket-right wear-frame-4" aria-hidden="true" />
-
-        <div className="wear-fit-glow" aria-hidden="true" />
+        <canvas ref={canvasRef} className="tailoring-frame-canvas" />
 
         <div className="assembly-final-renan">
           <div className="assembly-renan-halo" aria-hidden="true" />
@@ -502,6 +726,7 @@ function App() {
           const p = clamp(-rect.top / travel);
 
           anatomyRef.current.style.setProperty("--anatomy", "1");
+          anatomyRef.current.style.setProperty("--anatomy-progress", String(p));
 
           const shirtLeft = range(p, 0.14, 0.235);
           const shirtRight = range(p, 0.155, 0.25);
