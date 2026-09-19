@@ -74,8 +74,8 @@ const anatomyLabels = [
 ];
 
 const tailoringSpriteChunks = Array.from(
-  { length: 13 },
-  (_, index) => `/anatomia/safe-${String(index).padStart(2, "0")}.txt`,
+  { length: 11 },
+  (_, index) => `/anatomia/fit-${String(index).padStart(2, "0")}.txt`,
 );
 
 function clamp(value, min = 0, max = 1) {
@@ -125,9 +125,9 @@ function AnatomyFigure({ step }) {
         );
 
         const base64 = parts.join("");
-        if (base64.length !== 74276) {
+        if (base64.length !== 63328) {
           throw new Error(
-            `Sprite incompleto: ${base64.length} de 74276 caracteres`,
+            `Sprite incompleto: ${base64.length} de 63328 caracteres`,
           );
         }
 
@@ -138,7 +138,7 @@ function AnatomyFigure({ step }) {
         }
 
         objectUrl = URL.createObjectURL(
-          new Blob([bytes], { type: "image/webp" }),
+          new Blob([bytes], { type: "image/avif" }),
         );
 
         if (!cancelled) {
@@ -159,7 +159,7 @@ function AnatomyFigure({ step }) {
 
   return (
     <div
-      className="tailoring-assembly"
+      className="tailoring-assembly tailoring-fitted"
       aria-label="Montagem visual do traje do advogado"
       style={{ "--tailoring-sprite": spriteUrl ? `url("${spriteUrl}")` : "none" }}
     >
@@ -169,39 +169,11 @@ function AnatomyFigure({ step }) {
       <div className="assembly-axis" aria-hidden="true" />
 
       <div className="assembly-stage">
-        <div
-          className="assembly-piece assembly-sprite sprite-anatomy assembly-anatomy"
-          aria-hidden="true"
-        />
-
-        <div
-          className="assembly-piece assembly-sprite sprite-shirt assembly-shirt"
-          aria-hidden="true"
-        />
-
-        <div
-          className="assembly-piece assembly-sprite sprite-tie assembly-tie"
-          aria-hidden="true"
-        />
-
-        <div
-          className="assembly-piece assembly-sprite sprite-vest assembly-vest"
-          aria-hidden="true"
-        />
-
-        <div
-          className="assembly-piece assembly-jacket assembly-jacket-left"
-          aria-hidden="true"
-        >
-          <div className="assembly-sprite sprite-jacket" />
-        </div>
-
-        <div
-          className="assembly-piece assembly-jacket assembly-jacket-right"
-          aria-hidden="true"
-        >
-          <div className="assembly-sprite sprite-jacket" />
-        </div>
+        <div className="assembly-frame assembly-frame-0" aria-hidden="true" />
+        <div className="assembly-frame assembly-frame-1" aria-hidden="true" />
+        <div className="assembly-frame assembly-frame-2" aria-hidden="true" />
+        <div className="assembly-frame assembly-frame-3" aria-hidden="true" />
+        <div className="assembly-frame assembly-frame-4" aria-hidden="true" />
 
         <div className="assembly-final-renan">
           <div className="assembly-renan-halo" aria-hidden="true" />
