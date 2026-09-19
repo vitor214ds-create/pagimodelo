@@ -595,6 +595,7 @@ svg {
   --anatomy: 0;
   --shirt: 0;
   --tie: 0;
+  --vest: 0;
   --jacket: 0;
   --complete: 0;
   --portrait: 0;
@@ -2018,4 +2019,305 @@ svg {
 
 .contact-status.fallback {
   color: rgba(255,255,255,.5);
+}
+
+
+/* tailoring refinement */
+.anatomy-tailor-grid {
+  position: absolute;
+  z-index: 0;
+  inset: 8% 7% 6%;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(circle at center, #000 12%, transparent 76%);
+  opacity: calc(.24 + var(--complete) * .16);
+  transform:
+    perspective(1000px)
+    rotateX(72deg)
+    translateY(calc(150px - var(--complete) * 70px))
+    scale(1.16);
+}
+
+.wardrobe-shirt {
+  filter:
+    drop-shadow(0 20px 26px rgba(0,0,0,.18))
+    drop-shadow(0 0 14px rgba(255,255,255,.025));
+}
+
+.wardrobe-tie {
+  z-index: 6;
+  opacity: var(--tie);
+  filter:
+    drop-shadow(0 18px 22px rgba(0,0,0,.38))
+    drop-shadow(0 0 16px rgba(224,193,142,.05));
+  transform:
+    translateY(calc((1 - var(--tie)) * -72px))
+    translateZ(calc((1 - var(--tie)) * 160px))
+    rotateX(calc((1 - var(--tie)) * 18deg))
+    scale(calc(.84 + var(--tie) * .16));
+}
+
+.wardrobe-vest {
+  z-index: 4;
+  opacity: var(--vest);
+  filter:
+    drop-shadow(0 20px 25px rgba(0,0,0,.28))
+    drop-shadow(0 0 12px rgba(224,193,142,.035));
+  transform:
+    translateY(calc((1 - var(--vest)) * -34px))
+    translateZ(calc((1 - var(--vest)) * 105px))
+    scale(calc(.92 + var(--vest) * .08));
+}
+
+.wardrobe-jacket {
+  z-index: 5;
+  opacity: var(--jacket);
+  filter:
+    drop-shadow(0 32px 38px rgba(0,0,0,.34))
+    drop-shadow(0 0 18px rgba(224,193,142,.035));
+}
+
+.wardrobe-left {
+  transform:
+    translateX(calc((1 - var(--jacket)) * -185px))
+    translateZ(calc((1 - var(--jacket)) * 108px))
+    rotateY(calc((1 - var(--jacket)) * 38deg))
+    rotateZ(calc((1 - var(--jacket)) * -2deg));
+}
+
+.wardrobe-right {
+  transform:
+    translateX(calc((1 - var(--jacket)) * 185px))
+    translateZ(calc((1 - var(--jacket)) * 108px))
+    rotateY(calc((1 - var(--jacket)) * -38deg))
+    rotateZ(calc((1 - var(--jacket)) * 2deg));
+}
+
+.wardrobe-pocket-square {
+  opacity: var(--complete);
+  box-shadow: 0 0 14px rgba(224,193,142,.12);
+}
+
+.presence-gallery {
+  position: absolute;
+  z-index: 7;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(var(--portrait) * (1 - var(--split)));
+}
+
+.presence-card {
+  position: absolute;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.07);
+  background: #0d141c;
+  box-shadow:
+    0 22px 60px rgba(0,0,0,.26),
+    inset 0 1px rgba(255,255,255,.025);
+}
+
+.presence-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter:
+    saturate(.78)
+    contrast(1.06)
+    brightness(.72);
+}
+
+.presence-card-left {
+  left: 2%;
+  top: 18%;
+  width: 28%;
+  height: 50%;
+  transform:
+    translateX(calc((1 - var(--portrait)) * -90px))
+    rotateY(calc((1 - var(--portrait)) * 22deg))
+    rotate(-2.2deg);
+  opacity: calc(var(--portrait) * .46);
+}
+
+.presence-card-right {
+  right: 0;
+  top: 22%;
+  width: 27%;
+  height: 48%;
+  transform:
+    translateX(calc((1 - var(--portrait)) * 90px))
+    rotateY(calc((1 - var(--portrait)) * -22deg))
+    rotate(2deg);
+  opacity: calc(var(--portrait) * .42);
+}
+
+.presence-card-detail {
+  right: 13%;
+  bottom: 5%;
+  width: 30%;
+  height: 28%;
+  transform:
+    translateY(calc((1 - var(--portrait)) * 70px))
+    scale(calc(.94 + var(--portrait) * .06));
+  clip-path: inset(20% 14% 30% 14%);
+  opacity: calc(var(--portrait) * .3);
+}
+
+.renan-final {
+  z-index: 9;
+  opacity: calc(var(--portrait) * (1 - var(--split)));
+  transform:
+    translateZ(calc(var(--portrait) * 66px))
+    scale(calc(.94 + var(--portrait) * .06));
+  filter:
+    drop-shadow(0 44px 78px rgba(0,0,0,.44))
+    drop-shadow(0 0 24px rgba(224,193,142,.05));
+}
+
+.renan-final-rim {
+  position: absolute;
+  inset: 8% 21% 4%;
+  border-left: 1px solid rgba(224,193,142,.2);
+  border-right: 1px solid rgba(255,255,255,.06);
+  opacity: var(--portrait);
+  pointer-events: none;
+}
+
+.anatomy-aura {
+  background:
+    radial-gradient(circle, rgba(224,193,142,.24), rgba(224,193,142,.07) 44%, transparent 72%);
+  filter: blur(36px);
+}
+
+/* morphing particles restored to practice areas */
+.area-particles-layer {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.area-particles-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: .96;
+  filter: saturate(1.06) contrast(1.04);
+}
+
+.area-visual {
+  overflow: hidden;
+}
+
+.area-image-frame {
+  z-index: 3;
+  width: min(45vw, 690px);
+  height: min(62vh, 610px);
+  border-radius: 2px;
+  box-shadow:
+    0 34px 90px rgba(0,0,0,.31),
+    0 0 0 1px rgba(255,255,255,.04);
+  transform:
+    translate3d(
+      calc(5% + var(--pointer-nx) * -8px),
+      calc(var(--pointer-ny) * -5px),
+      0
+    )
+    rotateY(calc(-2deg + var(--pointer-nx) * -1.2deg));
+}
+
+.area-image {
+  transform:
+    translateX(18%)
+    scale(1.08)
+    rotate(.8deg);
+}
+
+.area-image.active {
+  transform:
+    translateX(0)
+    scale(1)
+    rotate(0deg);
+}
+
+.area-image img {
+  filter:
+    saturate(.66)
+    contrast(1.07)
+    brightness(.66);
+}
+
+.area-image::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background:
+    linear-gradient(115deg, rgba(255,255,255,.03), transparent 30%),
+    radial-gradient(circle at 75% 30%, rgba(224,193,142,.08), transparent 28%);
+  pointer-events: none;
+}
+
+.area-image figcaption {
+  z-index: 5;
+}
+
+.area-orbit {
+  z-index: 0;
+  opacity: .72;
+}
+
+@media (max-width: 1050px) {
+  .presence-card-left,
+  .presence-card-right {
+    width: 24%;
+  }
+
+  .area-image-frame {
+    width: min(48vw, 620px);
+  }
+}
+
+@media (max-width: 760px) {
+  .presence-gallery {
+    display: none;
+  }
+
+  .wardrobe-left {
+    transform:
+      translateX(calc((1 - var(--jacket)) * -105px))
+      rotateY(calc((1 - var(--jacket)) * 22deg));
+  }
+
+  .wardrobe-right {
+    transform:
+      translateX(calc((1 - var(--jacket)) * 105px))
+      rotateY(calc((1 - var(--jacket)) * -22deg));
+  }
+
+  .area-particles-layer {
+    opacity: .82;
+  }
+
+  .area-image-frame {
+    width: calc(100vw - 40px);
+    height: 39vh;
+    transform: translateX(3%);
+  }
+
+  .area-image {
+    transform:
+      translateX(14%)
+      scale(1.06);
+  }
+
+  .area-image.active {
+    transform:
+      translateX(0)
+      scale(1);
+  }
 }
