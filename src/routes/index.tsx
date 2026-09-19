@@ -494,6 +494,7 @@ function Index() {
             const travel = Math.max(element.offsetHeight - window.innerHeight, 1);
             const progress = clamp(-rect.top / travel);
             element.style.setProperty("--scene-progress", String(progress));
+            element.style.setProperty("--scene-shift", `${progress * 352}%`);
           },
         );
       });
@@ -785,7 +786,10 @@ function Index() {
                 <article
                   key={area.title}
                   className="practice-slide"
-                  style={{ "--card-index": index } as CSSProperties}
+                  style={{
+                    "--card-index": index,
+                    "--card-base": `${index * 110}%`,
+                  } as CSSProperties}
                 >
                   <div className="practice-slide-top">
                     <span>{area.number}</span>
