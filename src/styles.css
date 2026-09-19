@@ -3658,3 +3658,214 @@ svg {
     bottom: 6px;
   }
 }
+
+
+/* Exact user-provided tailoring layers — same 1086×1448 canvas */
+.tailoring-assembly {
+  --layer-width: min(54vw, 680px);
+  --layer-height: min(80vh, 800px);
+}
+
+.assembly-anatomy,
+.assembly-shirt,
+.assembly-tie,
+.assembly-vest,
+.assembly-jacket {
+  width: var(--layer-width) !important;
+  height: var(--layer-height) !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.assembly-anatomy,
+.assembly-shirt,
+.assembly-tie,
+.assembly-vest {
+  object-fit: contain !important;
+  object-position: center center !important;
+}
+
+/* Every garment remains in place once fitted.
+   All layers disappear together only for the final Renan reveal. */
+.assembly-stage:has(.assembly-final-renan) .assembly-anatomy {
+  opacity: calc(var(--anatomy) * (1 - var(--portrait))) !important;
+}
+
+.assembly-anatomy {
+  z-index: 1;
+  opacity: calc(var(--anatomy) * (1 - var(--portrait))) !important;
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--anatomy)) * 34px))
+    translateZ(calc((1 - var(--anatomy)) * -36px))
+    scale(calc(.96 + var(--anatomy) * .04)) !important;
+  filter:
+    saturate(.86)
+    contrast(1.06)
+    brightness(.82)
+    drop-shadow(0 0 20px rgba(224,193,142,.16))
+    drop-shadow(0 32px 46px rgba(0,0,0,.28)) !important;
+}
+
+.assembly-shirt {
+  z-index: 2;
+  opacity: calc(var(--shirt) * (1 - var(--portrait))) !important;
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--shirt)) * -64px))
+    translateZ(calc((1 - var(--shirt)) * 100px))
+    scale(calc(.97 + var(--shirt) * .03)) !important;
+  filter:
+    brightness(.98)
+    contrast(1.035)
+    saturate(.92)
+    drop-shadow(0 25px 34px rgba(0,0,0,.20)) !important;
+}
+
+.assembly-tie {
+  z-index: 4;
+  opacity: calc(var(--tie) * (1 - var(--portrait))) !important;
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--tie)) * -86px))
+    translateZ(calc((1 - var(--tie)) * 135px))
+    rotateX(calc((1 - var(--tie)) * 14deg))
+    scale(calc(.965 + var(--tie) * .035)) !important;
+  filter:
+    brightness(.92)
+    contrast(1.1)
+    drop-shadow(0 18px 24px rgba(0,0,0,.34)) !important;
+}
+
+.assembly-vest {
+  z-index: 3;
+  opacity: calc(var(--vest) * (1 - var(--portrait))) !important;
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--vest)) * 48px))
+    translateZ(calc((1 - var(--vest)) * 90px))
+    scale(calc(.97 + var(--vest) * .03)) !important;
+  filter:
+    brightness(.9)
+    contrast(1.06)
+    saturate(.9)
+    drop-shadow(0 24px 32px rgba(0,0,0,.28)) !important;
+}
+
+/* The jacket is the exact supplied jacket image, split into two visual halves. */
+.assembly-jacket {
+  z-index: 5;
+  opacity: calc(var(--jacket) * (1 - var(--portrait))) !important;
+  overflow: hidden;
+  filter:
+    drop-shadow(0 32px 42px rgba(0,0,0,.35)) !important;
+}
+
+.assembly-jacket img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  filter:
+    brightness(.92)
+    contrast(1.07)
+    saturate(.9) !important;
+}
+
+.assembly-jacket-left {
+  clip-path: inset(0 50% 0 0);
+  transform:
+    translate(-50%, -50%)
+    translateX(calc((1 - var(--jacket)) * -155px))
+    translateZ(calc((1 - var(--jacket)) * 110px))
+    rotateY(calc((1 - var(--jacket)) * 28deg))
+    scale(calc(.98 + var(--jacket) * .02)) !important;
+  transform-origin: left center;
+}
+
+.assembly-jacket-right {
+  clip-path: inset(0 0 0 50%);
+  transform:
+    translate(-50%, -50%)
+    translateX(calc((1 - var(--jacket)) * 155px))
+    translateZ(calc((1 - var(--jacket)) * 110px))
+    rotateY(calc((1 - var(--jacket)) * -28deg))
+    scale(calc(.98 + var(--jacket) * .02)) !important;
+  transform-origin: right center;
+}
+
+/* Clean final handoff: once Renan begins, the whole assembled suit yields together. */
+.assembly-final-renan {
+  z-index: 10;
+  width: min(48vw, 610px) !important;
+  height: min(84vh, 820px) !important;
+  opacity: var(--portrait) !important;
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--portrait)) * 30px))
+    translateZ(calc(var(--portrait) * 82px))
+    scale(calc(.94 + var(--portrait) * .06)) !important;
+}
+
+.assembly-final-renan img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.assembly-scan {
+  top: calc(14% + var(--complete) * 68%);
+  opacity: calc(var(--complete) * (1 - var(--portrait))) !important;
+}
+
+/* Keep visual motion clean: no piece is removed before the final portrait. */
+.assembly-shirt,
+.assembly-tie,
+.assembly-vest,
+.assembly-jacket {
+  transition:
+    opacity .08s linear,
+    transform .08s linear,
+    filter .08s linear !important;
+}
+
+@media (max-width: 900px) {
+  .tailoring-assembly {
+    --layer-width: min(78vw, 620px);
+    --layer-height: min(64vh, 680px);
+  }
+
+  .assembly-final-renan {
+    width: min(72vw, 560px) !important;
+    height: 66vh !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .tailoring-assembly {
+    --layer-width: 88vw;
+    --layer-height: 56vh;
+  }
+
+  .assembly-jacket-left {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--jacket)) * -95px))
+      rotateY(calc((1 - var(--jacket)) * 20deg))
+      scale(calc(.98 + var(--jacket) * .02)) !important;
+  }
+
+  .assembly-jacket-right {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--jacket)) * 95px))
+      rotateY(calc((1 - var(--jacket)) * -20deg))
+      scale(calc(.98 + var(--jacket) * .02)) !important;
+  }
+
+  .assembly-final-renan {
+    width: 80vw !important;
+    height: 57vh !important;
+  }
+}
