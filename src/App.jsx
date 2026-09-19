@@ -218,8 +218,8 @@ function AnatomyFigure({ step }) {
       const frameWidth = image.naturalWidth / 5;
       const frameHeight = image.naturalHeight;
       const targetRatio = frameWidth / frameHeight;
-      const maxW = rect.width * (window.innerWidth <= 760 ? 0.96 : 0.88);
-      const maxH = rect.height * 0.92;
+      const maxW = rect.width * (window.innerWidth <= 760 ? 0.92 : 0.84);
+      const maxH = rect.height * 0.86;
 
       let drawW = maxW;
       let drawH = drawW / targetRatio;
@@ -229,7 +229,9 @@ function AnatomyFigure({ step }) {
       }
 
       const baseX = (rect.width - drawW) / 2;
-      const baseY = (rect.height - drawH) / 2 + rect.height * 0.015;
+      const baseY =
+        (rect.height - drawH) / 2 +
+        rect.height * (window.innerWidth <= 760 ? 0.105 : 0.085);
 
       const drawRegion = ({
         sourceFrame,
