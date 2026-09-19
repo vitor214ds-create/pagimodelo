@@ -73,13 +73,7 @@ const anatomyLabels = [
   "Renan Durso",
 ];
 
-const tailoringAssets = {
-  anatomy: "/anatomia/anatomia.webp",
-  shirt: "/anatomia/camisa.webp",
-  tie: "/anatomia/gravata.webp",
-  vest: "/anatomia/colete.webp",
-  jacket: "/anatomia/paleto.avif",
-};
+const tailoringSprite = "/anatomia/tailoring-sprite.webp";
 
 function clamp(value, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value));
@@ -113,6 +107,7 @@ function AnatomyFigure({ step }) {
     <div
       className="tailoring-assembly"
       aria-label="Montagem visual do traje do advogado"
+      style={{ "--tailoring-sprite": `url("${tailoringSprite}")` }}
     >
       <div className="assembly-grid" aria-hidden="true" />
       <div className="assembly-aura" aria-hidden="true" />
@@ -120,54 +115,38 @@ function AnatomyFigure({ step }) {
       <div className="assembly-axis" aria-hidden="true" />
 
       <div className="assembly-stage">
-        <img
-          src={tailoringAssets.anatomy}
-          alt=""
-          className="assembly-piece assembly-anatomy"
-          decoding="async"
-          loading="eager"
+        <div
+          className="assembly-piece assembly-sprite sprite-anatomy assembly-anatomy"
+          aria-hidden="true"
         />
 
-        <img
-          src={tailoringAssets.shirt}
-          alt=""
-          className="assembly-piece assembly-shirt"
-          decoding="async"
-          loading="eager"
+        <div
+          className="assembly-piece assembly-sprite sprite-shirt assembly-shirt"
+          aria-hidden="true"
         />
 
-        <img
-          src={tailoringAssets.tie}
-          alt=""
-          className="assembly-piece assembly-tie"
-          decoding="async"
-          loading="eager"
+        <div
+          className="assembly-piece assembly-sprite sprite-tie assembly-tie"
+          aria-hidden="true"
         />
 
-        <img
-          src={tailoringAssets.vest}
-          alt=""
-          className="assembly-piece assembly-vest"
-          decoding="async"
-          loading="eager"
+        <div
+          className="assembly-piece assembly-sprite sprite-vest assembly-vest"
+          aria-hidden="true"
         />
 
-        <div className="assembly-piece assembly-jacket assembly-jacket-left">
-          <img
-            src={tailoringAssets.jacket}
-            alt=""
-            decoding="async"
-            loading="eager"
-          />
+        <div
+          className="assembly-piece assembly-jacket assembly-jacket-left"
+          aria-hidden="true"
+        >
+          <div className="assembly-sprite sprite-jacket" />
         </div>
 
-        <div className="assembly-piece assembly-jacket assembly-jacket-right">
-          <img
-            src={tailoringAssets.jacket}
-            alt=""
-            decoding="async"
-            loading="eager"
-          />
+        <div
+          className="assembly-piece assembly-jacket assembly-jacket-right"
+          aria-hidden="true"
+        >
+          <div className="assembly-sprite sprite-jacket" />
         </div>
 
         <div className="assembly-final-renan">
@@ -187,10 +166,7 @@ function AnatomyFigure({ step }) {
 
       <div className="assembly-timeline" aria-hidden="true">
         {anatomyLabels.map((label, index) => (
-          <i
-            key={label}
-            className={index <= step ? "active" : ""}
-          />
+          <i key={label} className={index <= step ? "active" : ""} />
         ))}
       </div>
     </div>
