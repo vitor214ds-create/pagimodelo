@@ -100,151 +100,184 @@ function PortraitImage({ alt = "", className = "" }) {
   );
 }
 
-function AnatomyFigure({ step }) {
+function TailorStageFigure({ stage }) {
   return (
-    <div className="anatomy-figure" aria-label="Animação de montagem de um advogado">
-      <div className="anatomy-aura" aria-hidden="true" />
-      <div className="anatomy-floor" aria-hidden="true" />
-      <div className="anatomy-tailor-grid" aria-hidden="true" />
+    <svg
+      className="tailor-stage-figure"
+      viewBox="0 0 280 520"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id={`skinGlow-${stage}`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#d8c3a3" stopOpacity=".34" />
+          <stop offset="100%" stopColor="#695238" stopOpacity=".08" />
+        </linearGradient>
+        <linearGradient id={`shirt-${stage}`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#fffdf7" />
+          <stop offset="48%" stopColor="#e9e3d9" />
+          <stop offset="100%" stopColor="#bab2a5" />
+        </linearGradient>
+        <linearGradient id={`dark-${stage}`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#29323c" />
+          <stop offset="50%" stopColor="#141a21" />
+          <stop offset="100%" stopColor="#070b10" />
+        </linearGradient>
+        <linearGradient id={`gold-${stage}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#7f5e32" />
+          <stop offset="50%" stopColor="#e1bf86" />
+          <stop offset="100%" stopColor="#75522b" />
+        </linearGradient>
+      </defs>
 
-      <svg className="anatomy-linework" viewBox="0 0 500 760" aria-hidden="true">
-        <defs>
-          <linearGradient id="bodyLine" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#f4e4c9" />
-            <stop offset="55%" stopColor="#d4b27a" />
-            <stop offset="100%" stopColor="#805e32" />
-          </linearGradient>
-        </defs>
-        <ellipse cx="250" cy="112" rx="66" ry="82" />
-        <path d="M212 178 C206 205 196 224 179 240" />
-        <path d="M288 178 C294 205 304 224 321 240" />
-        <path d="M179 240 C132 268 110 332 105 432" />
-        <path d="M321 240 C368 268 390 332 395 432" />
-        <path d="M179 240 C196 296 205 357 204 455" />
-        <path d="M321 240 C304 296 295 357 296 455" />
-        <path d="M204 455 C198 526 184 600 174 704" />
-        <path d="M296 455 C302 526 316 600 326 704" />
-        <path d="M105 432 C110 520 119 606 128 686" />
-        <path d="M395 432 C390 520 381 606 372 686" />
-        <path d="M204 455 C229 472 271 472 296 455" />
-        <path d="M250 194 L250 466" />
-        <path d="M195 284 C230 302 270 302 305 284" />
-        <path d="M190 328 C228 348 272 348 310 328" />
-        <path d="M191 373 C228 392 272 392 309 373" />
-      </svg>
+      <ellipse
+        className="tailor-head"
+        cx="140"
+        cy="72"
+        rx="38"
+        ry="48"
+        fill={`url(#skinGlow-${stage})`}
+      />
 
-      <svg className="wardrobe wardrobe-shirt" viewBox="0 0 500 760" aria-hidden="true">
-        <defs>
-          <linearGradient id="shirtShade" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#fffdf8" />
-            <stop offset="50%" stopColor="#e9e3d9" />
-            <stop offset="100%" stopColor="#bfb7aa" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M180 232 L220 198 L250 226 L280 198 L320 232 L348 276 L324 306 L308 484 L192 484 L176 306 L152 276 Z"
-          fill="url(#shirtShade)"
-        />
-        <path d="M220 198 L250 248 L280 198" fill="#d8d0c3" />
-        <path d="M250 248 L250 466" stroke="#aaa094" strokeWidth="2.6" />
-        <path d="M192 482 L177 541" stroke="#e8e2d8" strokeWidth="15" strokeLinecap="round" />
-        <path d="M308 482 L323 541" stroke="#e8e2d8" strokeWidth="15" strokeLinecap="round" />
-        {[286, 326, 366, 406].map((cy) => (
-          <circle key={cy} cx="250" cy={cy} r="3" fill="#8f8579" />
+      {stage === 0 && (
+        <g className="tailor-blueprint">
+          <path d="M104 126 C86 140 70 171 68 224" />
+          <path d="M176 126 C194 140 210 171 212 224" />
+          <path d="M104 126 C113 171 114 222 112 288" />
+          <path d="M176 126 C167 171 166 222 168 288" />
+          <path d="M112 288 C112 353 103 417 98 492" />
+          <path d="M168 288 C168 353 177 417 182 492" />
+          <path d="M68 224 C70 309 75 388 80 455" />
+          <path d="M212 224 C210 309 205 388 200 455" />
+          <path d="M114 138 C128 148 152 148 166 138" />
+          <path d="M140 121 L140 300" />
+          <path d="M110 177 C127 188 153 188 170 177" />
+          <path d="M108 210 C127 222 153 222 172 210" />
+          <path d="M110 245 C127 257 153 257 170 245" />
+          <path d="M114 280 C128 290 152 290 166 280" />
+        </g>
+      )}
+
+      {stage >= 1 && (
+        <g className="tailor-shirt-layer">
+          <path
+            d="M96 132 L122 112 L140 132 L158 112 L184 132 L206 166 L188 188 L178 316 L102 316 L92 188 L74 166 Z"
+            fill={`url(#shirt-${stage})`}
+          />
+          <path d="M122 112 L140 148 L158 112" fill="#d8d0c3" />
+          <path d="M140 148 L140 308" stroke="#aaa094" strokeWidth="2" />
+          {[177, 207, 237, 267].map((cy) => (
+            <circle key={cy} cx="140" cy={cy} r="2.2" fill="#8d8376" />
+          ))}
+          <path d="M92 181 L72 278" stroke="#e9e3d9" strokeWidth="20" strokeLinecap="round" />
+          <path d="M188 181 L208 278" stroke="#e9e3d9" strokeWidth="20" strokeLinecap="round" />
+        </g>
+      )}
+
+      {stage >= 2 && (
+        <g className="tailor-tie-layer">
+          <path d="M129 139 L151 139 L157 157 L140 179 L123 157 Z" fill={`url(#dark-${stage})`} />
+          <path d="M140 177 L155 280 L140 308 L125 280 Z" fill={`url(#dark-${stage})`} />
+          <path d="M134 146 L140 152 L146 146" stroke={`url(#gold-${stage})`} strokeWidth="2" />
+          <path d="M140 188 L147 263" stroke="#d8b983" strokeOpacity=".23" strokeWidth="1.6" />
+        </g>
+      )}
+
+      {stage >= 3 && (
+        <g className="tailor-vest-layer">
+          <path
+            d="M107 154 L127 141 L140 165 L153 141 L173 154 L176 310 L104 310 Z"
+            fill={`url(#dark-${stage})`}
+          />
+          <path d="M107 154 L128 190 L140 165 L152 190 L173 154" fill="none" stroke="#39434d" strokeWidth="2.5" />
+          <path d="M140 165 L140 306" stroke="#4c5660" strokeWidth="1.8" />
+          {[201, 226, 251, 276].map((cy) => (
+            <circle key={cy} cx="140" cy={cy} r="2.5" fill="#d4b27a" />
+          ))}
+        </g>
+      )}
+
+      {stage >= 4 && (
+        <g className="tailor-jacket-layer">
+          <path
+            d="M76 154 L116 122 L138 163 L127 208 L111 233 L98 331 L58 330 L51 199 Z"
+            fill={`url(#dark-${stage})`}
+          />
+          <path d="M116 122 L138 163 L116 217 L96 185 Z" fill="#2b3540" />
+          <path d="M204 154 L164 122 L142 163 L153 208 L169 233 L182 331 L222 330 L229 199 Z" fill={`url(#dark-${stage})`} />
+          <path d="M164 122 L142 163 L164 217 L184 185 Z" fill="#2b3540" />
+          <path d="M81 229 L110 229" stroke="#c7a66f" strokeWidth="2.5" />
+          <path d="M170 229 L199 229" stroke="#c7a66f" strokeWidth="2.5" />
+          <path d="M95 333 L83 419" stroke="#0d1218" strokeWidth="26" strokeLinecap="round" />
+          <path d="M185 333 L197 419" stroke="#0d1218" strokeWidth="26" strokeLinecap="round" />
+        </g>
+      )}
+
+      {stage >= 1 && (
+        <g className="tailor-trousers">
+          <path d="M104 310 L138 310 L133 495 L94 495 Z" fill="#121820" />
+          <path d="M142 310 L176 310 L186 495 L147 495 Z" fill="#10161d" />
+          <path d="M103 312 L177 312" stroke="#29313a" strokeWidth="3" />
+        </g>
+      )}
+    </svg>
+  );
+}
+
+function AnatomyFigure({ step }) {
+  const stages = [
+    { label: "Estrutura", reveal: "var(--anatomy)" },
+    { label: "Camisa", reveal: "var(--shirt)" },
+    { label: "Gravata", reveal: "var(--tie)" },
+    { label: "Colete", reveal: "var(--vest)" },
+    { label: "Paletó", reveal: "var(--jacket)" },
+  ];
+
+  return (
+    <div className="anatomy-figure anatomy-lineup" aria-label="Construção visual do advogado">
+      <div className="lineup-halo lineup-halo-a" aria-hidden="true" />
+      <div className="lineup-halo lineup-halo-b" aria-hidden="true" />
+      <div className="lineup-axis" aria-hidden="true" />
+      <div className="lineup-floor" aria-hidden="true" />
+
+      <div className="lineup-track">
+        {stages.map((item, index) => (
+          <article
+            key={item.label}
+            className={`lineup-stage ${index === step ? "is-active" : ""} ${index < step ? "is-past" : "is-future"}`}
+            style={{ "--stage-reveal": item.reveal, "--stage-index": index }}
+          >
+            <div className="lineup-stage-halo" aria-hidden="true" />
+            <TailorStageFigure stage={index} />
+            <div className="lineup-stage-label">
+              <span>0{index + 1}</span>
+              <strong>{item.label}</strong>
+            </div>
+          </article>
         ))}
-      </svg>
 
-      <svg className="wardrobe wardrobe-tie" viewBox="0 0 500 760" aria-hidden="true">
-        <defs>
-          <linearGradient id="tieShade" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#252d36" />
-            <stop offset="45%" stopColor="#151b22" />
-            <stop offset="100%" stopColor="#070a0e" />
-          </linearGradient>
-          <linearGradient id="tieGlow" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="rgba(255,255,255,0)" />
-            <stop offset="50%" stopColor="#d8b983" />
-            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-          </linearGradient>
-        </defs>
-        <path d="M233 229 L267 229 L276 256 L250 289 L224 256 Z" fill="url(#tieShade)" />
-        <path d="M250 286 L273 435 L250 478 L227 435 Z" fill="url(#tieShade)" />
-        <path d="M241 238 L250 247 L259 238" stroke="#d8b983" strokeWidth="2.2" />
-        <path d="M248 302 L259 410" stroke="url(#tieGlow)" strokeWidth="2.3" opacity=".7" />
-      </svg>
-
-      <svg className="wardrobe wardrobe-vest" viewBox="0 0 500 760" aria-hidden="true">
-        <defs>
-          <linearGradient id="vestShade" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#27303a" />
-            <stop offset="45%" stopColor="#151b22" />
-            <stop offset="100%" stopColor="#090d11" />
-          </linearGradient>
-        </defs>
-        <path d="M201 246 L232 226 L250 262 L268 226 L299 246 L303 469 L197 469 Z" fill="url(#vestShade)" />
-        <path d="M201 246 L233 300 L250 262 L267 300 L299 246" fill="none" stroke="#39434d" strokeWidth="3" />
-        <path d="M250 263 L250 465" stroke="#4c5660" strokeWidth="2.2" />
-        {[314, 350, 386, 422].map((cy) => (
-          <circle key={cy} cx="250" cy={cy} r="3.2" fill="#d4b27a" />
-        ))}
-        <path d="M211 383 L235 383" stroke="#666d73" strokeWidth="2" />
-        <path d="M265 383 L289 383" stroke="#666d73" strokeWidth="2" />
-      </svg>
-
-      <svg className="wardrobe wardrobe-jacket wardrobe-left" viewBox="0 0 500 760" aria-hidden="true">
-        <defs>
-          <linearGradient id="jacketLeft" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#252e38" />
-            <stop offset="55%" stopColor="#121820" />
-            <stop offset="100%" stopColor="#070b10" />
-          </linearGradient>
-        </defs>
-        <path d="M154 255 L214 211 L249 270 L231 337 L205 370 L185 507 L128 505 L117 324 Z" fill="url(#jacketLeft)" />
-        <path d="M214 211 L249 270 L214 347 L184 298 Z" fill="#2b3540" />
-        <path d="M168 370 L211 370" stroke="#c7a66f" strokeWidth="3" />
-        <path d="M145 292 L181 345" stroke="rgba(255,255,255,.06)" strokeWidth="2" />
-      </svg>
-
-      <svg className="wardrobe wardrobe-jacket wardrobe-right" viewBox="0 0 500 760" aria-hidden="true">
-        <defs>
-          <linearGradient id="jacketRight" x1="1" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#252e38" />
-            <stop offset="55%" stopColor="#121820" />
-            <stop offset="100%" stopColor="#070b10" />
-          </linearGradient>
-        </defs>
-        <path d="M346 255 L286 211 L251 270 L269 337 L295 370 L315 507 L372 505 L383 324 Z" fill="url(#jacketRight)" />
-        <path d="M286 211 L251 270 L286 347 L316 298 Z" fill="#2b3540" />
-        <path d="M289 370 L332 370" stroke="#c7a66f" strokeWidth="3" />
-        <path d="M355 292 L319 345" stroke="rgba(255,255,255,.06)" strokeWidth="2" />
-      </svg>
-
-      <div className="wardrobe-cuff wardrobe-cuff-left" aria-hidden="true" />
-      <div className="wardrobe-cuff wardrobe-cuff-right" aria-hidden="true" />
-      <div className="wardrobe-pocket-square" aria-hidden="true" />
-
-      <div className="presence-gallery" aria-hidden="true">
-        <div className="presence-card presence-card-left">
-          <PortraitImage />
-        </div>
-        <div className="presence-card presence-card-right">
-          <PortraitImage />
-        </div>
-        <div className="presence-card presence-card-detail">
-          <PortraitImage />
-        </div>
+        <article
+          className={`lineup-stage lineup-renan ${step === 5 ? "is-active" : "is-future"}`}
+          style={{ "--stage-reveal": "var(--portrait)", "--stage-index": 5 }}
+        >
+          <div className="lineup-stage-halo renan-halo" aria-hidden="true" />
+          <div className="lineup-renan-frame">
+            <PortraitImage alt="Renan Durso" />
+            <div className="lineup-renan-light" aria-hidden="true" />
+            <div className="lineup-renan-rim" aria-hidden="true" />
+          </div>
+          <div className="lineup-stage-label lineup-renan-label">
+            <span>06</span>
+            <strong>Renan Durso</strong>
+          </div>
+        </article>
       </div>
 
-      <div className="renan-final">
-        <PortraitImage alt="Renan Durso" />
-        <div className="renan-final-light" aria-hidden="true" />
-        <div className="renan-final-rim" aria-hidden="true" />
-      </div>
-
-      <div className="renan-triptych" aria-hidden="true">
-        <div className="renan-slice renan-slice-left"><PortraitImage /></div>
-        <div className="renan-slice renan-slice-center"><PortraitImage /></div>
-        <div className="renan-slice renan-slice-right"><PortraitImage /></div>
+      <div className="lineup-caption" aria-hidden="true">
+        <span>estrutura</span>
+        <i />
+        <span>alfaiataria</span>
+        <i />
+        <span>presença</span>
       </div>
 
       <div className="anatomy-phase" aria-hidden="true">
