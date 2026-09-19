@@ -3213,3 +3213,448 @@ svg {
     width: 78vw;
   }
 }
+
+
+/* Central suit assembly — single figure, parts lock into place */
+.tailoring-assembly {
+  position: relative;
+  width: min(54vw, 760px);
+  height: min(82vh, 820px);
+  perspective: 1800px;
+  transform-style: preserve-3d;
+  isolation: isolate;
+}
+
+.assembly-grid {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255,255,255,.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.024) 1px, transparent 1px);
+  background-size: 58px 58px;
+  mask-image: radial-gradient(circle at 50% 44%, #000 20%, transparent 76%);
+  opacity: .72;
+}
+
+.assembly-aura {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 42%;
+  width: 68%;
+  aspect-ratio: 1;
+  transform:
+    translate(-50%, -50%)
+    scale(calc(.82 + var(--portrait) * .18));
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(224,193,142,.22), rgba(224,193,142,.06) 42%, transparent 72%);
+  filter: blur(30px);
+}
+
+.assembly-floor {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  bottom: 4%;
+  width: 58%;
+  height: 8%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(0,0,0,.48);
+  filter: blur(22px);
+}
+
+.assembly-axis {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 8%;
+  bottom: 8%;
+  width: 1px;
+  background:
+    linear-gradient(to bottom, transparent, rgba(224,193,142,.26), transparent);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.assembly-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+}
+
+.assembly-piece,
+.assembly-final-renan {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.assembly-piece {
+  object-fit: contain;
+  object-position: center;
+  filter:
+    drop-shadow(0 28px 42px rgba(0,0,0,.32));
+}
+
+/* Base anatomy */
+.assembly-anatomy {
+  z-index: 1;
+  width: 55%;
+  max-height: 84%;
+  opacity: calc((1 - var(--shirt)) * .88);
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--anatomy)) * 32px))
+    scale(calc(.92 + var(--anatomy) * .08));
+  filter:
+    sepia(.35)
+    saturate(.76)
+    brightness(.8)
+    contrast(1.15)
+    drop-shadow(0 0 16px rgba(224,193,142,.18));
+}
+
+/* White shirt locks onto the same torso */
+.assembly-shirt {
+  z-index: 2;
+  width: 51%;
+  max-height: 67%;
+  opacity: var(--shirt);
+  transform:
+    translate(-50%, -46%)
+    translateY(calc((1 - var(--shirt)) * -90px))
+    translateZ(calc((1 - var(--shirt)) * 110px))
+    scale(calc(.9 + var(--shirt) * .1));
+  filter:
+    brightness(.97)
+    contrast(1.04)
+    saturate(.82)
+    drop-shadow(0 24px 30px rgba(0,0,0,.2));
+}
+
+/* Tie arrives separately */
+.assembly-tie {
+  z-index: 4;
+  width: 9.5%;
+  max-height: 45%;
+  opacity: var(--tie);
+  transform:
+    translate(-50%, -43%)
+    translateY(calc((1 - var(--tie)) * -92px))
+    translateZ(calc((1 - var(--tie)) * 145px))
+    rotateX(calc((1 - var(--tie)) * 18deg))
+    scale(calc(.82 + var(--tie) * .18));
+  filter:
+    brightness(.84)
+    contrast(1.18)
+    drop-shadow(0 16px 22px rgba(0,0,0,.34));
+}
+
+/* Waistcoat slides into the torso */
+.assembly-vest {
+  z-index: 3;
+  width: 34%;
+  max-height: 54%;
+  opacity: var(--vest);
+  transform:
+    translate(-50%, -39%)
+    translateY(calc((1 - var(--vest)) * 42px))
+    translateZ(calc((1 - var(--vest)) * 92px))
+    scale(calc(.91 + var(--vest) * .09));
+  filter:
+    brightness(.84)
+    contrast(1.1)
+    saturate(.78)
+    drop-shadow(0 22px 28px rgba(0,0,0,.27));
+}
+
+/* Jacket is split visually into two halves and closes from both sides */
+.assembly-jacket {
+  z-index: 5;
+  width: 57%;
+  height: 70%;
+  overflow: hidden;
+  opacity: var(--jacket);
+  filter:
+    drop-shadow(0 30px 38px rgba(0,0,0,.34));
+}
+
+.assembly-jacket img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter:
+    brightness(.86)
+    contrast(1.1)
+    saturate(.76);
+}
+
+.assembly-jacket-left {
+  clip-path: inset(0 50% 0 0);
+  transform:
+    translate(-50%, -43%)
+    translateX(calc((1 - var(--jacket)) * -170px))
+    translateZ(calc((1 - var(--jacket)) * 110px))
+    rotateY(calc((1 - var(--jacket)) * 34deg));
+  transform-origin: left center;
+}
+
+.assembly-jacket-right {
+  clip-path: inset(0 0 0 50%);
+  transform:
+    translate(-50%, -43%)
+    translateX(calc((1 - var(--jacket)) * 170px))
+    translateZ(calc((1 - var(--jacket)) * 110px))
+    rotateY(calc((1 - var(--jacket)) * -34deg));
+  transform-origin: right center;
+}
+
+/* Renan is the payoff: all wardrobe pieces fade behind him */
+.assembly-final-renan {
+  z-index: 8;
+  width: 65%;
+  height: 88%;
+  opacity: var(--portrait);
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--portrait)) * 36px))
+    translateZ(calc(var(--portrait) * 72px))
+    scale(calc(.94 + var(--portrait) * .06));
+}
+
+.assembly-final-renan img {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter:
+    saturate(.92)
+    contrast(1.08)
+    brightness(.96)
+    drop-shadow(0 42px 70px rgba(0,0,0,.44));
+}
+
+.assembly-renan-halo {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 38%;
+  width: 80%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(224,193,142,.34);
+  background:
+    radial-gradient(circle, rgba(224,193,142,.22), rgba(224,193,142,.055) 48%, transparent 72%);
+  box-shadow:
+    0 0 55px rgba(224,193,142,.09),
+    inset 0 0 70px rgba(224,193,142,.035);
+}
+
+.assembly-renan-light {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  background:
+    linear-gradient(
+      105deg,
+      transparent 35%,
+      rgba(255,255,255,.035) 46%,
+      rgba(224,193,142,.15) 50%,
+      rgba(255,255,255,.03) 55%,
+      transparent 66%
+    );
+  transform:
+    translateX(calc(-118% + var(--portrait) * 225%));
+  mix-blend-mode: screen;
+}
+
+.assembly-renan-rim {
+  position: absolute;
+  z-index: 4;
+  inset: 8% 15% 4%;
+  border-left: 1px solid rgba(224,193,142,.2);
+  border-right: 1px solid rgba(255,255,255,.05);
+}
+
+/* Wardrobe gently yields as final portrait appears */
+.assembly-stage:has(.assembly-final-renan) .assembly-anatomy {
+  opacity: calc((1 - var(--shirt)) * .88 * (1 - var(--portrait)));
+}
+
+.assembly-shirt,
+.assembly-tie,
+.assembly-vest,
+.assembly-jacket {
+  transition:
+    opacity .18s linear,
+    transform .18s linear,
+    filter .18s linear;
+}
+
+.assembly-shirt {
+  opacity: calc(var(--shirt) * (1 - var(--portrait)));
+}
+
+.assembly-tie {
+  opacity: calc(var(--tie) * (1 - var(--portrait)));
+}
+
+.assembly-vest {
+  opacity: calc(var(--vest) * (1 - var(--portrait)));
+}
+
+.assembly-jacket {
+  opacity: calc(var(--jacket) * (1 - var(--portrait)));
+}
+
+.assembly-scan {
+  position: absolute;
+  z-index: 10;
+  left: 17%;
+  right: 17%;
+  top: calc(18% + var(--complete) * 60%);
+  height: 1px;
+  background:
+    linear-gradient(90deg, transparent, rgba(224,193,142,.7), rgba(255,255,255,.32), transparent);
+  box-shadow:
+    0 0 14px rgba(224,193,142,.2),
+    0 0 26px rgba(224,193,142,.09);
+  opacity: calc(var(--complete) * (1 - var(--portrait) * .4));
+}
+
+.assembly-stage-label {
+  position: absolute;
+  z-index: 12;
+  right: 1%;
+  bottom: 4%;
+  display: grid;
+  min-width: 150px;
+  padding: 14px 16px;
+  border-left: 1px solid rgba(224,193,142,.45);
+  background: rgba(8,13,18,.54);
+  backdrop-filter: blur(10px);
+}
+
+.assembly-stage-label span {
+  color: var(--gold-2);
+  font-family: Georgia, serif;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.assembly-stage-label strong {
+  margin-top: 5px;
+  color: rgba(255,255,255,.52);
+  font-size: 7px;
+  font-weight: 500;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.assembly-timeline {
+  position: absolute;
+  z-index: 12;
+  left: 50%;
+  bottom: 2%;
+  display: flex;
+  gap: 7px;
+  transform: translateX(-50%);
+}
+
+.assembly-timeline i {
+  width: 24px;
+  height: 2px;
+  background: rgba(255,255,255,.12);
+  transition:
+    width .25s ease,
+    background .25s ease;
+}
+
+.assembly-timeline i.active {
+  width: 42px;
+  background: var(--gold-2);
+}
+
+@media (max-width: 900px) {
+  .tailoring-assembly {
+    width: min(82vw, 680px);
+    height: 60vh;
+  }
+
+  .assembly-stage-label {
+    right: 2%;
+  }
+}
+
+@media (max-width: 760px) {
+  .tailoring-assembly {
+    width: 100vw;
+    height: 58vh;
+  }
+
+  .assembly-anatomy {
+    width: 62%;
+  }
+
+  .assembly-shirt {
+    width: 60%;
+  }
+
+  .assembly-tie {
+    width: 12%;
+  }
+
+  .assembly-vest {
+    width: 41%;
+  }
+
+  .assembly-jacket {
+    width: 68%;
+  }
+
+  .assembly-final-renan {
+    width: 76%;
+    height: 88%;
+  }
+
+  .assembly-jacket-left {
+    transform:
+      translate(-50%, -43%)
+      translateX(calc((1 - var(--jacket)) * -110px))
+      rotateY(calc((1 - var(--jacket)) * 22deg));
+  }
+
+  .assembly-jacket-right {
+    transform:
+      translate(-50%, -43%)
+      translateX(calc((1 - var(--jacket)) * 110px))
+      rotateY(calc((1 - var(--jacket)) * -22deg));
+  }
+
+  .assembly-stage-label {
+    right: 16px;
+    bottom: 12px;
+    min-width: 112px;
+    padding: 10px 12px;
+  }
+
+  .assembly-stage-label span {
+    font-size: 23px;
+  }
+
+  .assembly-timeline {
+    bottom: 6px;
+  }
+}
