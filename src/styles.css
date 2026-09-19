@@ -1525,15 +1525,6 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .portrait-panel {
-    min-height: 54svh;
-  }
-
-  .portrait-frame img {
-    height: 120%;
-    object-position: 50% 18%;
-  }
-
   .about-copy {
     min-height: 46svh;
     padding-top: 72px;
@@ -1696,10 +1687,6 @@ button {
 
   .portrait-scroll-scene {
     height: 180vh;
-  }
-
-  .portrait-panel {
-    min-height: 52svh;
   }
 
   .portrait-card {
