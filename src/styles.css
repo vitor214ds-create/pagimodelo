@@ -1020,7 +1020,6 @@ button {
 }
 
 .practice-slide {
-  --card-y: calc((var(--card-index) - var(--scene-progress) * 3.2) * 110%);
   position: absolute;
   inset: 0;
   padding: clamp(24px, 3.5vw, 54px);
@@ -1036,8 +1035,8 @@ button {
   border: 1px solid rgba(255,255,255,.12);
   backdrop-filter: blur(18px);
   transform:
-    translateY(var(--card-y))
-    scale(calc(1 - var(--card-index) * .01));
+    translateY(calc(var(--card-base) - var(--scene-shift)))
+    scale(.99);
   box-shadow: 0 40px 120px rgba(0,0,0,.34);
   transition: transform 80ms linear;
 }
