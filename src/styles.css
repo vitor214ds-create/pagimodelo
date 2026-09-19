@@ -2330,3 +2330,393 @@ button {
       scale(.99);
   }
 }
+
+
+/* portrait assembly sequence inspired by layered product/suit motion */
+.portrait-scroll-scene {
+  height: 360vh;
+}
+
+.portrait-stage {
+  grid-template-columns: minmax(0, var(--portrait-shell-width, 100%)) minmax(0, 1fr);
+  transition: grid-template-columns 80ms linear;
+}
+
+.portrait-scene-shell {
+  min-width: 0;
+}
+
+.portrait-anatomy-stage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  perspective: 2200px;
+  transform-style: preserve-3d;
+  overflow: hidden;
+}
+
+.portrait-anatomy-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 70px 70px;
+  mask-image: radial-gradient(circle at center, #000 15%, transparent 74%);
+  opacity: calc(.18 + var(--portrait-intro) * .2);
+  transform:
+    perspective(900px)
+    rotateX(68deg)
+    translateY(calc(140px - var(--portrait-assemble) * 90px))
+    scale(1.32);
+}
+
+.portrait-anatomy-title {
+  position: absolute;
+  z-index: 2;
+  left: clamp(26px, 5vw, 72px);
+  top: 15%;
+  display: grid;
+  color: rgba(255,255,255,.92);
+  pointer-events: none;
+  opacity: calc(1 - var(--portrait-complete) * 1.15);
+  transform:
+    translateY(calc((1 - var(--portrait-intro)) * 28px))
+    scale(calc(.97 + var(--portrait-intro) * .03));
+}
+
+.portrait-anatomy-title small {
+  margin-bottom: 20px;
+  font-size: 8px;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+}
+
+.portrait-anatomy-title span,
+.portrait-anatomy-title em {
+  font-size: clamp(58px, 7vw, 106px);
+  line-height: .84;
+  letter-spacing: -.06em;
+}
+
+.portrait-anatomy-title span {
+  font-weight: 500;
+}
+
+.portrait-anatomy-title em {
+  margin-left: 4vw;
+  color: var(--gold-2);
+  font-family: Georgia, serif;
+  font-weight: 400;
+}
+
+.portrait-ghost,
+.portrait-piece,
+.portrait-complete-layer,
+.portrait-triptych {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(58vw, 760px);
+  height: min(86vh, 880px);
+  transform-style: preserve-3d;
+}
+
+.portrait-ghost img,
+.portrait-piece img,
+.portrait-complete-layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+}
+
+.portrait-ghost {
+  z-index: 1;
+  opacity: calc((1 - var(--portrait-assemble)) * .22);
+  transform:
+    translate(-50%, -50%)
+    scale(calc(.9 + var(--portrait-intro) * .1));
+  filter:
+    grayscale(1)
+    contrast(1.6)
+    brightness(.55);
+}
+
+.portrait-ghost::after {
+  content: "";
+  position: absolute;
+  inset: 8% 12% 5%;
+  border: 1px solid rgba(227,201,144,.08);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 34px rgba(227,201,144,.015),
+    0 0 0 68px rgba(227,201,144,.008);
+}
+
+.portrait-piece {
+  z-index: 3;
+  pointer-events: none;
+  opacity: calc(var(--portrait-assemble) * (1 - var(--portrait-complete)));
+  transition: opacity 80ms linear;
+}
+
+.portrait-piece img {
+  filter:
+    saturate(.8)
+    contrast(1.1)
+    brightness(.88);
+}
+
+.portrait-piece-head {
+  clip-path: inset(0 22% 58% 22%);
+  transform:
+    translate(
+      calc(-50% + (1 - var(--portrait-assemble)) * 0px),
+      calc(-50% + (1 - var(--portrait-assemble)) * -145px)
+    )
+    translateZ(calc((1 - var(--portrait-assemble)) * 100px))
+    scale(calc(.93 + var(--portrait-assemble) * .07));
+}
+
+.portrait-piece-left {
+  clip-path: inset(34% 58% 18% 0);
+  transform:
+    translate(
+      calc(-50% + (1 - var(--portrait-assemble)) * -180px),
+      calc(-50% + (1 - var(--portrait-assemble)) * 22px)
+    )
+    rotateY(calc((1 - var(--portrait-assemble)) * 28deg))
+    translateZ(calc((1 - var(--portrait-assemble)) * 80px));
+}
+
+.portrait-piece-center {
+  clip-path: inset(28% 27% 16% 27%);
+  transform:
+    translate(
+      -50%,
+      calc(-50% + (1 - var(--portrait-assemble)) * 110px)
+    )
+    translateZ(calc((1 - var(--portrait-assemble)) * 140px))
+    scale(calc(.9 + var(--portrait-assemble) * .1));
+}
+
+.portrait-piece-right {
+  clip-path: inset(34% 0 18% 58%);
+  transform:
+    translate(
+      calc(-50% + (1 - var(--portrait-assemble)) * 180px),
+      calc(-50% + (1 - var(--portrait-assemble)) * 22px)
+    )
+    rotateY(calc((1 - var(--portrait-assemble)) * -28deg))
+    translateZ(calc((1 - var(--portrait-assemble)) * 80px));
+}
+
+.portrait-piece-lower {
+  clip-path: inset(64% 20% 0 20%);
+  transform:
+    translate(
+      -50%,
+      calc(-50% + (1 - var(--portrait-assemble)) * 160px)
+    )
+    rotateX(calc((1 - var(--portrait-assemble)) * -18deg))
+    translateZ(calc((1 - var(--portrait-assemble)) * 60px));
+}
+
+.portrait-complete-layer {
+  z-index: 4;
+  opacity: var(--portrait-complete);
+  transform:
+    translate(-50%, -50%)
+    translateZ(calc(var(--portrait-complete) * 35px))
+    scale(calc(.96 + var(--portrait-complete) * .04));
+  filter:
+    drop-shadow(0 38px 70px rgba(0,0,0,.3));
+}
+
+.portrait-complete-layer img {
+  filter:
+    saturate(.86)
+    contrast(1.08)
+    brightness(.92);
+}
+
+.portrait-complete-sheen {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      104deg,
+      transparent 34%,
+      rgba(255,255,255,.035) 45%,
+      rgba(227,201,144,.12) 50%,
+      rgba(255,255,255,.025) 55%,
+      transparent 66%
+    );
+  transform: translateX(calc(-110% + var(--portrait-complete) * 210%));
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.portrait-anatomy-stage > .portrait-triptych {
+  z-index: 6;
+  opacity: var(--portrait-open);
+  transform:
+    translate(-50%, -50%)
+    scale(calc(.93 + var(--portrait-open) * .07));
+}
+
+.portrait-triptych {
+  --open: var(--portrait-open);
+}
+
+.portrait-phase-indicator {
+  position: absolute;
+  z-index: 8;
+  left: clamp(26px, 5vw, 72px);
+  bottom: 30px;
+  display: flex;
+  gap: 18px;
+  color: rgba(255,255,255,.28);
+  font-size: 7px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.portrait-phase-indicator span:nth-child(1) {
+  color:
+    color-mix(
+      in srgb,
+      var(--gold-2) calc((1 - var(--portrait-assemble)) * 100%),
+      rgba(255,255,255,.24)
+    );
+}
+
+.portrait-card {
+  opacity: var(--portrait-copy);
+  transform:
+    translateY(var(--portrait-copy-shift, 46px))
+    rotate(calc((1 - var(--portrait-copy)) * -2deg));
+}
+
+.about-copy {
+  opacity: var(--portrait-copy);
+  transform: translateY(var(--portrait-copy-shift, 46px));
+  transition:
+    opacity 80ms linear,
+    transform 80ms linear;
+}
+
+.portrait-stage .about-copy {
+  pointer-events: calc(var(--portrait-copy) * 1);
+}
+
+.portrait-anatomy-stage::after {
+  content: "";
+  position: absolute;
+  z-index: 12;
+  left: 0;
+  right: 0;
+  top: calc(12% + var(--portrait-assemble) * 72%);
+  height: 1px;
+  background:
+    linear-gradient(
+      to right,
+      transparent,
+      rgba(227,201,144,.55),
+      rgba(255,255,255,.28),
+      transparent
+    );
+  box-shadow: 0 0 18px rgba(227,201,144,.14);
+  opacity: calc((1 - var(--portrait-open)) * .55);
+  pointer-events: none;
+}
+
+@media (max-width: 1020px) {
+  .portrait-scroll-scene {
+    height: 320vh;
+  }
+
+  .portrait-stage {
+    grid-template-columns: 1fr;
+  }
+
+  .portrait-scene-shell {
+    width: 100%;
+    min-height: 58svh;
+  }
+
+  .portrait-anatomy-stage {
+    height: 58svh;
+  }
+
+  .portrait-ghost,
+  .portrait-piece,
+  .portrait-complete-layer,
+  .portrait-anatomy-stage > .portrait-triptych {
+    width: min(72vw, 650px);
+    height: min(56svh, 620px);
+  }
+
+  .about-copy {
+    position: absolute;
+    z-index: 20;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      linear-gradient(to top, rgba(242,238,229,.98), rgba(242,238,229,.88), transparent);
+  }
+}
+
+@media (max-width: 720px) {
+  .portrait-scroll-scene {
+    height: 290vh;
+  }
+
+  .portrait-anatomy-title {
+    left: 20px;
+    top: 12%;
+  }
+
+  .portrait-anatomy-title span,
+  .portrait-anatomy-title em {
+    font-size: 48px;
+  }
+
+  .portrait-ghost,
+  .portrait-piece,
+  .portrait-complete-layer,
+  .portrait-anatomy-stage > .portrait-triptych {
+    width: 86vw;
+    height: 48svh;
+  }
+
+  .portrait-piece-left {
+    transform:
+      translate(
+        calc(-50% + (1 - var(--portrait-assemble)) * -100px),
+        calc(-50% + (1 - var(--portrait-assemble)) * 16px)
+      )
+      rotateY(calc((1 - var(--portrait-assemble)) * 18deg));
+  }
+
+  .portrait-piece-right {
+    transform:
+      translate(
+        calc(-50% + (1 - var(--portrait-assemble)) * 100px),
+        calc(-50% + (1 - var(--portrait-assemble)) * 16px)
+      )
+      rotateY(calc((1 - var(--portrait-assemble)) * -18deg));
+  }
+
+  .portrait-phase-indicator {
+    left: 20px;
+    bottom: 18px;
+    gap: 9px;
+    font-size: 6px;
+  }
+}
