@@ -63,6 +63,7 @@ const capabilities = [
 
 function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const particles = Array.from({ length: 38 }, (_, index) => index);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
@@ -101,12 +102,27 @@ function Index() {
       });
     };
 
+    const updatePointer = (event: PointerEvent) => {
+      document.documentElement.style.setProperty("--pointer-x", `${event.clientX}px`);
+      document.documentElement.style.setProperty("--pointer-y", `${event.clientY}px`);
+      document.documentElement.style.setProperty(
+        "--pointer-rx",
+        String((event.clientY / window.innerHeight - 0.5) * -8),
+      );
+      document.documentElement.style.setProperty(
+        "--pointer-ry",
+        String((event.clientX / window.innerWidth - 0.5) * 8),
+      );
+    };
+
     updateScroll();
     window.addEventListener("scroll", updateScroll, { passive: true });
+    window.addEventListener("pointermove", updatePointer, { passive: true });
 
     return () => {
       observerRef.current?.disconnect();
       window.removeEventListener("scroll", updateScroll);
+      window.removeEventListener("pointermove", updatePointer);
       cancelAnimationFrame(frame);
     };
   }, []);
@@ -119,6 +135,17 @@ function Index() {
   return (
     <main className="site-shell">
       <div className="scroll-progress" aria-hidden="true" />
+      <div className="cursor-glow" aria-hidden="true" />
+      <div className="global-particles" aria-hidden="true">
+        {particles.map((particle) => (
+          <i key={particle} style={{ "--p": particle } as React.CSSProperties} />
+        ))}
+      </div>
+      <div className="ambient-lines" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
       <header className="site-header">
         <button
           type="button"
@@ -179,10 +206,18 @@ function Index() {
 
       <section id="inicio" className="hero-section">
         <div className="hero-noise" />
+        <div className="hero-light-sweep" aria-hidden="true" />
+        <div className="hero-particle-cloud" aria-hidden="true">
+          <span /><span /><span /><span /><span /><span /><span /><span />
+        </div>
         <div className="hero-orbit hero-orbit-one" />
         <div className="hero-orbit hero-orbit-two" />
         <div className="hero-legal-word" aria-hidden="true">
           DIREITO
+        </div>
+        <div className="hero-crosshair" aria-hidden="true">
+          <span />
+          <span />
         </div>
 
         <div className="hero-content">
@@ -284,6 +319,11 @@ function Index() {
         </div>
       </section>
 
+      <div className="section-transition" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
       <section className="statement-section">
         <div className="statement-marquee" aria-hidden="true">
           <div>
@@ -309,6 +349,9 @@ function Index() {
       </section>
 
       <section id="atuacao" className="practice-section">
+        <div className="practice-stars" aria-hidden="true">
+          <span /><span /><span /><span /><span /><span />
+        </div>
         <div className="practice-heading">
           <div className="section-index light" data-reveal>
             <span>02</span>
