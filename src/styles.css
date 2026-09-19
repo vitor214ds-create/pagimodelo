@@ -2720,3 +2720,394 @@ button {
     font-size: 6px;
   }
 }
+
+
+/* final advocate dress-up sequence */
+.advocate-cinematic-stage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  perspective: 2400px;
+  transform-style: preserve-3d;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.advocate-grid {
+  opacity: calc(.12 + var(--advocate-intro) * .22);
+}
+
+.advocate-ambient-glow {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 43%;
+  width: min(46vw, 620px);
+  aspect-ratio: 1;
+  transform:
+    translate(-50%, -50%)
+    scale(calc(.82 + var(--advocate-final) * .22));
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(227,201,144,.24), rgba(227,201,144,.08) 36%, transparent 72%);
+  filter: blur(40px);
+  opacity: calc(.28 + var(--advocate-final) * .62);
+  pointer-events: none;
+}
+
+.advocate-light-column {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: -12vh;
+  width: 18vw;
+  min-width: 160px;
+  height: 130vh;
+  transform:
+    translateX(-50%)
+    rotate(8deg);
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.025) 32%,
+      rgba(227,201,144,.11) 50%,
+      rgba(255,255,255,.025) 68%,
+      transparent
+    );
+  filter: blur(13px);
+  opacity: .42;
+  pointer-events: none;
+}
+
+.advocate-copy-intro {
+  opacity: calc(1 - var(--advocate-final) * 1.2);
+}
+
+.advocate-silhouette {
+  z-index: 1;
+  opacity: calc((1 - var(--advocate-shirt)) * .24);
+  transform:
+    translate(-50%, -50%)
+    scale(calc(.9 + var(--advocate-intro) * .1));
+  filter:
+    grayscale(1)
+    contrast(1.75)
+    brightness(.46);
+}
+
+.advocate-piece,
+.advocate-final-portrait,
+.advocate-triptych {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(58vw, 760px);
+  height: min(86vh, 880px);
+  transform-style: preserve-3d;
+}
+
+.advocate-piece {
+  z-index: 4;
+  pointer-events: none;
+}
+
+.advocate-piece img,
+.advocate-final-portrait img,
+.advocate-panel img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+}
+
+.advocate-piece img {
+  filter:
+    saturate(.84)
+    contrast(1.1)
+    brightness(.88);
+}
+
+.advocate-shirt {
+  clip-path: inset(18% 21% 35% 21%);
+  opacity: calc(var(--advocate-shirt) * (1 - var(--advocate-final)));
+  transform:
+    translate(
+      -50%,
+      calc(-50% + (1 - var(--advocate-shirt)) * -145px)
+    )
+    translateZ(calc((1 - var(--advocate-shirt)) * 120px))
+    scale(calc(.9 + var(--advocate-shirt) * .1));
+}
+
+.advocate-tie {
+  clip-path: inset(27% 42% 30% 42%);
+  opacity: calc(var(--advocate-tie) * (1 - var(--advocate-final)));
+  transform:
+    translate(
+      -50%,
+      calc(-50% + (1 - var(--advocate-tie)) * -92px)
+    )
+    translateZ(calc((1 - var(--advocate-tie)) * 150px))
+    rotateX(calc((1 - var(--advocate-tie)) * 12deg))
+    scale(calc(.86 + var(--advocate-tie) * .14));
+}
+
+.advocate-left-lapel {
+  clip-path: inset(27% 51% 14% 18%);
+  opacity: calc(var(--advocate-suit) * (1 - var(--advocate-final)));
+  transform:
+    translate(
+      calc(-50% + (1 - var(--advocate-suit)) * -175px),
+      calc(-50% + (1 - var(--advocate-suit)) * 30px)
+    )
+    rotateY(calc((1 - var(--advocate-suit)) * 32deg))
+    translateZ(calc((1 - var(--advocate-suit)) * 95px));
+}
+
+.advocate-right-lapel {
+  clip-path: inset(27% 18% 14% 51%);
+  opacity: calc(var(--advocate-suit) * (1 - var(--advocate-final)));
+  transform:
+    translate(
+      calc(-50% + (1 - var(--advocate-suit)) * 175px),
+      calc(-50% + (1 - var(--advocate-suit)) * 30px)
+    )
+    rotateY(calc((1 - var(--advocate-suit)) * -32deg))
+    translateZ(calc((1 - var(--advocate-suit)) * 95px));
+}
+
+.advocate-sleeve-left {
+  clip-path: inset(30% 61% 18% 0);
+  opacity: calc(var(--advocate-suit) * (1 - var(--advocate-final)));
+  transform:
+    translate(
+      calc(-50% + (1 - var(--advocate-suit)) * -215px),
+      calc(-50% + (1 - var(--advocate-suit)) * 36px)
+    )
+    rotateZ(calc((1 - var(--advocate-suit)) * -12deg))
+    translateZ(calc((1 - var(--advocate-suit)) * 55px));
+}
+
+.advocate-sleeve-right {
+  clip-path: inset(30% 0 18% 61%);
+  opacity: calc(var(--advocate-suit) * (1 - var(--advocate-final)));
+  transform:
+    translate(
+      calc(-50% + (1 - var(--advocate-suit)) * 215px),
+      calc(-50% + (1 - var(--advocate-suit)) * 36px)
+    )
+    rotateZ(calc((1 - var(--advocate-suit)) * 12deg))
+    translateZ(calc((1 - var(--advocate-suit)) * 55px));
+}
+
+.advocate-final-portrait {
+  z-index: 6;
+  opacity: calc(var(--advocate-final) * (1 - var(--advocate-open) * .7));
+  transform:
+    translate(-50%, -50%)
+    translateZ(calc(var(--advocate-final) * 42px))
+    scale(calc(.95 + var(--advocate-final) * .05));
+  filter:
+    drop-shadow(0 40px 75px rgba(0,0,0,.34));
+}
+
+.advocate-final-portrait img {
+  filter:
+    saturate(.9)
+    contrast(1.08)
+    brightness(.95);
+}
+
+.advocate-final-shine {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      104deg,
+      transparent 34%,
+      rgba(255,255,255,.035) 45%,
+      rgba(227,201,144,.14) 50%,
+      rgba(255,255,255,.03) 56%,
+      transparent 66%
+    );
+  transform:
+    translateX(calc(-120% + var(--advocate-final) * 230%));
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.advocate-rim-light {
+  position: absolute;
+  inset: 8% 20% 3%;
+  border-left: 1px solid rgba(227,201,144,.18);
+  border-right: 1px solid rgba(255,255,255,.08);
+  filter: blur(.1px);
+  pointer-events: none;
+}
+
+.advocate-triptych {
+  z-index: 8;
+  opacity: var(--advocate-open);
+  transform:
+    translate(-50%, -50%)
+    scale(calc(.94 + var(--advocate-open) * .06));
+}
+
+.advocate-panel-center {
+  transform:
+    translateZ(calc(38px + var(--advocate-open) * 58px))
+    scale(calc(.96 + var(--advocate-open) * .04));
+}
+
+.advocate-panel-left {
+  transform:
+    translateX(calc(-2% - var(--advocate-open) * 17%))
+    rotateY(calc(9deg + var(--advocate-open) * 35deg))
+    translateZ(calc(-24px + var(--advocate-open) * 8px));
+}
+
+.advocate-panel-right {
+  transform:
+    translateX(calc(2% + var(--advocate-open) * 17%))
+    rotateY(calc(-9deg - var(--advocate-open) * 35deg))
+    translateZ(calc(-24px + var(--advocate-open) * 8px));
+}
+
+.advocate-stitch-line {
+  position: absolute;
+  z-index: 10;
+  top: 26%;
+  bottom: 16%;
+  width: 1px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(227,201,144,.42) 0 5px,
+      transparent 5px 11px
+    );
+  opacity: calc(var(--advocate-suit) * (1 - var(--advocate-final)));
+  pointer-events: none;
+}
+
+.advocate-stitch-left {
+  left: 41%;
+  transform:
+    translateX(calc((1 - var(--advocate-suit)) * -30px))
+    rotate(3deg);
+}
+
+.advocate-stitch-right {
+  right: 41%;
+  transform:
+    translateX(calc((1 - var(--advocate-suit)) * 30px))
+    rotate(-3deg);
+}
+
+.advocate-scan-beam {
+  position: absolute;
+  z-index: 12;
+  left: 14%;
+  right: 14%;
+  top: calc(18% + var(--advocate-final) * 62%);
+  height: 1px;
+  background:
+    linear-gradient(
+      to right,
+      transparent,
+      rgba(227,201,144,.72),
+      rgba(255,255,255,.34),
+      transparent
+    );
+  box-shadow:
+    0 0 16px rgba(227,201,144,.22),
+    0 0 28px rgba(227,201,144,.12);
+  opacity: calc(var(--advocate-final) * (1 - var(--advocate-open) * .6));
+}
+
+.advocate-phase-indicator span {
+  transition: color 120ms linear, opacity 120ms linear;
+}
+
+.advocate-phase-indicator span:nth-child(1) {
+  color: rgba(255,255,255,calc(.2 + (1 - var(--advocate-shirt)) * .7));
+}
+
+.advocate-phase-indicator span:nth-child(2) {
+  color: rgba(227,201,144,calc(.2 + var(--advocate-suit) * .7));
+}
+
+.advocate-phase-indicator span:nth-child(3) {
+  color: rgba(255,255,255,calc(.2 + var(--advocate-final) * .78));
+}
+
+.portrait-card {
+  opacity: var(--advocate-copy);
+  transform:
+    translateY(calc((1 - var(--advocate-copy)) * 46px))
+    rotate(calc((1 - var(--advocate-copy)) * -2deg));
+}
+
+.about-copy {
+  opacity: var(--advocate-copy);
+  transform: translateY(calc((1 - var(--advocate-copy)) * 46px));
+}
+
+@media (max-width: 1020px) {
+  .advocate-piece,
+  .advocate-final-portrait,
+  .advocate-triptych {
+    width: min(72vw, 650px);
+    height: min(56svh, 620px);
+  }
+}
+
+@media (max-width: 720px) {
+  .advocate-piece,
+  .advocate-final-portrait,
+  .advocate-triptych {
+    width: 86vw;
+    height: 48svh;
+  }
+
+  .advocate-left-lapel {
+    transform:
+      translate(
+        calc(-50% + (1 - var(--advocate-suit)) * -108px),
+        calc(-50% + (1 - var(--advocate-suit)) * 20px)
+      )
+      rotateY(calc((1 - var(--advocate-suit)) * 20deg));
+  }
+
+  .advocate-right-lapel {
+    transform:
+      translate(
+        calc(-50% + (1 - var(--advocate-suit)) * 108px),
+        calc(-50% + (1 - var(--advocate-suit)) * 20px)
+      )
+      rotateY(calc((1 - var(--advocate-suit)) * -20deg));
+  }
+
+  .advocate-sleeve-left {
+    transform:
+      translate(
+        calc(-50% + (1 - var(--advocate-suit)) * -120px),
+        calc(-50% + (1 - var(--advocate-suit)) * 24px)
+      )
+      rotateZ(calc((1 - var(--advocate-suit)) * -8deg));
+  }
+
+  .advocate-sleeve-right {
+    transform:
+      translate(
+        calc(-50% + (1 - var(--advocate-suit)) * 120px),
+        calc(-50% + (1 - var(--advocate-suit)) * 24px)
+      )
+      rotateZ(calc((1 - var(--advocate-suit)) * 8deg));
+  }
+
+  .advocate-stitch-line {
+    display: none;
+  }
+}
