@@ -73,9 +73,9 @@ const anatomyLabels = [
   "Renan Durso",
 ];
 
-const tailoringMasterChunks = Array.from(
-  { length: 12 },
-  (_, index) => `/anatomia/master-${String(index).padStart(2, "0")}.txt`,
+const tailoringVideoChunks = Array.from(
+  { length: 31 },
+  (_, index) => `/anatomia/video-${String(index).padStart(2, "0")}.txt`,
 );
 
 function clamp(value, min = 0, max = 1) {
@@ -111,27 +111,27 @@ function PortraitImage({ alt = "", className = "" }) {
 }
 
 function TailoringSequence() {
-  const canvasRef = useRef(null);
+  const videoRef = useRef(null);
   const rootRef = useRef(null);
-  const [spriteUrl, setSpriteUrl] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
 
   useEffect(() => {
     let cancelled = false;
     let objectUrl = "";
 
-    async function loadMaster() {
+    async function loadVideo() {
       try {
         const parts = await Promise.all(
-          tailoringMasterChunks.map(async (url) => {
+          tailoringVideoChunks.map(async (url) => {
             const response = await fetch(url, { cache: "force-cache" });
-            if (!response.ok) throw new Error(`asset-${response.status}`);
+            if (!response.ok) throw new Error(`video-${response.status}`);
             return response.text();
           }),
         );
 
         const base64 = parts.join("");
-        if (base64.length !== 69568) {
-          throw new Error(`master-incompleto-${base64.length}`);
+        if (base64.length !== 183016) {
+          throw new Error(`video-incompleto-${base64.length}`);
         }
 
         const binary = atob(base64);
@@ -141,16 +141,16 @@ function TailoringSequence() {
         }
 
         objectUrl = URL.createObjectURL(
-          new Blob([bytes], { type: "image/avif" }),
+          new Blob([bytes], { type: "video/mp4" }),
         );
 
-        if (!cancelled) setSpriteUrl(objectUrl);
+        if (!cancelled) setVideoUrl(objectUrl);
       } catch (error) {
-        console.error("Não foi possível carregar a sequência de alfaiataria.", error);
+        console.error("Não foi possível carregar a animação de alfaiataria.", error);
       }
     }
 
-    loadMaster();
+    loadVideo();
 
     return () => {
       cancelled = true;
@@ -159,49 +159,16 @@ function TailoringSequence() {
   }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const video = videoRef.current;
     const root = rootRef.current;
-    if (!canvas || !root || !spriteUrl) return undefined;
-
-    const image = new Image();
-    image.decoding = "async";
-    image.src = spriteUrl;
+    if (!video || !root || !videoUrl) return undefined;
 
     let raf = 0;
     let dead = false;
-    let frames = [];
+    let current = 0;
 
-    function buildFrames() {
-      const frameWidth = Math.round(image.naturalWidth / 5);
-      const frameHeight = image.naturalHeight;
-      frames = Array.from({ length: 5 }, (_, index) => {
-        const frame = document.createElement("canvas");
-        frame.width = frameWidth;
-        frame.height = frameHeight;
-        frame
-          .getContext("2d")
-          .drawImage(
-            image,
-            index * frameWidth,
-            0,
-            frameWidth,
-            frameHeight,
-            0,
-            0,
-            frameWidth,
-            frameHeight,
-          );
-        return frame;
-      });
-    }
-
-    function draw() {
+    const tick = () => {
       if (dead) return;
-      if (!image.complete || !image.naturalWidth) {
-        raf = requestAnimationFrame(draw);
-        return;
-      }
-      if (!frames.length) buildFrames();
 
       const section = root.closest(".anatomy-scene");
       const progress = clamp(
@@ -210,203 +177,46 @@ function TailoringSequence() {
         ),
       );
 
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const pixelWidth = Math.max(1, Math.round(rect.width * dpr));
-      const pixelHeight = Math.max(1, Math.round(rect.height * dpr));
+      if (video.readyState >= 1 && Number.isFinite(video.duration) && video.duration > 0) {
+        const scrubProgress = smooth(range(progress, 0.02, 0.88));
+        const target = scrubProgress * Math.max(video.duration - 0.035, 0);
+        current += (target - current) * 0.26;
 
-      if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
-        canvas.width = pixelWidth;
-        canvas.height = pixelHeight;
+        if (Math.abs(video.currentTime - current) > 0.012) {
+          video.currentTime = current;
+        }
       }
 
-      const ctx = canvas.getContext("2d", { alpha: true });
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, rect.width, rect.height);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
+      raf = requestAnimationFrame(tick);
+    };
 
-      const sourceWidth = frames[0].width;
-      const sourceHeight = frames[0].height;
-      const ratio = sourceWidth / sourceHeight;
+    const onLoaded = () => {
+      video.pause();
+      video.currentTime = 0;
+      current = 0;
+    };
 
-      const maxWidth = rect.width * (window.innerWidth < 760 ? 0.9 : 0.88);
-      const maxHeight = rect.height * (window.innerWidth < 760 ? 0.8 : 0.9);
-      let width = maxWidth;
-      let height = width / ratio;
-      if (height > maxHeight) {
-        height = maxHeight;
-        width = height * ratio;
-      }
-
-      const x = (rect.width - width) / 2;
-      const y = (rect.height - height) / 2;
-
-      function paintState(index, alpha = 1) {
-        ctx.save();
-        ctx.globalAlpha = clamp(alpha);
-        ctx.drawImage(frames[index], x, y, width, height);
-        ctx.restore();
-      }
-
-      function reveal({
-        base,
-        next,
-        amount,
-        mode,
-      }) {
-        paintState(base);
-        const t = smooth(amount);
-        if (t <= 0) return;
-        if (t >= 0.998) {
-          paintState(next);
-          return;
-        }
-
-        ctx.save();
-
-        if (mode === "shirt") {
-          const body = smooth(range(t, 0, 0.7));
-          const left = smooth(range(t, 0.08, 0.78));
-          const right = smooth(range(t, 0.14, 0.84));
-          const collar = smooth(range(t, 0.58, 1));
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(
-            x + width * 0.25,
-            y + height * 0.11,
-            width * 0.5,
-            height * 0.72 * body,
-          );
-          ctx.clip();
-          ctx.drawImage(frames[next], x, y - (1 - body) * 24, width, height);
-          ctx.restore();
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(x, y + height * 0.1, width * 0.43, height * 0.82);
-          ctx.clip();
-          ctx.globalAlpha = left;
-          ctx.drawImage(frames[next], x - (1 - left) * width * 0.28, y, width, height);
-          ctx.restore();
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(x + width * 0.57, y + height * 0.1, width * 0.43, height * 0.82);
-          ctx.clip();
-          ctx.globalAlpha = right;
-          ctx.drawImage(frames[next], x + (1 - right) * width * 0.28, y, width, height);
-          ctx.restore();
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(x + width * 0.3, y, width * 0.4, height * 0.3);
-          ctx.clip();
-          ctx.globalAlpha = collar;
-          ctx.drawImage(frames[next], x, y - (1 - collar) * 22, width, height);
-          ctx.restore();
-        }
-
-        if (mode === "tie") {
-          ctx.beginPath();
-          ctx.rect(
-            x + width * 0.38,
-            y + height * 0.07,
-            width * 0.24,
-            height * 0.82 * t,
-          );
-          ctx.clip();
-          ctx.globalAlpha = t;
-          ctx.drawImage(frames[next], x, y - (1 - t) * height * 0.14, width, height);
-        }
-
-        if (mode === "vest") {
-          const left = smooth(range(t, 0, 0.88));
-          const right = smooth(range(t, 0.12, 1));
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(x + width * 0.12, y + height * 0.08, width * 0.39, height * 0.78);
-          ctx.clip();
-          ctx.globalAlpha = left;
-          ctx.drawImage(frames[next], x - (1 - left) * width * 0.22, y, width, height);
-          ctx.restore();
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(x + width * 0.49, y + height * 0.08, width * 0.39, height * 0.78);
-          ctx.clip();
-          ctx.globalAlpha = right;
-          ctx.drawImage(frames[next], x + (1 - right) * width * 0.22, y, width, height);
-          ctx.restore();
-        }
-
-        if (mode === "jacket") {
-          const left = smooth(range(t, 0, 0.9));
-          const right = smooth(range(t, 0.1, 1));
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(x, y, width * 0.51, height);
-          ctx.clip();
-          ctx.globalAlpha = left;
-          ctx.translate(x + width * 0.5, y + height * 0.42);
-          ctx.scale(0.97 + left * 0.03, 0.97 + left * 0.03);
-          ctx.translate(-(x + width * 0.5), -(y + height * 0.42));
-          ctx.drawImage(frames[next], x - (1 - left) * width * 0.34, y, width, height);
-          ctx.restore();
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(x + width * 0.49, y, width * 0.51, height);
-          ctx.clip();
-          ctx.globalAlpha = right;
-          ctx.translate(x + width * 0.5, y + height * 0.42);
-          ctx.scale(0.97 + right * 0.03, 0.97 + right * 0.03);
-          ctx.translate(-(x + width * 0.5), -(y + height * 0.42));
-          ctx.drawImage(frames[next], x + (1 - right) * width * 0.34, y, width, height);
-          ctx.restore();
-        }
-
-        ctx.restore();
-      }
-
-      if (progress < 0.12) {
-        paintState(0);
-      } else if (progress < 0.30) {
-        reveal({ base: 0, next: 1, amount: range(progress, 0.12, 0.30), mode: "shirt" });
-      } else if (progress < 0.36) {
-        paintState(1);
-      } else if (progress < 0.46) {
-        reveal({ base: 1, next: 2, amount: range(progress, 0.36, 0.46), mode: "tie" });
-      } else if (progress < 0.51) {
-        paintState(2);
-      } else if (progress < 0.65) {
-        reveal({ base: 2, next: 3, amount: range(progress, 0.51, 0.65), mode: "vest" });
-      } else if (progress < 0.70) {
-        paintState(3);
-      } else if (progress < 0.86) {
-        reveal({ base: 3, next: 4, amount: range(progress, 0.70, 0.86), mode: "jacket" });
-      } else {
-        paintState(4);
-      }
-
-      raf = requestAnimationFrame(draw);
-    }
-
-    image.addEventListener("load", draw, { once: true });
-    raf = requestAnimationFrame(draw);
+    video.addEventListener("loadedmetadata", onLoaded);
+    raf = requestAnimationFrame(tick);
 
     return () => {
       dead = true;
       cancelAnimationFrame(raf);
+      video.removeEventListener("loadedmetadata", onLoaded);
     };
-  }, [spriteUrl]);
+  }, [videoUrl]);
 
   return (
     <div ref={rootRef} className="tailoring-master">
-      <canvas ref={canvasRef} className="tailoring-canvas" aria-hidden="true" />
+      <video
+        ref={videoRef}
+        className="tailoring-video"
+        src={videoUrl || undefined}
+        muted
+        playsInline
+        preload="auto"
+        aria-label="Animação contínua da construção do traje"
+      />
       <div className="tailoring-rings" aria-hidden="true">
         <i />
         <i />
