@@ -487,7 +487,7 @@ function App() {
           const travel = Math.max(anatomyRef.current.offsetHeight - window.innerHeight, 1);
           const p = clamp(-rect.top / travel);
 
-          anatomyRef.current.style.setProperty("--anatomy", String(range(p, 0.03, 0.14)));
+          anatomyRef.current.style.setProperty("--anatomy", "1");
           anatomyRef.current.style.setProperty("--shirt", String(range(p, 0.14, 0.28)));
           anatomyRef.current.style.setProperty("--tie", String(range(p, 0.28, 0.40)));
           anatomyRef.current.style.setProperty("--vest", String(range(p, 0.40, 0.54)));
