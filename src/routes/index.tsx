@@ -514,6 +514,29 @@ function Index() {
             const progress = clamp(-rect.top / travel);
             element.style.setProperty("--scene-progress", String(progress));
             element.style.setProperty("--scene-shift", `${progress * 352}%`);
+
+            if (element.id === "sobre") {
+              const intro = clamp(progress / 0.14);
+              const assemble = clamp((progress - 0.08) / 0.34);
+              const complete = clamp((progress - 0.38) / 0.18);
+              const open = clamp((progress - 0.56) / 0.27);
+              const copy = clamp((progress - 0.76) / 0.2);
+              const shellWidth = 100 - copy * 52;
+
+              element.style.setProperty("--portrait-intro", String(intro));
+              element.style.setProperty("--portrait-assemble", String(assemble));
+              element.style.setProperty("--portrait-complete", String(complete));
+              element.style.setProperty("--portrait-open", String(open));
+              element.style.setProperty("--portrait-copy", String(copy));
+              element.style.setProperty(
+                "--portrait-shell-width",
+                `${shellWidth}%`,
+              );
+              element.style.setProperty(
+                "--portrait-copy-shift",
+                `${(1 - copy) * 46}px`,
+              );
+            }
           },
         );
       });
@@ -755,33 +778,73 @@ function Index() {
           </div>
 
           <div className="portrait-scene-shell">
-            <div className="portrait-triptych">
-              <div
-                className="portrait-angle-panel portrait-angle-left"
-                aria-hidden="true"
-              >
+            <div className="portrait-anatomy-stage">
+              <div className="portrait-anatomy-grid" aria-hidden="true" />
+              <div className="portrait-anatomy-title" aria-hidden="true">
+                <small>ANATOMIA DA ATUAÇÃO</small>
+                <span>Direito.</span>
+                <em>Saúde.</em>
+              </div>
+
+              <div className="portrait-ghost" aria-hidden="true">
                 <img src={portraitUrl} alt="" />
               </div>
 
-              <div className="portrait-angle-panel portrait-angle-center">
+              <div className="portrait-piece portrait-piece-head" aria-hidden="true">
+                <img src={portraitUrl} alt="" />
+              </div>
+              <div className="portrait-piece portrait-piece-left" aria-hidden="true">
+                <img src={portraitUrl} alt="" />
+              </div>
+              <div className="portrait-piece portrait-piece-center" aria-hidden="true">
+                <img src={portraitUrl} alt="" />
+              </div>
+              <div className="portrait-piece portrait-piece-right" aria-hidden="true">
+                <img src={portraitUrl} alt="" />
+              </div>
+              <div className="portrait-piece portrait-piece-lower" aria-hidden="true">
+                <img src={portraitUrl} alt="" />
+              </div>
+
+              <div className="portrait-complete-layer">
                 <img src={portraitUrl} alt="Renan Durso" />
+                <div className="portrait-complete-sheen" aria-hidden="true" />
               </div>
 
-              <div
-                className="portrait-angle-panel portrait-angle-right"
-                aria-hidden="true"
-              >
-                <img src={portraitUrl} alt="" />
+              <div className="portrait-triptych">
+                <div
+                  className="portrait-angle-panel portrait-angle-left"
+                  aria-hidden="true"
+                >
+                  <img src={portraitUrl} alt="" />
+                </div>
+
+                <div className="portrait-angle-panel portrait-angle-center">
+                  <img src={portraitUrl} alt="Renan Durso" />
+                </div>
+
+                <div
+                  className="portrait-angle-panel portrait-angle-right"
+                  aria-hidden="true"
+                >
+                  <img src={portraitUrl} alt="" />
+                </div>
+
+                <div className="portrait-depth-glow" aria-hidden="true" />
+                <div className="portrait-scan" aria-hidden="true" />
+                <div className="portrait-floor-shadow" aria-hidden="true" />
+                <div className="portrait-angle-label portrait-label-left" aria-hidden="true">PERFIL</div>
+                <div className="portrait-angle-label portrait-label-center" aria-hidden="true">FRONTAL</div>
+                <div className="portrait-angle-label portrait-label-right" aria-hidden="true">PERFIL</div>
+                <div className="portrait-tech-ring portrait-tech-ring-a" aria-hidden="true" />
+                <div className="portrait-tech-ring portrait-tech-ring-b" aria-hidden="true" />
               </div>
 
-              <div className="portrait-depth-glow" aria-hidden="true" />
-              <div className="portrait-scan" aria-hidden="true" />
-              <div className="portrait-floor-shadow" aria-hidden="true" />
-              <div className="portrait-angle-label portrait-label-left" aria-hidden="true">PERFIL</div>
-              <div className="portrait-angle-label portrait-label-center" aria-hidden="true">FRONTAL</div>
-              <div className="portrait-angle-label portrait-label-right" aria-hidden="true">PERFIL</div>
-              <div className="portrait-tech-ring portrait-tech-ring-a" aria-hidden="true" />
-              <div className="portrait-tech-ring portrait-tech-ring-b" aria-hidden="true" />
+              <div className="portrait-phase-indicator" aria-hidden="true">
+                <span>01 ESTRUTURA</span>
+                <span>02 MONTAGEM</span>
+                <span>03 PRESENÇA</span>
+              </div>
             </div>
 
             <div className="portrait-card">
