@@ -204,6 +204,7 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeArea, setActiveArea] = useState(0);
   const [anatomyStep, setAnatomyStep] = useState(0);
+  const [contactStatus, setContactStatus] = useState("idle");
   const anatomyRef = useRef(null);
   const areasRef = useRef(null);
 
@@ -297,17 +298,40 @@ function App() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const submitContact = (event) => {
+  const submitContact = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const name = data.get("name") || "";
-    const phone = data.get("phone") || "";
-    const message = data.get("message") || "";
-    const subject = encodeURIComponent(`Contato pelo site — ${name}`);
-    const body = encodeURIComponent(
-      `Nome: ${name}\nTelefone: ${phone}\n\nMensagem:\n${message}`,
-    );
-    window.location.href = `mailto:renandurso@aasp.org.br?subject=${subject}&body=${body}`;
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const payload = {
+      name: String(data.get("name") || "").trim(),
+      phone: String(data.get("phone") || "").trim(),
+      message: String(data.get("message") || "").trim(),
+      website: String(data.get("website") || "").trim(),
+    };
+
+    if (!payload.name || !payload.message) return;
+
+    setContactStatus("sending");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error("contact-api-unavailable");
+
+      setContactStatus("success");
+      form.reset();
+    } catch {
+      setContactStatus("fallback");
+      const subject = encodeURIComponent(`Contato pelo site — ${payload.name}`);
+      const body = encodeURIComponent(
+        `Nome: ${payload.name}\nTelefone: ${payload.phone}\n\nMensagem:\n${payload.message}`,
+      );
+      window.location.href = `mailto:renandurso@aasp.org.br?subject=${subject}&body=${body}`;
+    }
   };
 
   return (
@@ -618,6 +642,13 @@ function App() {
             <Sparkles size={16} />
             Iniciar uma conversa
           </div>
+          <input
+            className="contact-honeypot"
+            name="website"
+            tabIndex="-1"
+            autoComplete="off"
+            aria-hidden="true"
+          />
           <label>
             Nome
             <input name="name" required placeholder="Como podemos chamar você?" />
@@ -635,9 +666,16 @@ function App() {
               placeholder="Explique a situação em poucas linhas."
             />
           </label>
-          <button type="submit">
-            Enviar mensagem <ArrowUpRight size={16} />
+          <button type="submit" disabled={contactStatus === "sending"}>
+            {contactStatus === "sending" ? "Enviando..." : "Enviar mensagem"}
+            <ArrowUpRight size={16} />
           </button>
+          <p className={`contact-status ${contactStatus}`} aria-live="polite">
+            {contactStatus === "success" &&
+              "Mensagem enviada. O escritório poderá retornar pelos dados informados."}
+            {contactStatus === "fallback" &&
+              "Abrimos seu aplicativo de e-mail para concluir o contato."}
+          </p>
         </form>
 
         <footer className="site-footer">
