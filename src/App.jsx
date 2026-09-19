@@ -1,23 +1,8 @@
-import {
-  Activity,
-  ArrowDown,
-  ArrowRight,
-  ArrowUpRight,
-  HeartPulse,
-  Mail,
-  MapPin,
-  Menu,
-  Scale,
-  ShieldCheck,
-  Sparkles,
-  Stethoscope,
-  X,
-} from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowDown, ArrowUpRight, Mail, MapPin, Menu, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 const portraitUrl =
   "https://renandurso.lovable.app/__l5e/assets-v1/627158e5-171e-4d04-a900-3ab4beb348d8/adv-1.png";
-
 const portraitFallbackUrl =
   "https://jc-fotos-correspondentes.s3.amazonaws.com/452503/RENAN_DURSO_PEREIRA-20191021135624_120x120.jpg";
 
@@ -28,7 +13,6 @@ const practiceAreas = [
     short: "Continuidade do cuidado em casa.",
     description:
       "Atuação em negativas de internação domiciliar, equipe, insumos e continuidade do tratamento prescrito.",
-    icon: HeartPulse,
     image:
       "https://images.pexels.com/photos/7659685/pexels-photo-7659685.jpeg?auto=compress&cs=tinysrgb&w=1600",
   },
@@ -38,7 +22,6 @@ const practiceAreas = [
     short: "Acesso ao tratamento prescrito.",
     description:
       "Medidas relacionadas a medicamentos de alto custo, uso contínuo, importados e negativas de cobertura.",
-    icon: Stethoscope,
     image:
       "https://images.pexels.com/photos/4989187/pexels-photo-4989187.jpeg?auto=compress&cs=tinysrgb&w=1600",
   },
@@ -48,7 +31,6 @@ const practiceAreas = [
     short: "Tempo importa quando o tratamento é urgente.",
     description:
       "Atuação em negativas envolvendo quimioterapia, imunoterapia, radioterapia e tratamentos indispensáveis.",
-    icon: Activity,
     image:
       "https://images.pexels.com/photos/7659870/pexels-photo-7659870.jpeg?auto=compress&cs=tinysrgb&w=1600",
   },
@@ -58,99 +40,56 @@ const practiceAreas = [
     short: "Proteção jurídica diante da negativa.",
     description:
       "Análise de negativas de cirurgias, exames, próteses, terapias multidisciplinares e outros procedimentos.",
-    icon: ShieldCheck,
     image:
       "https://images.pexels.com/photos/28736007/pexels-photo-28736007.jpeg?auto=compress&cs=tinysrgb&w=1600",
   },
 ];
 
-const anatomyLabels = [
-  "Estrutura",
-  "Camisa",
-  "Gravata",
-  "Colete",
-  "Paletó",
-  "Renan Durso",
-];
-
-const tailoringSpriteChunks = Array.from(
+const anatomyLabels = ["Estrutura", "Camisa", "Gravata", "Colete", "Paletó", "Presença"];
+const spriteChunks = Array.from(
   { length: 13 },
   (_, index) => `/anatomia/safe-${String(index).padStart(2, "0")}.txt`,
 );
 
-function clamp(value, min = 0, max = 1) {
-  return Math.min(max, Math.max(min, value));
-}
+const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+const range = (value, start, end) => clamp((value - start) / Math.max(end - start, 0.001));
 
-function range(value, start, end) {
-  return clamp((value - start) / Math.max(end - start, 0.0001));
-}
-
-function PortraitImage({ alt = "", className = "" }) {
+function Portrait({ alt = "", className = "", loading = "eager" }) {
   return (
     <img
       src={portraitUrl}
       alt={alt}
       className={className}
-      loading="eager"
+      loading={loading}
       decoding="async"
-      fetchPriority="high"
       onError={(event) => {
         const image = event.currentTarget;
-        if (!image.src.includes("RENAN_DURSO_PEREIRA")) {
-          image.src = portraitFallbackUrl;
-        }
+        if (!image.src.includes("RENAN_DURSO_PEREIRA")) image.src = portraitFallbackUrl;
       }}
     />
   );
 }
 
-function AnatomyFigure({ step }) {
+function TailoringAssembly({ step }) {
   const [spriteUrl, setSpriteUrl] = useState("");
 
   useEffect(() => {
     let cancelled = false;
     let objectUrl = "";
-
-    const loadSprite = async () => {
-      try {
-        const parts = await Promise.all(
-          tailoringSpriteChunks.map(async (url) => {
-            const response = await fetch(url, { cache: "force-cache" });
-            if (!response.ok) {
-              throw new Error(`Falha ao carregar ${url}: ${response.status}`);
-            }
-            return response.text();
-          }),
-        );
-
-        const base64 = parts.join("");
-        if (base64.length !== 74276) {
-          throw new Error(
-            `Sprite incompleto: ${base64.length} de 74276 caracteres`,
-          );
-        }
-
-        const binary = atob(base64);
-        const bytes = new Uint8Array(binary.length);
-        for (let index = 0; index < binary.length; index += 1) {
-          bytes[index] = binary.charCodeAt(index);
-        }
-
-        objectUrl = URL.createObjectURL(
-          new Blob([bytes], { type: "image/webp" }),
-        );
-
-        if (!cancelled) {
-          setSpriteUrl(objectUrl);
-        }
-      } catch (error) {
-        console.error("Erro ao reconstruir a animação de alfaiataria:", error);
-      }
-    };
-
-    loadSprite();
-
+    Promise.all(
+      spriteChunks.map(async (url) => {
+        const response = await fetch(url, { cache: "force-cache" });
+        if (!response.ok) throw new Error(`Falha ao carregar ${url}`);
+        return response.text();
+      }),
+    )
+      .then((parts) => {
+        const binary = atob(parts.join(""));
+        const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+        objectUrl = URL.createObjectURL(new Blob([bytes], { type: "image/webp" }));
+        if (!cancelled) setSpriteUrl(objectUrl);
+      })
+      .catch((error) => console.error("Erro na montagem de alfaiataria:", error));
     return () => {
       cancelled = true;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
@@ -158,419 +97,95 @@ function AnatomyFigure({ step }) {
   }, []);
 
   return (
-    <div
-      className="tailoring-assembly"
-      aria-label="Montagem visual do traje do advogado"
-      style={{ "--tailoring-sprite": spriteUrl ? `url("${spriteUrl}")` : "none" }}
-    >
-      <div className="assembly-grid" aria-hidden="true" />
-      <div className="assembly-aura" aria-hidden="true" />
-      <div className="assembly-floor" aria-hidden="true" />
-      <div className="assembly-axis" aria-hidden="true" />
-
-      <div className="assembly-stage">
-        <div
-          className="assembly-piece assembly-sprite sprite-anatomy assembly-anatomy"
-          aria-hidden="true"
-        />
-
-        <div
-          className="assembly-piece assembly-sprite sprite-shirt assembly-shirt"
-          aria-hidden="true"
-        />
-
-        <div
-          className="assembly-piece assembly-sprite sprite-tie assembly-tie"
-          aria-hidden="true"
-        />
-
-        <div
-          className="assembly-piece assembly-sprite sprite-vest assembly-vest"
-          aria-hidden="true"
-        />
-
-        <div
-          className="assembly-piece assembly-jacket assembly-jacket-left"
-          aria-hidden="true"
-        >
-          <div className="assembly-sprite sprite-jacket" />
+    <div className="tailoring" style={{ "--sprite": spriteUrl ? `url(${spriteUrl})` : "none" }}>
+      <div className="tailoring-ruler" aria-hidden="true" />
+      <div className="tailoring-light" aria-hidden="true" />
+      <div className="tailoring-canvas" aria-label="Construção visual de um traje sob medida">
+        {[
+          ["body", "Estrutura"],
+          ["shirt", "Camisa"],
+          ["tie", "Gravata"],
+          ["vest", "Colete"],
+        ].map(([piece, label]) => (
+          <div key={piece} className={`tailor-layer tailor-${piece}`} aria-label={label} />
+        ))}
+        <div className="tailor-layer tailor-jacket tailor-jacket-left"><i /></div>
+        <div className="tailor-layer tailor-jacket tailor-jacket-right"><i /></div>
+        <div className="tailor-final">
+          <Portrait alt="Renan Durso" />
+          <span aria-hidden="true" />
         </div>
-
-        <div
-          className="assembly-piece assembly-jacket assembly-jacket-right"
-          aria-hidden="true"
-        >
-          <div className="assembly-sprite sprite-jacket" />
-        </div>
-
-        <div className="assembly-final-renan">
-          <div className="assembly-renan-halo" aria-hidden="true" />
-          <PortraitImage alt="Renan Durso" />
-          <div className="assembly-renan-light" aria-hidden="true" />
-          <div className="assembly-renan-rim" aria-hidden="true" />
-        </div>
-
-        <div className="assembly-scan" aria-hidden="true" />
       </div>
-
-      <div className="assembly-stage-label" aria-hidden="true">
-        <span>0{Math.min(step + 1, 6)}</span>
+      <div className="tailoring-caption">
+        <span>0{step + 1}</span>
         <strong>{anatomyLabels[step]}</strong>
       </div>
-
-      <div className="assembly-timeline" aria-hidden="true">
-        {anatomyLabels.map((label, index) => (
-          <i key={label} className={index <= step ? "active" : ""} />
-        ))}
+      <div className="tailoring-progress" aria-hidden="true">
+        {anatomyLabels.map((label, index) => <i key={label} className={index <= step ? "active" : ""} />)}
       </div>
     </div>
   );
 }
 
-function sampleAreaShape(draw, count) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 420;
-  canvas.height = 420;
-  const context = canvas.getContext("2d");
-  if (!context) return Array.from({ length: count }, () => [0, 0]);
-
-  context.clearRect(0, 0, 420, 420);
-  context.strokeStyle = "#fff";
-  context.fillStyle = "#fff";
-  context.lineWidth = 20;
-  context.lineCap = "round";
-  context.lineJoin = "round";
-  draw(context);
-
-  const data = context.getImageData(0, 0, 420, 420).data;
-  const points = [];
-  for (let y = 0; y < 420; y += 3) {
-    for (let x = 0; x < 420; x += 3) {
-      if (data[(y * 420 + x) * 4 + 3] > 24) {
-        points.push([x - 210, y - 210]);
-      }
-    }
-  }
-
-  if (!points.length) return Array.from({ length: count }, () => [0, 0]);
-
-  return Array.from({ length: count }, (_, index) => {
-    const point = points[Math.floor((index / count) * points.length) % points.length];
-    return [point[0], point[1]];
-  });
-}
-
-function buildAreaTargets(count) {
-  const home = sampleAreaShape((ctx) => {
-    ctx.beginPath();
-    ctx.moveTo(80, 210);
-    ctx.lineTo(210, 95);
-    ctx.lineTo(340, 210);
-    ctx.lineTo(340, 335);
-    ctx.lineTo(80, 335);
-    ctx.closePath();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(210, 274);
-    ctx.bezierCurveTo(166, 228, 126, 260, 210, 345);
-    ctx.bezierCurveTo(294, 260, 254, 228, 210, 274);
-    ctx.stroke();
-  }, count);
-
-  const medicine = sampleAreaShape((ctx) => {
-    ctx.save();
-    ctx.translate(210, 210);
-    ctx.rotate(-Math.PI / 4);
-
-    const left = -105;
-    const right = 105;
-    const radius = 48;
-
-    ctx.beginPath();
-    ctx.moveTo(left + radius, -radius);
-    ctx.lineTo(right - radius, -radius);
-    ctx.arc(right - radius, 0, radius, -Math.PI / 2, Math.PI / 2);
-    ctx.lineTo(left + radius, radius);
-    ctx.arc(left + radius, 0, radius, Math.PI / 2, Math.PI * 1.5);
-    ctx.closePath();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(0, -radius);
-    ctx.lineTo(0, radius);
-    ctx.stroke();
-
-    ctx.restore();
-  }, count);
-
-  const oncology = sampleAreaShape((ctx) => {
-    ctx.beginPath();
-    ctx.moveTo(205, 82);
-    ctx.bezierCurveTo(135, 105, 140, 190, 194, 230);
-    ctx.bezierCurveTo(236, 260, 265, 318, 294, 353);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(222, 83);
-    ctx.bezierCurveTo(286, 122, 276, 190, 226, 232);
-    ctx.bezierCurveTo(190, 262, 162, 318, 138, 352);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(194, 230);
-    ctx.lineTo(226, 232);
-    ctx.stroke();
-  }, count);
-
-  const surgery = sampleAreaShape((ctx) => {
-    ctx.strokeRect(175, 82, 70, 256);
-    ctx.strokeRect(82, 175, 256, 70);
-    ctx.beginPath();
-    ctx.arc(210, 210, 150, 0, Math.PI * 2);
-    ctx.stroke();
-  }, count);
-
-  return [home, medicine, oncology, surgery];
-}
-
-function AreaParticles({ activeArea }) {
-  const canvasRef = useRef(null);
-  const activeRef = useRef(activeArea);
-
-  useEffect(() => {
-    activeRef.current = activeArea;
-  }, [activeArea]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const context = canvas.getContext("2d");
-    if (!context) return;
-
-    let raf = 0;
-    let width = 1;
-    let height = 1;
-    let dpr = 1;
-    let count = 300;
-    let particles = [];
-    let targets = [];
-    let previousTargetIndex = 0;
-    let targetIndex = activeRef.current;
-    let morph = 1;
-
-    const seed = (index) => {
-      const value = Math.sin(index * 912.77 + 43.21) * 43758.5453;
-      return value - Math.floor(value);
-    };
-
-    const configure = () => {
-      const rect = canvas.parentElement?.getBoundingClientRect();
-      width = Math.max(rect?.width || canvas.clientWidth || 1, 1);
-      height = Math.max(rect?.height || canvas.clientHeight || 1, 1);
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      count = width < 640 ? 190 : 340;
-
-      canvas.width = Math.floor(width * dpr);
-      canvas.height = Math.floor(height * dpr);
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      targets = buildAreaTargets(count);
-      particles = Array.from({ length: count }, (_, index) => ({
-        x: (seed(index + 20) - .5) * width * .55,
-        y: (seed(index + 90) - .5) * height * .55,
-        vx: 0,
-        vy: 0,
-        size: .85 + seed(index + 150) * 1.85,
-        phase: seed(index + 230) * Math.PI * 2,
-        alpha: .34 + seed(index + 320) * .5,
-      }));
-
-      previousTargetIndex = activeRef.current;
-      targetIndex = activeRef.current;
-      morph = 1;
-    };
-
-    const observer = new ResizeObserver(configure);
-    if (canvas.parentElement) observer.observe(canvas.parentElement);
-
-    const render = (time) => {
-      const requestedTarget = activeRef.current;
-      if (requestedTarget !== targetIndex) {
-        previousTargetIndex = targetIndex;
-        targetIndex = requestedTarget;
-        morph = 0;
-      }
-
-      morph = Math.min(1, morph + .028);
-      const easedMorph = morph * morph * (3 - 2 * morph);
-
-      context.clearRect(0, 0, width, height);
-
-      const from = targets[previousTargetIndex] || targets[0] || [];
-      const to = targets[targetIndex] || targets[0] || [];
-      const scale = Math.min(width, height) / 455;
-      const centerX = width * .5;
-      const centerY = height * .49;
-
-      particles.forEach((particle, index) => {
-        const fromPoint = from[index % Math.max(from.length, 1)] || [0, 0];
-        const toPoint = to[index % Math.max(to.length, 1)] || [0, 0];
-
-        const pointX =
-          fromPoint[0] + (toPoint[0] - fromPoint[0]) * easedMorph;
-        const pointY =
-          fromPoint[1] + (toPoint[1] - fromPoint[1]) * easedMorph;
-
-        const targetX =
-          pointX * scale + Math.cos(time * .001 + particle.phase) * 1.8;
-        const targetY =
-          pointY * scale + Math.sin(time * .0011 + particle.phase) * 1.8;
-
-        particle.vx += (targetX - particle.x) * .03;
-        particle.vy += (targetY - particle.y) * .03;
-        particle.vx *= .83;
-        particle.vy *= .83;
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-
-        const white = index % 10 === 0;
-        context.beginPath();
-        context.fillStyle = white
-          ? `rgba(255,255,255,${particle.alpha * .86})`
-          : `rgba(229,198,142,${particle.alpha})`;
-        context.shadowBlur = 8 + particle.size * 2.8;
-        context.shadowColor = white
-          ? "rgba(255,255,255,.32)"
-          : "rgba(229,198,142,.58)";
-        context.arc(
-          centerX + particle.x,
-          centerY + particle.y,
-          particle.size,
-          0,
-          Math.PI * 2,
-        );
-        context.fill();
-      });
-
-      context.shadowBlur = 0;
-      raf = requestAnimationFrame(render);
-    };
-
-    configure();
-    raf = requestAnimationFrame(render);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      observer.disconnect();
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="area-particles-canvas"
-      aria-hidden="true"
-    />
-  );
-}
-
-
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeArea, setActiveArea] = useState(0);
+  const [headerSolid, setHeaderSolid] = useState(false);
   const [anatomyStep, setAnatomyStep] = useState(0);
+  const [activeArea, setActiveArea] = useState(0);
   const [contactStatus, setContactStatus] = useState("idle");
   const anatomyRef = useRef(null);
   const areasRef = useRef(null);
 
-  const dust = useMemo(
-    () => Array.from({ length: 28 }, (_, index) => index),
-    [],
-  );
-
   useEffect(() => {
-    let raf = 0;
-
+    let frame = 0;
     const update = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const root = document.documentElement;
-        const scrollRange = Math.max(
-          document.documentElement.scrollHeight - window.innerHeight,
-          1,
-        );
-        root.style.setProperty("--page-progress", String(window.scrollY / scrollRange));
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const height = Math.max(document.documentElement.scrollHeight - innerHeight, 1);
+        document.documentElement.style.setProperty("--page-progress", String(scrollY / height));
+        setHeaderSolid(scrollY > 80);
 
-        document.querySelectorAll("[data-scroll-scene]").forEach((element) => {
-          const rect = element.getBoundingClientRect();
-          const travel = Math.max(element.offsetHeight - window.innerHeight, 1);
-          const progress = clamp(-rect.top / travel);
-          element.style.setProperty("--progress", String(progress));
+        document.querySelectorAll("[data-scene]").forEach((scene) => {
+          const rect = scene.getBoundingClientRect();
+          const travel = Math.max(scene.offsetHeight - innerHeight, 1);
+          scene.style.setProperty("--scene", String(clamp(-rect.top / travel)));
         });
 
         if (anatomyRef.current) {
           const rect = anatomyRef.current.getBoundingClientRect();
-          const travel = Math.max(anatomyRef.current.offsetHeight - window.innerHeight, 1);
-          const p = clamp(-rect.top / travel);
-
-          anatomyRef.current.style.setProperty("--anatomy", "1");
-          anatomyRef.current.style.setProperty("--shirt", String(range(p, 0.14, 0.28)));
-          anatomyRef.current.style.setProperty("--tie", String(range(p, 0.28, 0.40)));
-          anatomyRef.current.style.setProperty("--vest", String(range(p, 0.40, 0.54)));
-          anatomyRef.current.style.setProperty("--jacket", String(range(p, 0.54, 0.70)));
-          anatomyRef.current.style.setProperty("--complete", String(range(p, 0.70, 0.79)));
-          anatomyRef.current.style.setProperty("--portrait", String(range(p, 0.79, 0.91)));
-          anatomyRef.current.style.setProperty("--split", String(range(p, 0.91, 1)));
-
-          const nextStep =
-            p < 0.14 ? 0 :
-            p < 0.28 ? 1 :
-            p < 0.40 ? 2 :
-            p < 0.54 ? 3 :
-            p < 0.79 ? 4 : 5;
-
-          anatomyRef.current.style.setProperty("--mobile-stage", String(nextStep));
-          setAnatomyStep((current) => (current === nextStep ? current : nextStep));
+          const progress = clamp(-rect.top / Math.max(anatomyRef.current.offsetHeight - innerHeight, 1));
+          anatomyRef.current.style.setProperty("--body", "1");
+          anatomyRef.current.style.setProperty("--shirt", String(range(progress, 0.08, 0.24)));
+          anatomyRef.current.style.setProperty("--tie", String(range(progress, 0.23, 0.38)));
+          anatomyRef.current.style.setProperty("--vest", String(range(progress, 0.37, 0.53)));
+          anatomyRef.current.style.setProperty("--jacket", String(range(progress, 0.52, 0.71)));
+          anatomyRef.current.style.setProperty("--portrait", String(range(progress, 0.76, 0.94)));
+          const next = progress < 0.08 ? 0 : progress < 0.23 ? 1 : progress < 0.37 ? 2 : progress < 0.52 ? 3 : progress < 0.76 ? 4 : 5;
+          setAnatomyStep((current) => current === next ? current : next);
         }
 
         if (areasRef.current) {
           const rect = areasRef.current.getBoundingClientRect();
-          const travel = Math.max(areasRef.current.offsetHeight - window.innerHeight, 1);
-          const p = clamp(-rect.top / travel);
-          const nextArea = Math.min(3, Math.floor(p * 4.001));
-          setActiveArea((current) => (current === nextArea ? current : nextArea));
-          areasRef.current.style.setProperty("--area-progress", String(p));
+          const progress = clamp(-rect.top / Math.max(areasRef.current.offsetHeight - innerHeight, 1));
+          areasRef.current.style.setProperty("--areas", String(progress));
+          const next = Math.min(3, Math.floor(progress * 4));
+          setActiveArea((current) => current === next ? current : next);
         }
       });
     };
-
     const pointer = (event) => {
-      document.documentElement.style.setProperty("--pointer-x", `${event.clientX}px`);
-      document.documentElement.style.setProperty("--pointer-y", `${event.clientY}px`);
-      document.documentElement.style.setProperty(
-        "--pointer-nx",
-        String(event.clientX / window.innerWidth - 0.5),
-      );
-      document.documentElement.style.setProperty(
-        "--pointer-ny",
-        String(event.clientY / window.innerHeight - 0.5),
-      );
+      document.documentElement.style.setProperty("--mx", String(event.clientX / innerWidth - 0.5));
+      document.documentElement.style.setProperty("--my", String(event.clientY / innerHeight - 0.5));
     };
-
     update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    window.addEventListener("pointermove", pointer, { passive: true });
-
+    addEventListener("scroll", update, { passive: true });
+    addEventListener("resize", update);
+    addEventListener("pointermove", pointer, { passive: true });
     return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-      window.removeEventListener("pointermove", pointer);
+      cancelAnimationFrame(frame);
+      removeEventListener("scroll", update);
+      removeEventListener("resize", update);
+      removeEventListener("pointermove", pointer);
     };
   }, []);
 
@@ -579,403 +194,140 @@ function App() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const selectArea = (index) => {
+    const section = areasRef.current;
+    if (!section) return;
+    const travel = section.offsetHeight - innerHeight;
+    scrollTo({ top: section.offsetTop + travel * (index / 3), behavior: "smooth" });
+  };
+
   const submitContact = async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
-    const payload = {
-      name: String(data.get("name") || "").trim(),
-      phone: String(data.get("phone") || "").trim(),
-      message: String(data.get("message") || "").trim(),
-      website: String(data.get("website") || "").trim(),
-    };
-
+    const payload = Object.fromEntries(["name", "phone", "message", "website"].map((key) => [key, String(data.get(key) || "").trim()]));
     if (!payload.name || !payload.message) return;
-
     setContactStatus("sending");
-
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
+      const response = await fetch("/api/contact", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
       if (!response.ok) throw new Error("contact-api-unavailable");
-
       setContactStatus("success");
       form.reset();
     } catch {
       setContactStatus("fallback");
       const subject = encodeURIComponent(`Contato pelo site — ${payload.name}`);
-      const body = encodeURIComponent(
-        `Nome: ${payload.name}\nTelefone: ${payload.phone}\n\nMensagem:\n${payload.message}`,
-      );
-      window.location.href = `mailto:renandurso@aasp.org.br?subject=${subject}&body=${body}`;
+      const body = encodeURIComponent(`Nome: ${payload.name}\nTelefone: ${payload.phone}\n\nMensagem:\n${payload.message}`);
+      location.href = `mailto:renandurso@aasp.org.br?subject=${subject}&body=${body}`;
     }
   };
 
   return (
     <main className="site-shell">
       <div className="page-progress" aria-hidden="true" />
-      <div className="cursor-glow" aria-hidden="true" />
-
-      <div className="ambient-dust" aria-hidden="true">
-        {dust.map((item) => (
-          <i key={item} style={{ "--dust": item }} />
-        ))}
-      </div>
-
-      <header className="site-header">
-        <button className="brand" onClick={() => goTo("inicio")}>
-          <span className="brand-seal">RD</span>
-          <span className="brand-copy">
-            <strong>Renan Durso</strong>
-            <small>Direito Médico e da Saúde</small>
-          </span>
+      <header className={`site-header ${headerSolid ? "solid" : ""}`}>
+        <button className="wordmark" onClick={() => goTo("inicio")} aria-label="Voltar ao início">
+          <strong>RD</strong><span>Renan Durso<small>Direito Médico e da Saúde</small></span>
         </button>
-
-        <nav className="desktop-nav">
-          <button onClick={() => goTo("anatomia")}>Experiência</button>
+        <nav className="desktop-nav" aria-label="Navegação principal">
+          <button onClick={() => goTo("construcao")}>A construção</button>
           <button onClick={() => goTo("atuacao")}>Atuação</button>
-          <button onClick={() => goTo("contato")}>Contato</button>
-          <button className="nav-cta" onClick={() => goTo("contato")}>
-            Falar com o escritório <ArrowUpRight size={14} />
-          </button>
+          <button onClick={() => goTo("sobre")}>Sobre</button>
+          <button className="nav-contact" onClick={() => goTo("contato")}>Contato <ArrowUpRight size={13} /></button>
         </nav>
-
-        <button
-          className="mobile-menu"
-          onClick={() => setMenuOpen((value) => !value)}
-          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
-        >
-          {menuOpen ? <X /> : <Menu />}
-        </button>
-
-        <div className={`mobile-drawer ${menuOpen ? "open" : ""}`}>
-          <button onClick={() => goTo("inicio")}>Início</button>
-          <button onClick={() => goTo("anatomia")}>Experiência</button>
-          <button onClick={() => goTo("atuacao")}>Atuação</button>
-          <button onClick={() => goTo("contato")}>Contato</button>
+        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}>{menuOpen ? <X /> : <Menu />}</button>
+        <div className={`mobile-nav ${menuOpen ? "open" : ""}`}>
+          {[['inicio','Início'],['construcao','A construção'],['atuacao','Atuação'],['sobre','Sobre'],['contato','Contato']].map(([id,label]) => <button key={id} onClick={() => goTo(id)}>{label}</button>)}
         </div>
       </header>
 
-      <section
-        id="inicio"
-        className="hero-scroll"
-        data-scroll-scene
-      >
+      <section id="inicio" className="hero-scroll" data-scene>
         <div className="sticky hero">
-          <div className="hero-grid" aria-hidden="true" />
-          <div className="hero-beam hero-beam-one" aria-hidden="true" />
-          <div className="hero-beam hero-beam-two" aria-hidden="true" />
-          <div className="hero-orbit" aria-hidden="true" />
-          <div className="hero-backword" aria-hidden="true">HEALTH / LAW</div>
-
-          <div className="hero-copy">
-            <p className="eyebrow">
-              <span />
-              Direito médico e da saúde
-            </p>
-
-            <h1>
-              <span>Quando a saúde</span>
-              <em>não pode esperar.</em>
-            </h1>
-
-            <p className="hero-lead">
-              Estratégia jurídica para situações em que tratamento, cuidado,
-              cobertura e tempo precisam ser analisados com precisão.
-            </p>
-
-            <div className="hero-actions">
-              <button onClick={() => goTo("contato")}>
-                Falar com o escritório <ArrowRight size={16} />
-              </button>
-              <button className="ghost-button" onClick={() => goTo("anatomia")}>
-                Conhecer a atuação <ArrowDown size={16} />
-              </button>
-            </div>
-
-            <div className="hero-meta">
-              <span>Direito da Saúde</span>
-              <span>Atuação estratégica</span>
-              <span>Atendimento individualizado</span>
-            </div>
+          <div className="hero-index">01 — 06</div>
+          <div className="hero-portrait"><Portrait alt="Retrato de Renan Durso" /><i aria-hidden="true" /></div>
+          <div className="hero-name hero-name-back" aria-hidden="true"><span>RENAN</span><span>DURSO</span></div>
+          <h1 className="hero-name hero-name-front"><span>RENAN</span><span>DURSO</span></h1>
+          <div className="hero-intro">
+            <p>Advocacia · Direito Médico e da Saúde</p>
+            <button onClick={() => goTo("contato")}>Falar com Renan Durso <ArrowUpRight size={15} /></button>
           </div>
-
-          <div className="hero-portrait">
-            <div className="hero-portrait-back" aria-hidden="true" />
-            <PortraitImage alt="Renan Durso" />
-            <div className="hero-portrait-shine" aria-hidden="true" />
-            <div className="hero-name">
-              <small>ADVOCACIA</small>
-              <strong>RENAN DURSO</strong>
-            </div>
-          </div>
-
-          <div className="hero-scroll-note">
-            <span>Role para explorar</span>
-            <i />
-          </div>
+          <p className="hero-thesis">Estratégia jurídica para situações em que tratamento, cuidado, cobertura e tempo precisam ser analisados com precisão.</p>
+          <button className="scroll-cue" onClick={() => goTo("construcao")} aria-label="Ir para a construção da defesa"><span>Descobrir</span><ArrowDown size={15} /></button>
         </div>
       </section>
 
-      <section
-        id="anatomia"
-        ref={anatomyRef}
-        className="anatomy-scroll"
-      >
-        <div className="sticky anatomy-stage">
-          <div className="anatomy-copy">
-            <p className="eyebrow light">
-              <span />
-              A anatomia da advocacia
-            </p>
-            <h2>
-              Presença.
-              <em>Estratégia.</em>
-            </h2>
-            <p>
-              A construção visual acompanha a lógica da alfaiataria: primeiro a
-              estrutura, depois cada camada do traje e, por fim, a presença real
-              do advogado — com foco, sofisticação e autoridade.
-            </p>
-
-            <div className="anatomy-steps">
-              {anatomyLabels.map((label, index) => (
-                <span
-                  key={label}
-                  className={index === anatomyStep ? "active" : ""}
-                >
-                  0{index + 1} — {label}
-                </span>
-              ))}
-            </div>
+      <section id="construcao" ref={anatomyRef} className="anatomy-scroll">
+        <div className="sticky anatomy-scene">
+          <div className="scene-heading">
+            <p>02 / A construção da defesa</p>
+            <h2>Precisão,<br/><em>camada por camada.</em></h2>
+            <div className="scene-copy">A estratégia jurídica, como a alfaiataria, começa pela leitura precisa da estrutura. Cada camada responde a um contexto. O resultado é construído sob medida.</div>
           </div>
-
-          <div className={`anatomy-visual anatomy-step-${anatomyStep}`}>
-            <AnatomyFigure step={anatomyStep} />
-          </div>
-
-          <div className="anatomy-sideword" aria-hidden="true">
-            COUNSEL
-          </div>
+          <div className="anatomy-visual"><TailoringAssembly step={anatomyStep} /></div>
+          <div className="anatomy-word" aria-hidden="true">ESTRATÉGIA</div>
         </div>
       </section>
 
-      <section className="statement-section">
-        <div className="statement-line">
-          <span>Saúde</span>
-          <i />
-          <span>Direito</span>
-          <i />
-          <span>Urgência</span>
-          <i />
-          <span>Proteção</span>
-        </div>
-        <h2>
-          Cada caso tem uma história.
-          <em>Cada estratégia precisa entender o contexto.</em>
-        </h2>
+      <section className="editorial-bridge">
+        <p>Saúde · Direito · Urgência · Proteção</p>
+        <h2>Cada caso tem uma história.<br/><em>Cada estratégia precisa entender o contexto.</em></h2>
       </section>
 
-      <section
-        id="atuacao"
-        ref={areasRef}
-        className="areas-scroll"
-      >
-        <div className="sticky areas-stage">
-          <div className="areas-copy">
-            <p className="eyebrow">
-              <span />
-              Áreas de atuação
-            </p>
-
-            <div className="area-text-stack">
-              {practiceAreas.map((area, index) => {
-                const Icon = area.icon;
-                return (
-                  <article
-                    key={area.title}
-                    className={`area-text ${index === activeArea ? "active" : ""}`}
-                  >
-                    <span className="area-number">{area.number}</span>
-                    <Icon size={24} />
-                    <h2>{area.title}</h2>
-                    <strong>{area.short}</strong>
-                    <p>{area.description}</p>
-                    <button onClick={() => goTo("contato")}>
-                      Falar sobre este caso <ArrowUpRight size={15} />
-                    </button>
-                  </article>
-                );
-              })}
-            </div>
-
-            <div className="area-progress">
-              {practiceAreas.map((area, index) => (
-                <button
-                  key={area.title}
-                  className={index === activeArea ? "active" : ""}
-                  onClick={() => {
-                    const section = areasRef.current;
-                    if (!section) return;
-                    const target =
-                      section.offsetTop +
-                      ((section.offsetHeight - window.innerHeight) * index) / 3;
-                    window.scrollTo({ top: target, behavior: "smooth" });
-                  }}
-                  aria-label={`Ver ${area.title}`}
-                />
-              ))}
-            </div>
+      <section id="atuacao" ref={areasRef} className="areas-scroll">
+        <div className="sticky areas-scene">
+          <div className="areas-kicker">03 / Áreas de atuação</div>
+          <div className="area-images">
+            {practiceAreas.map((area, index) => <figure key={area.title} className={index === activeArea ? "active" : ""}><img src={area.image} alt="" loading="eager" /><i /></figure>)}
           </div>
-
-          <div className="area-visual">
-            <div className="area-particles-layer" aria-hidden="true">
-              <AreaParticles activeArea={activeArea} />
-            </div>
-            <div className="area-image-frame">
-              {practiceAreas.map((area, index) => (
-                <figure
-                  key={area.title}
-                  className={`area-image ${index === activeArea ? "active" : ""}`}
-                >
-                  <img src={area.image} alt="" loading="eager" />
-                  <figcaption>
-                    <span>{area.number}</span>
-                    <strong>{area.title}</strong>
-                  </figcaption>
-                </figure>
-              ))}
-              <div className="area-image-grid" aria-hidden="true" />
-              <div className="area-image-scan" aria-hidden="true" />
-            </div>
-
-            <div className="area-orbit orbit-a" aria-hidden="true" />
-            <div className="area-orbit orbit-b" aria-hidden="true" />
+          <div className="area-content">
+            {practiceAreas.map((area, index) => (
+              <article key={area.title} className={index === activeArea ? "active" : ""}>
+                <span>{area.number}</span><h2>{area.title}</h2><strong>{area.short}</strong><p>{area.description}</p>
+                <button onClick={() => goTo("contato")}>Falar sobre este caso <ArrowUpRight size={15} /></button>
+              </article>
+            ))}
           </div>
+          <div className="area-tabs" aria-label="Selecionar área">
+            {practiceAreas.map((area, index) => <button key={area.title} className={index === activeArea ? "active" : ""} onClick={() => selectArea(index)}><span>{area.number}</span>{area.title}</button>)}
+          </div>
+          <div className="area-counter">0{activeArea + 1}<span>/ 04</span></div>
         </div>
       </section>
 
-      <section className="method-section">
-        <div className="method-heading">
-          <p className="eyebrow">
-            <span />
-            Método
-          </p>
-          <h2>
-            Clareza antes da decisão.
-            <em>Estratégia antes da ação.</em>
-          </h2>
+      <section id="sobre" className="about-section" data-scene>
+        <div className="about-label">04 / Sobre Renan</div>
+        <figure><Portrait alt="Renan Durso" loading="lazy" /><figcaption>São Paulo — SP</figcaption></figure>
+        <div className="about-copy">
+          <p className="about-lead">Quando a saúde não pode esperar, clareza e estratégia orientam cada decisão.</p>
+          <div className="about-body">
+            <p>Atuação em Direito Médico e da Saúde, com análise individualizada de situações que envolvem tratamento, cuidado, cobertura e urgência.</p>
+            <p>Documentos, prescrição, negativa e contexto são organizados em uma visão única antes da definição do caminho jurídico adequado.</p>
+          </div>
+          <dl><div><dt>01</dt><dd>Leitura do caso</dd></div><div><dt>02</dt><dd>Estratégia</dd></div><div><dt>03</dt><dd>Comunicação</dd></div></dl>
         </div>
+      </section>
 
-        <div className="method-grid">
-          {[
-            ["01", "Leitura do caso", "Documentos, prescrição, urgência e negativa organizados em uma visão única."],
-            ["02", "Estratégia", "Definição do caminho jurídico adequado ao contexto e ao objetivo do paciente."],
-            ["03", "Comunicação", "Próximos passos explicados com linguagem clara e acompanhamento objetivo."],
-          ].map(([number, title, copy]) => (
-            <article key={number}>
-              <span>{number}</span>
-              <h3>{title}</h3>
-              <p>{copy}</p>
-            </article>
-          ))}
-        </div>
+      <section className="manifesto-section">
+        <p>05 / Princípio</p>
+        <h2>Clareza antes<br/>da decisão.<br/><em>Estratégia antes da ação.</em></h2>
+        <span>Direito Médico e da Saúde</span>
       </section>
 
       <section id="contato" className="contact-section">
-        <div className="contact-background" aria-hidden="true">
-          <div />
-          <div />
+        <div className="contact-heading">
+          <p>06 / Contato</p>
+          <h2>Fale com<br/><em>Renan Durso.</em></h2>
+          <div className="contact-intro">Conte o que aconteceu. Organize os principais documentos e entre em contato para uma análise inicial do contexto.</div>
+          <div className="contact-details"><a href="mailto:renandurso@aasp.org.br"><Mail size={16}/>renandurso@aasp.org.br</a><span><MapPin size={16}/>São Paulo — SP</span></div>
         </div>
-
-        <div className="contact-copy">
-          <p className="eyebrow light">
-            <span />
-            Contato
-          </p>
-          <h2>
-            Quando o cuidado é urgente,
-            <em>a informação precisa ser clara.</em>
-          </h2>
-          <p>
-            Conte o que aconteceu. Organize os principais documentos e entre em
-            contato para uma análise inicial do contexto.
-          </p>
-
-          <div className="contact-info">
-            <div>
-              <Mail size={17} />
-              <a href="mailto:renandurso@aasp.org.br">renandurso@aasp.org.br</a>
-            </div>
-            <div>
-              <MapPin size={17} />
-              <span>São Paulo — SP</span>
-            </div>
-            <div>
-              <Scale size={17} />
-              <span>Direito Médico e da Saúde</span>
-            </div>
-          </div>
-        </div>
-
         <form className="contact-form" onSubmit={submitContact}>
-          <div className="form-kicker">
-            <Sparkles size={16} />
-            Iniciar uma conversa
-          </div>
-          <input
-            className="contact-honeypot"
-            name="website"
-            tabIndex="-1"
-            autoComplete="off"
-            aria-hidden="true"
-          />
-          <label>
-            Nome
-            <input name="name" required placeholder="Como podemos chamar você?" />
-          </label>
-          <label>
-            Telefone
-            <input name="phone" placeholder="(00) 00000-0000" />
-          </label>
-          <label>
-            Conte brevemente o caso
-            <textarea
-              name="message"
-              required
-              rows="5"
-              placeholder="Explique a situação em poucas linhas."
-            />
-          </label>
-          <button type="submit" disabled={contactStatus === "sending"}>
-            {contactStatus === "sending" ? "Enviando..." : "Enviar mensagem"}
-            <ArrowUpRight size={16} />
-          </button>
-          <p className={`contact-status ${contactStatus}`} aria-live="polite">
-            {contactStatus === "success" &&
-              "Mensagem enviada. O escritório poderá retornar pelos dados informados."}
-            {contactStatus === "fallback" &&
-              "Abrimos seu aplicativo de e-mail para concluir o contato."}
-          </p>
+          <input className="honeypot" name="website" tabIndex="-1" autoComplete="off" aria-hidden="true" />
+          <label><span>01</span> Nome<input name="name" required placeholder="Como podemos chamar você?" /></label>
+          <label><span>02</span> Telefone<input name="phone" placeholder="(00) 00000-0000" /></label>
+          <label><span>03</span> Conte brevemente o caso<textarea name="message" required rows="4" placeholder="Explique a situação em poucas linhas." /></label>
+          <button type="submit" disabled={contactStatus === "sending"}>{contactStatus === "sending" ? "Enviando..." : "Enviar mensagem"}<ArrowUpRight size={17}/></button>
+          <p className={`contact-status ${contactStatus}`} aria-live="polite">{contactStatus === "success" && "Mensagem enviada. O escritório poderá retornar pelos dados informados."}{contactStatus === "fallback" && "Abrimos seu aplicativo de e-mail para concluir o contato."}</p>
         </form>
-
-        <footer className="site-footer">
-          <div className="brand footer-brand">
-            <span className="brand-seal">RD</span>
-            <span className="brand-copy">
-              <strong>Renan Durso</strong>
-              <small>Direito Médico e da Saúde</small>
-            </span>
-          </div>
-          <p>Conteúdo institucional de caráter informativo.</p>
-          <button onClick={() => goTo("inicio")}>
-            Voltar ao topo <ArrowUpRight size={14} />
-          </button>
-        </footer>
+        <footer><div><strong>RD</strong><span>Renan Durso<br/><small>Direito Médico e da Saúde</small></span></div><p>Conteúdo institucional de caráter informativo.</p><button onClick={() => goTo("inicio")}>Voltar ao topo <ArrowUpRight size={13}/></button></footer>
       </section>
     </main>
   );
