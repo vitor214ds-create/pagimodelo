@@ -310,13 +310,25 @@ function buildAreaTargets(count) {
     ctx.save();
     ctx.translate(210, 210);
     ctx.rotate(-Math.PI / 4);
+
+    const left = -105;
+    const right = 105;
+    const radius = 48;
+
     ctx.beginPath();
-    ctx.roundRect(-105, -48, 210, 96, 48);
+    ctx.moveTo(left + radius, -radius);
+    ctx.lineTo(right - radius, -radius);
+    ctx.arc(right - radius, 0, radius, -Math.PI / 2, Math.PI / 2);
+    ctx.lineTo(left + radius, radius);
+    ctx.arc(left + radius, 0, radius, Math.PI / 2, Math.PI * 1.5);
+    ctx.closePath();
     ctx.stroke();
+
     ctx.beginPath();
-    ctx.moveTo(0, -48);
-    ctx.lineTo(0, 48);
+    ctx.moveTo(0, -radius);
+    ctx.lineTo(0, radius);
     ctx.stroke();
+
     ctx.restore();
   }, count);
 
@@ -361,100 +373,139 @@ function AreaParticles({ activeArea }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
 
     let raf = 0;
-    let width = 0;
-    let height = 0;
+    let width = 1;
+    let height = 1;
     let dpr = 1;
-    let count = 320;
-    let targets = [];
+    let count = 300;
     let particles = [];
+    let targets = [];
+    let previousTargetIndex = 0;
+    let targetIndex = activeRef.current;
+    let morph = 1;
 
     const seed = (index) => {
-      const n = Math.sin(index * 912.77 + 43.21) * 43758.5453;
-      return n - Math.floor(n);
+      const value = Math.sin(index * 912.77 + 43.21) * 43758.5453;
+      return value - Math.floor(value);
     };
 
-    const resize = () => {
-      width = canvas.clientWidth;
-      height = canvas.clientHeight;
+    const configure = () => {
+      const rect = canvas.parentElement?.getBoundingClientRect();
+      width = Math.max(rect?.width || canvas.clientWidth || 1, 1);
+      height = Math.max(rect?.height || canvas.clientHeight || 1, 1);
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      count = width < 640 ? 180 : 320;
+      count = width < 640 ? 190 : 340;
 
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       targets = buildAreaTargets(count);
       particles = Array.from({ length: count }, (_, index) => ({
-        x: (seed(index + 20) - .5) * width * .65,
-        y: (seed(index + 90) - .5) * height * .65,
+        x: (seed(index + 20) - .5) * width * .55,
+        y: (seed(index + 90) - .5) * height * .55,
         vx: 0,
         vy: 0,
-        size: .8 + seed(index + 150) * 1.8,
+        size: .85 + seed(index + 150) * 1.85,
         phase: seed(index + 230) * Math.PI * 2,
-        alpha: .28 + seed(index + 320) * .54,
+        alpha: .34 + seed(index + 320) * .5,
       }));
+
+      previousTargetIndex = activeRef.current;
+      targetIndex = activeRef.current;
+      morph = 1;
     };
 
-    const draw = (time) => {
-      ctx.clearRect(0, 0, width, height);
-      const target = targets[activeRef.current] || targets[0];
-      const scale = Math.min(width, height) / 470;
-      const centerX = width * .48;
+    const observer = new ResizeObserver(configure);
+    if (canvas.parentElement) observer.observe(canvas.parentElement);
+
+    const render = (time) => {
+      const requestedTarget = activeRef.current;
+      if (requestedTarget !== targetIndex) {
+        previousTargetIndex = targetIndex;
+        targetIndex = requestedTarget;
+        morph = 0;
+      }
+
+      morph = Math.min(1, morph + .028);
+      const easedMorph = morph * morph * (3 - 2 * morph);
+
+      context.clearRect(0, 0, width, height);
+
+      const from = targets[previousTargetIndex] || targets[0] || [];
+      const to = targets[targetIndex] || targets[0] || [];
+      const scale = Math.min(width, height) / 455;
+      const centerX = width * .5;
       const centerY = height * .49;
 
       particles.forEach((particle, index) => {
-        const [tx, ty] = target[index % target.length];
-        const idleX = Math.cos(time * .001 + particle.phase) * 1.8;
-        const idleY = Math.sin(time * .0011 + particle.phase) * 1.8;
-        const targetX = tx * scale + idleX;
-        const targetY = ty * scale + idleY;
+        const fromPoint = from[index % Math.max(from.length, 1)] || [0, 0];
+        const toPoint = to[index % Math.max(to.length, 1)] || [0, 0];
 
-        particle.vx += (targetX - particle.x) * .025;
-        particle.vy += (targetY - particle.y) * .025;
-        particle.vx *= .84;
-        particle.vy *= .84;
+        const pointX =
+          fromPoint[0] + (toPoint[0] - fromPoint[0]) * easedMorph;
+        const pointY =
+          fromPoint[1] + (toPoint[1] - fromPoint[1]) * easedMorph;
+
+        const targetX =
+          pointX * scale + Math.cos(time * .001 + particle.phase) * 1.8;
+        const targetY =
+          pointY * scale + Math.sin(time * .0011 + particle.phase) * 1.8;
+
+        particle.vx += (targetX - particle.x) * .03;
+        particle.vy += (targetY - particle.y) * .03;
+        particle.vx *= .83;
+        particle.vy *= .83;
         particle.x += particle.vx;
         particle.y += particle.vy;
 
-        const white = index % 11 === 0;
-        ctx.beginPath();
-        ctx.fillStyle = white
-          ? `rgba(255,255,255,${particle.alpha * .8})`
-          : `rgba(224,193,142,${particle.alpha})`;
-        ctx.shadowBlur = 6 + particle.size * 2.4;
-        ctx.shadowColor = white
-          ? "rgba(255,255,255,.28)"
-          : "rgba(224,193,142,.48)";
-        ctx.arc(
+        const white = index % 10 === 0;
+        context.beginPath();
+        context.fillStyle = white
+          ? `rgba(255,255,255,${particle.alpha * .86})`
+          : `rgba(229,198,142,${particle.alpha})`;
+        context.shadowBlur = 8 + particle.size * 2.8;
+        context.shadowColor = white
+          ? "rgba(255,255,255,.32)"
+          : "rgba(229,198,142,.58)";
+        context.arc(
           centerX + particle.x,
           centerY + particle.y,
           particle.size,
           0,
           Math.PI * 2,
         );
-        ctx.fill();
+        context.fill();
       });
 
-      ctx.shadowBlur = 0;
-      raf = requestAnimationFrame(draw);
+      context.shadowBlur = 0;
+      raf = requestAnimationFrame(render);
     };
 
-    resize();
-    window.addEventListener("resize", resize);
-    raf = requestAnimationFrame(draw);
+    configure();
+    raf = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
+      observer.disconnect();
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="area-particles-canvas" aria-hidden="true" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="area-particles-canvas"
+      aria-hidden="true"
+    />
+  );
 }
+
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -730,7 +781,7 @@ function App() {
             </div>
           </div>
 
-          <div className="anatomy-visual">
+          <div className={`anatomy-visual anatomy-step-${anatomyStep}`}>
             <AnatomyFigure step={anatomyStep} />
           </div>
 
