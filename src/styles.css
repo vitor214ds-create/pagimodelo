@@ -2277,3 +2277,143 @@ button {
     display: none !important;
   }
 }
+
+
+.morphing-symbol-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: .95;
+  filter: saturate(1.04);
+}
+
+.hero-section,
+.manifesto-section,
+.statement-section,
+.practice-section,
+.method-section,
+.quote-section,
+.contact-section {
+  position: relative;
+  z-index: 10;
+}
+
+.manifesto-section,
+.statement-section,
+.method-section {
+  isolation: isolate;
+}
+
+.manifesto-section::after {
+  content: "";
+  position: absolute;
+  right: -14vw;
+  top: 12%;
+  width: 46vw;
+  height: 46vw;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(185,154,98,.08), transparent 56%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.statement-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(112deg, transparent 0 46%, rgba(255,255,255,.08) 50%, transparent 54%);
+  transform: translateX(-100%);
+  animation: statementSweep 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes statementSweep {
+  0%, 16% { transform: translateX(-100%); opacity: 0; }
+  36% { opacity: .7; }
+  68%,100% { transform: translateX(100%); opacity: 0; }
+}
+
+.practice-heading,
+.practice-list,
+.method-copy,
+.contact-main,
+.contact-footer {
+  position: relative;
+  z-index: 3;
+}
+
+.practice-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(to right, var(--gold-bright), transparent);
+  transition: width .55s cubic-bezier(.2,.75,.25,1);
+  z-index: 2;
+}
+
+.practice-card:hover::after {
+  width: 88%;
+}
+
+.method-section::after {
+  content: "";
+  position: absolute;
+  right: -16%;
+  top: 8%;
+  width: 46%;
+  height: 46%;
+  border-radius: 50%;
+  border: 1px solid rgba(185,154,98,.12);
+  box-shadow:
+    0 0 0 34px rgba(185,154,98,.025),
+    0 0 0 68px rgba(185,154,98,.014);
+  pointer-events: none;
+  animation: methodHalo 10s ease-in-out infinite;
+}
+
+@keyframes methodHalo {
+  0%,100% { transform: scale(.94); opacity: .45; }
+  50% { transform: scale(1.08); opacity: .95; }
+}
+
+.contact-main h2 {
+  position: relative;
+}
+
+.contact-main h2::after {
+  content: "";
+  display: block;
+  width: 120px;
+  height: 1px;
+  margin-top: 34px;
+  background: linear-gradient(to right, var(--gold-bright), transparent);
+  transform-origin: left;
+  animation: contactLine 4.8s ease-in-out infinite;
+}
+
+@keyframes contactLine {
+  0%,100% { transform: scaleX(.25); opacity: .3; }
+  50% { transform: scaleX(1); opacity: .9; }
+}
+
+@media (max-width: 760px) {
+  .morphing-symbol-canvas {
+    opacity: .6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .morphing-symbol-canvas {
+    display: none;
+  }
+}
