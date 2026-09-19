@@ -74,16 +74,11 @@ const anatomyLabels = [
 ];
 
 const tailoringAssets = {
-  anatomy:
-    "https://cdn.pixabay.com/photo/2018/02/28/22/46/silhouette-3189331_1280.png",
-  shirt:
-    "https://cdn.pixabay.com/photo/2014/04/03/10/20/shirt-303371_1280.png",
-  tie:
-    "https://cdn.pixabay.com/photo/2016/10/16/16/31/tie-1745687_1280.png",
-  vest:
-    "https://cdn.pixabay.com/photo/2018/05/13/04/55/vest-3395391_1280.png",
-  jacket:
-    "https://cdn.pixabay.com/photo/2021/11/05/03/05/jacket-6770202_1280.png",
+  anatomy: "/anatomia/anatomia.webp",
+  shirt: "/anatomia/camisa.webp",
+  tie: "/anatomia/gravata.webp",
+  vest: "/anatomia/colete.webp",
+  jacket: "/anatomia/paleto.avif",
 };
 
 function clamp(value, min = 0, max = 1) {
@@ -154,7 +149,7 @@ function AnatomyFigure({ step }) {
           alt=""
           className="assembly-piece assembly-vest"
           decoding="async"
-          loading="lazy"
+          loading="eager"
         />
 
         <div className="assembly-piece assembly-jacket assembly-jacket-left">
@@ -162,7 +157,7 @@ function AnatomyFigure({ step }) {
             src={tailoringAssets.jacket}
             alt=""
             decoding="async"
-            loading="lazy"
+            loading="eager"
           />
         </div>
 
@@ -171,7 +166,7 @@ function AnatomyFigure({ step }) {
             src={tailoringAssets.jacket}
             alt=""
             decoding="async"
-            loading="lazy"
+            loading="eager"
           />
         </div>
 
@@ -817,7 +812,7 @@ function App() {
                   key={area.title}
                   className={`area-image ${index === activeArea ? "active" : ""}`}
                 >
-                  <img src={area.image} alt="" loading="lazy" />
+                  <img src={area.image} alt="" loading="eager" />
                   <figcaption>
                     <span>{area.number}</span>
                     <strong>{area.title}</strong>
