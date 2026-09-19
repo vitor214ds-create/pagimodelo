@@ -4458,3 +4458,98 @@ svg {
       rotateY(calc((1 - var(--jacket-right)) * -32deg));
   }
 }
+
+
+/* Canvas-based frame-by-frame tailoring sequence */
+.tailoring-canvas-sequence {
+  --sequence-w: min(50vw, 560px);
+  --sequence-h: calc(var(--sequence-w) * 1.333);
+}
+
+.tailoring-canvas-sequence .assembly-stage {
+  position: relative;
+  overflow: visible;
+  perspective: none;
+}
+
+.tailoring-frame-canvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--sequence-w);
+  height: var(--sequence-h);
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  display: block;
+  pointer-events: none;
+  filter:
+    drop-shadow(0 34px 48px rgba(0,0,0,.34))
+    drop-shadow(0 0 22px rgba(224,193,142,.08));
+}
+
+.tailoring-canvas-sequence .wear-layer,
+.tailoring-canvas-sequence .assembly-frame,
+.tailoring-canvas-sequence .assembly-sprite,
+.tailoring-canvas-sequence .assembly-anatomy,
+.tailoring-canvas-sequence .assembly-shirt,
+.tailoring-canvas-sequence .assembly-tie,
+.tailoring-canvas-sequence .assembly-vest,
+.tailoring-canvas-sequence .assembly-jacket {
+  display: none !important;
+}
+
+.tailoring-canvas-sequence .assembly-final-renan {
+  z-index: 12;
+  width: min(48vw, 610px) !important;
+  height: min(84vh, 820px) !important;
+  opacity: var(--portrait) !important;
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--portrait)) * 20px))
+    scale(calc(.97 + var(--portrait) * .03)) !important;
+  transition: none !important;
+}
+
+.tailoring-canvas-sequence .assembly-final-renan img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.tailoring-canvas-sequence .assembly-aura {
+  opacity: .9;
+}
+
+.tailoring-canvas-sequence .assembly-scan {
+  z-index: 14;
+  opacity: calc(var(--complete) * (1 - var(--portrait))) !important;
+}
+
+@media (max-width: 1000px) {
+  .tailoring-canvas-sequence {
+    --sequence-w: min(64vw, 520px);
+  }
+}
+
+@media (max-width: 760px) {
+  .tailoring-canvas-sequence {
+    --sequence-w: 88vw;
+  }
+
+  .tailoring-frame-canvas {
+    top: 52%;
+  }
+
+  .tailoring-canvas-sequence .assembly-final-renan {
+    width: 82vw !important;
+    height: 58vh !important;
+    top: 52%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tailoring-frame-canvas {
+    opacity: 1;
+  }
+}
