@@ -1,24 +1,28 @@
-# Project Embrace
+# Renan Durso — Advocacia
 
-oi
+Landing page imersiva construída em **JavaScript + React + Vite**.
 
-This project was built with [Lovable](https://lovable.dev).
+## Stack
 
-## Build with Lovable
+- JavaScript ES Modules
+- React
+- Vite
+- Tailwind CSS
+- Lucide React
+- Canvas API para partículas e morphing de símbolos
+- CSS 3D e animações orientadas por scroll
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/879d251c-d688-4701-b036-10ddc06a0bb3).
+## Desenvolvimento
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+```bash
+bun install
+bun run dev
 ```
+
+## Build
+
+```bash
+bun run build
+```
+
+Todo o código-fonte da aplicação está em JavaScript/JSX. O projeto não depende de arquivos TypeScript.

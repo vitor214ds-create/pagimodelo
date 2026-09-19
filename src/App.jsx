@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import {
   Activity,
   ArrowDown,
@@ -18,13 +17,7 @@ import {
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
-  type RefObject,
 } from "react";
-
-export const Route = createFileRoute("/")({
-  component: Index,
-});
 
 const portraitUrl =
   "https://renandurso.lovable.app/__l5e/assets-v1/627158e5-171e-4d04-a900-3ab4beb348d8/adv-1.png";
@@ -32,13 +25,7 @@ const portraitUrl =
 const portraitFallbackUrl =
   "https://jc-fotos-correspondentes.s3.amazonaws.com/452503/RENAN_DURSO_PEREIRA-20191021135624_120x120.jpg";
 
-function PortraitImage({
-  alt = "",
-  className,
-}: {
-  alt?: string;
-  className?: string;
-}) {
+function PortraitImage({ alt = "", className }) {
   return (
     <img
       src={portraitUrl}
@@ -127,35 +114,18 @@ const storySteps = [
   },
 ];
 
-type Point = [number, number];
-type Particle = {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  phase: number;
-  glow: number;
-  alpha: number;
-};
-
-function clamp(value: number, min = 0, max = 1) {
+function clamp(value, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value));
 }
 
-function smoothstep(value: number) {
+function smoothstep(value) {
   const t = clamp(value);
   return t * t * (3 - 2 * t);
 }
 
-function sampleOpaquePoints(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  desiredCount: number,
-) {
+function sampleOpaquePoints(ctx, width, height, desiredCount) {
   const image = ctx.getImageData(0, 0, width, height).data;
-  const points: Point[] = [];
+  const points = [];
 
   for (let y = 0; y < height; y += 2) {
     for (let x = 0; x < width; x += 2) {
@@ -167,10 +137,10 @@ function sampleOpaquePoints(
   }
 
   if (!points.length) {
-    return Array.from({ length: desiredCount }, () => [0, 0] as Point);
+    return Array.from({ length: desiredCount }, () => [0, 0]);
   }
 
-  const result: Point[] = [];
+  const result = [];
   const step = points.length / desiredCount;
 
   for (let i = 0; i < desiredCount; i++) {
@@ -180,17 +150,14 @@ function sampleOpaquePoints(
   return result;
 }
 
-function buildSymbolPoints(
-  symbol: "cross" | "scales" | "pulse" | "shield",
-  count: number,
-) {
+function buildSymbolPoints(symbol, count) {
   const offscreen = document.createElement("canvas");
   offscreen.width = 420;
   offscreen.height = 420;
   const ctx = offscreen.getContext("2d");
 
   if (!ctx) {
-    return Array.from({ length: count }, () => [0, 0] as Point);
+    return Array.from({ length: count }, () => [0, 0]);
   }
 
   ctx.clearRect(0, 0, offscreen.width, offscreen.height);
@@ -281,12 +248,8 @@ function buildSymbolPoints(
   );
 }
 
-function ScrollParticles({
-  storyRef,
-}: {
-  storyRef: RefObject<HTMLElement | null>;
-}) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+function ScrollParticles({ storyRef }) {
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -301,14 +264,14 @@ function ScrollParticles({
     let height = 0;
     let dpr = 1;
     let particleCount = 360;
-    let particles: Particle[] = [];
-    let targets: Point[][] = [];
+    let particles = [];
+    let targets = [];
     let storyProgress = 0;
     let pointerX = 0;
     let pointerY = 0;
     let pointerActive = false;
 
-    const seeded = (index: number) => {
+    const seeded = (index) => {
       const value = Math.sin(index * 918.37 + 17.31) * 43758.5453;
       return value - Math.floor(value);
     };
@@ -360,7 +323,7 @@ function ScrollParticles({
       pointerActive = false;
     };
 
-    const render = (time: number) => {
+    const render = (time) => {
       ctx.clearRect(0, 0, width, height);
 
       let stage = 0;
@@ -491,10 +454,10 @@ function ScrollParticles({
   );
 }
 
-function Index() {
+export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [storyStep, setStoryStep] = useState(0);
-  const storyRef = useRef<HTMLElement | null>(null);
+  const storyRef = useRef(null);
 
   const dust = useMemo(
     () => Array.from({ length: 52 }, (_, index) => index),
@@ -535,7 +498,7 @@ function Index() {
           setStoryStep(nextStep);
         }
 
-        document.querySelectorAll<HTMLElement>("[data-scroll-scene]").forEach(
+        document.querySelectorAll("[data-scroll-scene]").forEach(
           (element) => {
             const rect = element.getBoundingClientRect();
             const travel = Math.max(element.offsetHeight - window.innerHeight, 1);
@@ -617,7 +580,7 @@ function Index() {
     };
   }, []);
 
-  const goTo = (id: string) => {
+  const goTo = (id) => {
     setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
@@ -631,7 +594,7 @@ function Index() {
         {dust.map((item) => (
           <i
             key={item}
-            style={{ "--dust": item } as CSSProperties}
+            style={{ "--dust": item }}
           />
         ))}
       </div>
@@ -973,7 +936,7 @@ function Index() {
                   style={{
                     "--card-index": index,
                     "--card-base": `${index * 110}%`,
-                  } as CSSProperties}
+                  }}
                 >
                   <div className="practice-slide-top">
                     <span>{area.number}</span>
