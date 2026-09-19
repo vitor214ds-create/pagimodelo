@@ -3910,3 +3910,159 @@ svg {
   opacity: 1 !important;
   transform: translate(-50%, -50%) scale(1) !important;
 }
+
+
+/* Definitive normalized sprite renderer for tailoring scene */
+.tailoring-assembly {
+  --sprite-w: min(46vw, 500px);
+  --sprite-h: calc(var(--sprite-w) * 1.25);
+}
+
+.assembly-stage {
+  overflow: visible;
+}
+
+.assembly-sprite {
+  width: var(--sprite-w);
+  height: var(--sprite-h);
+  background-image: var(--tailoring-sprite);
+  background-repeat: no-repeat;
+  background-size: 500% 100%;
+  background-position-y: center;
+  image-rendering: auto;
+  filter:
+    drop-shadow(0 26px 40px rgba(0,0,0,.34));
+}
+
+.sprite-anatomy { background-position-x: 0%; }
+.sprite-shirt  { background-position-x: 25%; }
+.sprite-tie    { background-position-x: 50%; }
+.sprite-vest   { background-position-x: 75%; }
+.sprite-jacket { background-position-x: 100%; }
+
+.assembly-anatomy,
+.assembly-shirt,
+.assembly-tie,
+.assembly-vest,
+.assembly-jacket {
+  width: var(--sprite-w) !important;
+  height: var(--sprite-h) !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* anatomy always exists from the first frame */
+.assembly-anatomy {
+  opacity: calc(1 - var(--portrait)) !important;
+  transform:
+    translate(-50%, -50%)
+    translateY(0)
+    translateZ(0)
+    scale(1) !important;
+  filter:
+    saturate(.95)
+    contrast(1.08)
+    brightness(.92)
+    drop-shadow(0 0 22px rgba(224,193,142,.18))
+    drop-shadow(0 30px 44px rgba(0,0,0,.3)) !important;
+}
+
+/* cumulative garment assembly */
+.assembly-shirt {
+  opacity: calc(var(--shirt) * (1 - var(--portrait))) !important;
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--shirt)) * -52px))
+    translateZ(calc((1 - var(--shirt)) * 90px))
+    scale(calc(.98 + var(--shirt) * .02)) !important;
+}
+
+.assembly-tie {
+  opacity: calc(var(--tie) * (1 - var(--portrait))) !important;
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--tie)) * -76px))
+    translateZ(calc((1 - var(--tie)) * 120px))
+    scale(calc(.97 + var(--tie) * .03)) !important;
+}
+
+.assembly-vest {
+  opacity: calc(var(--vest) * (1 - var(--portrait))) !important;
+  transform:
+    translate(-50%, -50%)
+    translateY(calc((1 - var(--vest)) * 38px))
+    translateZ(calc((1 - var(--vest)) * 80px))
+    scale(calc(.98 + var(--vest) * .02)) !important;
+}
+
+.assembly-jacket {
+  opacity: calc(var(--jacket) * (1 - var(--portrait))) !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  filter: drop-shadow(0 30px 40px rgba(0,0,0,.35)) !important;
+}
+
+.assembly-jacket > .sprite-jacket {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.assembly-jacket-left {
+  clip-path: inset(0 50% 0 0);
+  transform:
+    translate(-50%, -50%)
+    translateX(calc((1 - var(--jacket)) * -135px))
+    translateZ(calc((1 - var(--jacket)) * 95px))
+    rotateY(calc((1 - var(--jacket)) * 24deg))
+    scale(calc(.99 + var(--jacket) * .01)) !important;
+}
+
+.assembly-jacket-right {
+  clip-path: inset(0 0 0 50%);
+  transform:
+    translate(-50%, -50%)
+    translateX(calc((1 - var(--jacket)) * 135px))
+    translateZ(calc((1 - var(--jacket)) * 95px))
+    rotateY(calc((1 - var(--jacket)) * -24deg))
+    scale(calc(.99 + var(--jacket) * .01)) !important;
+}
+
+/* guarantee non-empty scene on initial paint */
+.anatomy-scroll {
+  --anatomy: 1 !important;
+}
+
+.anatomy-step-0 .assembly-anatomy,
+.anatomy-visual.anatomy-step-0 .assembly-anatomy {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+@media (max-width: 900px) {
+  .tailoring-assembly {
+    --sprite-w: min(70vw, 460px);
+  }
+}
+
+@media (max-width: 760px) {
+  .tailoring-assembly {
+    --sprite-w: 82vw;
+  }
+
+  .assembly-jacket-left {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--jacket)) * -82px))
+      rotateY(calc((1 - var(--jacket)) * 18deg))
+      scale(calc(.99 + var(--jacket) * .01)) !important;
+  }
+
+  .assembly-jacket-right {
+    transform:
+      translate(-50%, -50%)
+      translateX(calc((1 - var(--jacket)) * 82px))
+      rotateY(calc((1 - var(--jacket)) * -18deg))
+      scale(calc(.99 + var(--jacket) * .01)) !important;
+  }
+}
