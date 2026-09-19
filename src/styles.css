@@ -2441,3 +2441,446 @@ svg {
       drop-shadow(0 0 10px rgba(224,193,142,.08));
   }
 }
+
+
+/* six-stage cinematic anatomy lineup */
+.anatomy-lineup {
+  width: min(64vw, 980px);
+  height: min(80vh, 760px);
+  perspective: 1800px;
+  transform-style: preserve-3d;
+}
+
+.lineup-halo {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.lineup-halo-a {
+  right: 3%;
+  top: 2%;
+  width: 34%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(224,193,142,.18);
+  box-shadow: inset 0 0 70px rgba(224,193,142,.025);
+}
+
+.lineup-halo-b {
+  left: 24%;
+  top: 18%;
+  width: 48%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(224,193,142,.065);
+  filter: blur(.1px);
+}
+
+.lineup-axis {
+  position: absolute;
+  z-index: 0;
+  left: 3%;
+  right: 3%;
+  top: 45%;
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(224,193,142,.08),
+      rgba(224,193,142,.34),
+      rgba(224,193,142,.08),
+      transparent
+    );
+}
+
+.lineup-floor {
+  position: absolute;
+  z-index: 0;
+  left: 11%;
+  right: 3%;
+  bottom: 9%;
+  height: 11%;
+  border-radius: 50%;
+  background: rgba(0,0,0,.36);
+  filter: blur(24px);
+}
+
+.lineup-track {
+  position: absolute;
+  z-index: 4;
+  inset: 5% 0 10%;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: end;
+  gap: clamp(2px, .65vw, 10px);
+  transform-style: preserve-3d;
+}
+
+.lineup-stage {
+  --visibility: var(--stage-reveal, 0);
+  position: relative;
+  min-width: 0;
+  height: 86%;
+  display: grid;
+  align-items: end;
+  transform-style: preserve-3d;
+  opacity: calc(.16 + var(--visibility) * .84);
+  filter:
+    blur(calc((1 - var(--visibility)) * 4px))
+    saturate(calc(.55 + var(--visibility) * .45))
+    brightness(calc(.56 + var(--visibility) * .44));
+  transform:
+    translateY(calc((1 - var(--visibility)) * 42px))
+    translateZ(calc(var(--visibility) * 22px))
+    scale(calc(.91 + var(--visibility) * .09));
+  transition:
+    opacity .16s linear,
+    filter .16s linear;
+}
+
+.lineup-stage.is-active {
+  z-index: 8;
+}
+
+.lineup-stage.is-past {
+  opacity: .52;
+  filter:
+    saturate(.64)
+    brightness(.66);
+}
+
+.lineup-stage.is-future {
+  opacity: calc(.08 + var(--visibility) * .82);
+}
+
+.lineup-stage-halo {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 8%;
+  width: 72%;
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  border: 1px solid rgba(224,193,142,.12);
+  background:
+    radial-gradient(circle, rgba(224,193,142,.09), rgba(224,193,142,.02) 48%, transparent 72%);
+  box-shadow:
+    0 0 40px rgba(224,193,142,.03),
+    inset 0 0 40px rgba(224,193,142,.02);
+}
+
+.tailor-stage-figure {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter:
+    drop-shadow(0 26px 32px rgba(0,0,0,.34))
+    drop-shadow(0 0 16px rgba(224,193,142,.04));
+}
+
+.tailor-blueprint {
+  fill: none;
+  stroke: rgba(224,193,142,.76);
+  stroke-width: 1.7;
+  filter: drop-shadow(0 0 8px rgba(224,193,142,.24));
+}
+
+.tailor-head {
+  filter: drop-shadow(0 0 8px rgba(224,193,142,.08));
+}
+
+.tailor-shirt-layer {
+  filter:
+    drop-shadow(0 14px 18px rgba(0,0,0,.18))
+    drop-shadow(0 0 5px rgba(255,255,255,.025));
+}
+
+.tailor-tie-layer {
+  filter:
+    drop-shadow(0 14px 18px rgba(0,0,0,.34))
+    drop-shadow(0 0 7px rgba(224,193,142,.05));
+}
+
+.tailor-vest-layer,
+.tailor-jacket-layer,
+.tailor-trousers {
+  filter: drop-shadow(0 18px 20px rgba(0,0,0,.28));
+}
+
+.lineup-stage-label {
+  position: absolute;
+  z-index: 12;
+  left: 50%;
+  bottom: -25px;
+  display: grid;
+  gap: 2px;
+  transform: translateX(-50%);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.lineup-stage-label span {
+  color: var(--gold-2);
+  font-family: Georgia, serif;
+  font-size: 13px;
+}
+
+.lineup-stage-label strong {
+  color: rgba(255,255,255,.34);
+  font-size: 6px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.lineup-renan {
+  z-index: 10;
+  height: 94%;
+  opacity: calc(.16 + var(--portrait) * .84);
+  transform:
+    translateY(calc((1 - var(--portrait)) * 32px))
+    translateZ(calc(var(--portrait) * 52px))
+    scale(calc(.93 + var(--portrait) * .07));
+}
+
+.lineup-renan-frame {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.lineup-renan-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter:
+    saturate(.92)
+    contrast(1.08)
+    brightness(.96)
+    drop-shadow(0 34px 60px rgba(0,0,0,.42));
+}
+
+.renan-halo {
+  width: 86%;
+  top: 2%;
+  border-color: rgba(224,193,142,.34);
+  box-shadow:
+    0 0 40px rgba(224,193,142,.08),
+    inset 0 0 65px rgba(224,193,142,.035);
+}
+
+.lineup-renan-light {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  background:
+    linear-gradient(
+      105deg,
+      transparent 34%,
+      rgba(255,255,255,.035) 45%,
+      rgba(224,193,142,.14) 50%,
+      rgba(255,255,255,.03) 55%,
+      transparent 67%
+    );
+  transform: translateX(calc(-115% + var(--portrait) * 220%));
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.lineup-renan-rim {
+  position: absolute;
+  z-index: 7;
+  inset: 8% 12% 4%;
+  border-left: 1px solid rgba(224,193,142,.2);
+  border-right: 1px solid rgba(255,255,255,.05);
+  pointer-events: none;
+}
+
+.lineup-renan-label {
+  bottom: -30px;
+}
+
+.lineup-renan-label strong {
+  color: rgba(224,193,142,.7);
+}
+
+.lineup-caption {
+  position: absolute;
+  z-index: 12;
+  left: 10%;
+  right: 6%;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: rgba(255,255,255,.2);
+  font-size: 6px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.lineup-caption i {
+  width: 48px;
+  height: 1px;
+  background: rgba(224,193,142,.18);
+}
+
+.anatomy-lineup .anatomy-phase {
+  right: 1%;
+  bottom: 3%;
+}
+
+.anatomy-copy {
+  max-width: 470px;
+}
+
+.anatomy-copy h2 {
+  font-size: clamp(54px, 5.8vw, 96px);
+}
+
+.anatomy-copy > p:last-of-type {
+  max-width: 450px;
+}
+
+@media (max-width: 1180px) {
+  .anatomy-stage {
+    grid-template-columns: minmax(280px, .72fr) minmax(500px, 1.28fr);
+    gap: 34px;
+    padding-left: 34px;
+    padding-right: 28px;
+  }
+
+  .anatomy-lineup {
+    width: min(65vw, 840px);
+  }
+}
+
+@media (max-width: 900px) {
+  .anatomy-stage {
+    grid-template-columns: 1fr;
+    align-items: start;
+    padding-top: 92px;
+  }
+
+  .anatomy-copy {
+    max-width: none;
+    padding-right: 8vw;
+  }
+
+  .anatomy-copy h2 {
+    font-size: clamp(48px, 8vw, 72px);
+  }
+
+  .anatomy-visual {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 62vh;
+  }
+
+  .anatomy-lineup {
+    width: 94vw;
+    height: 58vh;
+  }
+
+  .lineup-track {
+    inset: 4% 2% 12%;
+  }
+
+  .lineup-stage-label strong {
+    font-size: 5px;
+  }
+}
+
+@media (max-width: 760px) {
+  .anatomy-scroll {
+    height: 600vh;
+  }
+
+  .anatomy-stage {
+    padding: 84px 18px 22px;
+  }
+
+  .anatomy-copy {
+    z-index: 30;
+    padding-right: 0;
+  }
+
+  .anatomy-copy h2 {
+    font-size: clamp(48px, 14vw, 68px);
+  }
+
+  .anatomy-copy > p:last-of-type {
+    display: none;
+  }
+
+  .anatomy-lineup {
+    width: 100vw;
+    height: 58vh;
+    overflow: hidden;
+  }
+
+  .lineup-track {
+    left: 50%;
+    width: 430vw;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1vw;
+    transform:
+      translateX(
+        calc(
+          -50% +
+          (2.5 - var(--mobile-stage, 0)) * (100vw / 1)
+        )
+      );
+    transition: transform .25s ease;
+  }
+
+  .lineup-stage {
+    height: 95%;
+    opacity: .12;
+    filter: blur(7px) brightness(.52);
+  }
+
+  .lineup-stage.is-active {
+    opacity: 1;
+    filter: blur(0) brightness(1);
+    transform:
+      translateY(0)
+      translateZ(32px)
+      scale(1);
+  }
+
+  .lineup-stage.is-past {
+    opacity: .22;
+  }
+
+  .lineup-stage-label {
+    bottom: -18px;
+  }
+
+  .lineup-stage-label span {
+    font-size: 16px;
+  }
+
+  .lineup-stage-label strong {
+    font-size: 7px;
+  }
+
+  .lineup-caption {
+    display: none;
+  }
+
+  .anatomy-lineup .anatomy-phase {
+    right: 16px;
+    bottom: 10px;
+  }
+}
