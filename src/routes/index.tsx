@@ -1,73 +1,135 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Activity,
-  ArrowDownRight,
+  ArrowDown,
   ArrowRight,
   ArrowUpRight,
-  ChevronDown,
   HeartPulse,
   Mail,
   MapPin,
   Menu,
   Scale,
   ShieldCheck,
-  Sparkles,
   Stethoscope,
   X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const portraitUrl =
+  "https://renandurso.lovable.app/__l5e/assets-v1/627158e5-171e-4d04-a900-3ab4beb348d8/adv-1.png";
+
 const practiceAreas = [
   {
     number: "01",
     title: "Home Care",
+    short: "Continuidade do cuidado em casa.",
     description:
-      "Atuação em negativas de internação domiciliar, fornecimento de equipe, insumos e continuidade do tratamento prescrito.",
+      "Atuação em negativas de internação domiciliar, equipe, insumos e continuidade do tratamento prescrito.",
     icon: HeartPulse,
   },
   {
     number: "02",
-    title: "Medicamentos de Alto Custo",
+    title: "Medicamentos",
+    short: "Acesso ao tratamento prescrito.",
     description:
-      "Medidas para obtenção de medicamentos de uso contínuo, importados ou de alto custo quando há negativa de cobertura.",
+      "Medidas relacionadas a medicamentos de alto custo, uso contínuo, importados e negativas de cobertura.",
     icon: Stethoscope,
   },
   {
     number: "03",
-    title: "Tratamentos Oncológicos",
+    title: "Oncologia",
+    short: "Tempo importa quando o tratamento é urgente.",
     description:
-      "Atuação em negativas envolvendo quimioterapia, imunoterapia, radioterapia e demais tratamentos indispensáveis.",
+      "Atuação em negativas envolvendo quimioterapia, imunoterapia, radioterapia e tratamentos indispensáveis.",
     icon: Activity,
   },
   {
     number: "04",
-    title: "Cirurgias e Terapias",
+    title: "Cirurgias e terapias",
+    short: "Proteção jurídica diante da negativa.",
     description:
-      "Análise de negativas de cirurgias, exames, próteses, terapias multidisciplinares e outros procedimentos prescritos.",
+      "Análise de negativas de cirurgias, exames, próteses, terapias multidisciplinares e outros procedimentos.",
     icon: ShieldCheck,
   },
 ];
 
-const capabilities = [
-  "Análise de casos urgentes",
-  "Direito Médico e da Saúde",
-  "Planos de saúde",
-  "Tutelas de urgência",
-  "Atendimento nacional",
-  "Comunicação direta",
+const storySteps = [
+  {
+    key: "cross",
+    index: "01",
+    eyebrow: "Direito da Saúde",
+    title: "Saúde",
+    accent: "não pode esperar.",
+    copy: "A primeira leitura é clínica: entender a prescrição, a urgência e o que está sendo negado.",
+  },
+  {
+    key: "scales",
+    index: "02",
+    eyebrow: "Estratégia jurídica",
+    title: "Técnica",
+    accent: "para equilibrar forças.",
+    copy: "Documentos, contrato, cobertura e contexto são organizados para definir a medida juridicamente adequada.",
+  },
+  {
+    key: "pulse",
+    index: "03",
+    eyebrow: "Urgência",
+    title: "Tempo",
+    accent: "também é parte do caso.",
+    copy: "Quando o tratamento não pode esperar, a estratégia precisa acompanhar a urgência real do paciente.",
+  },
+  {
+    key: "shield",
+    index: "04",
+    eyebrow: "Proteção",
+    title: "Direito",
+    accent: "aplicado à vida real.",
+    copy: "O objetivo é tornar o caminho compreensível, técnico e focado na proteção do paciente.",
+  },
 ];
 
+type Point = [number, number];
+type Particle = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  phase: number;
+  glow: number;
+};
 
-function MorphingLegalParticles() {
+function clamp(value: number, min = 0, max = 1) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function smoothstep(value: number) {
+  const t = clamp(value);
+  return t * t * (3 - 2 * t);
+}
+
+function ScrollParticles({
+  storyRef,
+}: {
+  storyRef: React.RefObject<HTMLElement | null>;
+}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const story = storyRef.current;
+    if (!canvas || !story) return;
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -75,184 +137,280 @@ function MorphingLegalParticles() {
     let width = 0;
     let height = 0;
     let dpr = 1;
-    let count = 220;
-    let progress = 0;
+    let particleCount = 280;
+    let particles: Particle[] = [];
+    let targets: Point[][] = [];
+    let storyProgress = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+    let pointerActive = false;
 
-    type P = { x: number; y: number; vx: number; vy: number; size: number; phase: number };
-    let particles: P[] = [];
+    const seeded = (index: number) => {
+      const x = Math.sin(index * 999.91 + 31.7) * 43758.5453;
+      return x - Math.floor(x);
+    };
 
     const sampleLine = (
       ax: number,
       ay: number,
       bx: number,
       by: number,
-      n: number,
-    ) =>
-      Array.from({ length: n }, (_, i) => {
-        const t = n <= 1 ? 0 : i / (n - 1);
-        return [ax + (bx - ax) * t, ay + (by - ay) * t] as [number, number];
+      count: number,
+    ): Point[] =>
+      Array.from({ length: count }, (_, i) => {
+        const t = count <= 1 ? 0 : i / (count - 1);
+        return [ax + (bx - ax) * t, ay + (by - ay) * t];
       });
 
-    const normalizeCount = (pts: [number, number][]) =>
-      Array.from({ length: count }, (_, i) => pts[i % pts.length]);
+    const normalize = (points: Point[]) =>
+      Array.from(
+        { length: particleCount },
+        (_, i) => points[i % points.length] ?? [0, 0],
+      );
 
-    const makeCross = () => {
-      const pts: [number, number][] = [];
-      for (let i = 0; i < count; i++) {
+    const makeCloud = (): Point[] =>
+      Array.from({ length: particleCount }, (_, i) => {
+        const angle = seeded(i * 2) * Math.PI * 2;
+        const radius = 0.18 + seeded(i * 2 + 1) * 1.08;
+        return [
+          Math.cos(angle) * radius * (0.75 + seeded(i + 100) * 0.45),
+          Math.sin(angle) * radius * 0.78,
+        ];
+      });
+
+    const makeCross = (): Point[] => {
+      const points: Point[] = [];
+      for (let i = 0; i < particleCount; i++) {
         const horizontal = i % 2 === 0;
-        const x = horizontal ? -0.9 + Math.random() * 1.8 : -0.28 + Math.random() * 0.56;
-        const y = horizontal ? -0.28 + Math.random() * 0.56 : -0.9 + Math.random() * 1.8;
-        pts.push([x, y]);
+        const spread = seeded(i + 200);
+        const depth = seeded(i + 600);
+        const x = horizontal
+          ? -0.92 + spread * 1.84
+          : -0.25 + spread * 0.5;
+        const y = horizontal
+          ? -0.25 + depth * 0.5
+          : -0.94 + depth * 1.88;
+        points.push([x, y]);
       }
-      return pts;
+      return points;
     };
 
-    const makeScales = () => {
-      const pts: [number, number][] = [];
-      pts.push(...sampleLine(0, -0.82, 0, 0.78, 54));
-      pts.push(...sampleLine(-0.78, -0.35, 0.78, -0.35, 52));
-      pts.push(...sampleLine(-0.62, -0.35, -0.78, 0.28, 18));
-      pts.push(...sampleLine(0.62, -0.35, 0.78, 0.28, 18));
-      pts.push(...sampleLine(-0.96, 0.3, -0.58, 0.3, 16));
-      pts.push(...sampleLine(0.58, 0.3, 0.96, 0.3, 16));
-      for (let i = 0; i < 22; i++) {
-        const a = Math.PI * (i / 21);
-        pts.push([-0.77 + Math.cos(a) * 0.24, 0.28 + Math.sin(a) * 0.18]);
-        pts.push([0.77 + Math.cos(a) * 0.24, 0.28 + Math.sin(a) * 0.18]);
+    const makeScales = (): Point[] => {
+      const points: Point[] = [];
+      points.push(...sampleLine(0, -0.9, 0, 0.72, 56));
+      points.push(...sampleLine(-0.82, -0.38, 0.82, -0.38, 60));
+      points.push(...sampleLine(-0.64, -0.38, -0.82, 0.18, 20));
+      points.push(...sampleLine(0.64, -0.38, 0.82, 0.18, 20));
+      points.push(...sampleLine(-0.98, 0.22, -0.64, 0.22, 18));
+      points.push(...sampleLine(0.64, 0.22, 0.98, 0.22, 18));
+
+      for (let i = 0; i < 28; i++) {
+        const t = Math.PI * (i / 27);
+        points.push([
+          -0.81 + Math.cos(t) * 0.25,
+          0.2 + Math.sin(t) * 0.19,
+        ]);
+        points.push([
+          0.81 + Math.cos(t) * 0.25,
+          0.2 + Math.sin(t) * 0.19,
+        ]);
       }
-      pts.push(...sampleLine(-0.42, 0.78, 0.42, 0.78, 30));
-      return normalizeCount(pts);
+
+      points.push(...sampleLine(-0.44, 0.74, 0.44, 0.74, 34));
+      return normalize(points);
     };
 
-    const makeHeartbeat = () => {
-      const pts: [number, number][] = [];
-      const path: [number, number][] = [
-        [-1, 0.05],
-        [-0.55, 0.05],
-        [-0.38, -0.18],
-        [-0.18, 0.44],
-        [0.02, -0.62],
-        [0.23, 0.22],
-        [0.42, 0.05],
-        [1, 0.05],
+    const makePulse = (): Point[] => {
+      const path: Point[] = [
+        [-1.02, 0.03],
+        [-0.62, 0.03],
+        [-0.47, -0.14],
+        [-0.26, 0.34],
+        [-0.03, -0.68],
+        [0.22, 0.25],
+        [0.4, 0.03],
+        [1.02, 0.03],
       ];
+      const points: Point[] = [];
       for (let i = 0; i < path.length - 1; i++) {
-        pts.push(...sampleLine(path[i][0], path[i][1], path[i + 1][0], path[i + 1][1], 26));
+        points.push(
+          ...sampleLine(
+            path[i][0],
+            path[i][1],
+            path[i + 1][0],
+            path[i + 1][1],
+            34,
+          ),
+        );
       }
-      for (let i = 0; i < 100; i++) {
-        const t = (i / 99) * Math.PI * 2;
-        const x = 0.48 * Math.sin(t) ** 3;
+
+      for (let i = 0; i < 120; i++) {
+        const t = (i / 119) * Math.PI * 2;
+        const x = 0.42 * Math.sin(t) ** 3;
         const y =
-          -(0.38 *
+          -(0.34 *
             (13 * Math.cos(t) -
               5 * Math.cos(2 * t) -
               2 * Math.cos(3 * t) -
               Math.cos(4 * t))) /
           17;
-        pts.push([x, y - 0.06]);
+        points.push([x, y - 0.02]);
       }
-      return normalizeCount(pts);
+
+      return normalize(points);
     };
 
-    const makeShield = () => {
-      const pts: [number, number][] = [];
-      const outline: [number, number][] = [
-        [0, -0.95],
-        [0.76, -0.62],
-        [0.68, 0.18],
-        [0.42, 0.58],
-        [0, 0.94],
-        [-0.42, 0.58],
-        [-0.68, 0.18],
-        [-0.76, -0.62],
-        [0, -0.95],
+    const makeShield = (): Point[] => {
+      const outline: Point[] = [
+        [0, -0.96],
+        [0.72, -0.66],
+        [0.67, 0.15],
+        [0.43, 0.57],
+        [0, 0.95],
+        [-0.43, 0.57],
+        [-0.67, 0.15],
+        [-0.72, -0.66],
+        [0, -0.96],
       ];
+      const points: Point[] = [];
       for (let i = 0; i < outline.length - 1; i++) {
-        pts.push(...sampleLine(outline[i][0], outline[i][1], outline[i + 1][0], outline[i + 1][1], 30));
+        points.push(
+          ...sampleLine(
+            outline[i][0],
+            outline[i][1],
+            outline[i + 1][0],
+            outline[i + 1][1],
+            34,
+          ),
+        );
       }
-      pts.push(...sampleLine(-0.35, 0.02, -0.08, 0.30, 34));
-      pts.push(...sampleLine(-0.08, 0.30, 0.42, -0.30, 50));
-      return normalizeCount(pts);
+      points.push(...sampleLine(-0.38, 0.02, -0.08, 0.31, 38));
+      points.push(...sampleLine(-0.08, 0.31, 0.43, -0.33, 58));
+      return normalize(points);
     };
-
-    const makeConstellation = () =>
-      Array.from({ length: count }, (_, i) => {
-        const a = (i / count) * Math.PI * 8;
-        const r = 0.16 + (i / count) * 0.92;
-        return [Math.cos(a) * r, Math.sin(a) * r * 0.7] as [number, number];
-      });
-
-    let shapes: [number, number][][] = [];
 
     const resize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      count = width < 700 ? 120 : 220;
+      particleCount = width < 720 ? 150 : 280;
+
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      shapes = [makeConstellation(), makeCross(), makeScales(), makeHeartbeat(), makeShield(), makeConstellation()];
-      particles = Array.from({ length: count }, (_, i) => ({
-        x: Math.random() * width,
-        y: Math.random() * height,
+
+      targets = [
+        makeCloud(),
+        makeCross(),
+        makeScales(),
+        makePulse(),
+        makeShield(),
+        makeCloud(),
+      ];
+
+      particles = Array.from({ length: particleCount }, (_, i) => ({
+        x: width * (0.35 + seeded(i + 14) * 0.5),
+        y: height * (0.1 + seeded(i + 44) * 0.8),
         vx: 0,
         vy: 0,
-        size: 0.7 + Math.random() * 1.7,
-        phase: Math.random() * Math.PI * 2,
+        size: 0.65 + seeded(i + 90) * 1.85,
+        phase: seeded(i + 200) * Math.PI * 2,
+        glow: seeded(i + 500),
       }));
     };
 
-    const updateProgress = () => {
-      const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
-      progress = Math.min(1, Math.max(0, window.scrollY / max));
+    const updateStoryProgress = () => {
+      const rect = story.getBoundingClientRect();
+      const travel = Math.max(story.offsetHeight - window.innerHeight, 1);
+      storyProgress = clamp(-rect.top / travel);
+    };
+
+    const pointerMove = (event: PointerEvent) => {
+      pointerX = event.clientX;
+      pointerY = event.clientY;
+      pointerActive = true;
+    };
+
+    const pointerLeave = () => {
+      pointerActive = false;
     };
 
     const render = (time: number) => {
       ctx.clearRect(0, 0, width, height);
 
-      const stageFloat = progress * (shapes.length - 1);
-      const stage = Math.min(shapes.length - 2, Math.floor(stageFloat));
+      const stageFloat = storyProgress * (targets.length - 1);
+      const stage = Math.min(
+        targets.length - 2,
+        Math.max(0, Math.floor(stageFloat)),
+      );
       const local = stageFloat - stage;
-      const eased = local * local * (3 - 2 * local);
+      const eased = smoothstep(local);
 
-      const cx = width < 760 ? width * 0.5 : width * 0.78;
-      const cy = height * 0.51;
-      const scale = Math.min(width, height) * (width < 760 ? 0.26 : 0.29);
-
-      const a = shapes[stage];
-      const b = shapes[stage + 1];
+      const current = targets[stage];
+      const next = targets[stage + 1];
+      const mobile = width < 760;
+      const centerX = mobile ? width * 0.5 : width * 0.72;
+      const centerY = height * 0.5;
+      const scale = Math.min(width, height) * (mobile ? 0.28 : 0.33);
 
       for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        const pa = a[i % a.length];
-        const pb = b[i % b.length];
-        const nx = pa[0] + (pb[0] - pa[0]) * eased;
-        const ny = pa[1] + (pb[1] - pa[1]) * eased;
+        const particle = particles[i];
+        const a = current[i % current.length];
+        const b = next[i % next.length];
 
-        const driftX = Math.sin(time * 0.00035 + p.phase) * 5;
-        const driftY = Math.cos(time * 0.00028 + p.phase) * 4;
-        const tx = cx + nx * scale + driftX;
-        const ty = cy + ny * scale + driftY;
+        const nx = a[0] + (b[0] - a[0]) * eased;
+        const ny = a[1] + (b[1] - a[1]) * eased;
 
-        p.vx += (tx - p.x) * 0.018;
-        p.vy += (ty - p.y) * 0.018;
-        p.vx *= 0.86;
-        p.vy *= 0.86;
-        p.x += p.vx;
-        p.y += p.vy;
+        const breathingX =
+          Math.sin(time * 0.00042 + particle.phase) *
+          (2 + particle.glow * 5);
+        const breathingY =
+          Math.cos(time * 0.00034 + particle.phase) *
+          (2 + particle.glow * 4);
 
-        const pulse = 0.72 + Math.sin(time * 0.002 + p.phase) * 0.28;
+        let targetX = centerX + nx * scale + breathingX;
+        let targetY = centerY + ny * scale + breathingY;
+
+        if (pointerActive && !mobile) {
+          const dx = particle.x - pointerX;
+          const dy = particle.y - pointerY;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < 120 && distance > 0) {
+            const force = (1 - distance / 120) * 28;
+            targetX += (dx / distance) * force;
+            targetY += (dy / distance) * force;
+          }
+        }
+
+        particle.vx += (targetX - particle.x) * 0.02;
+        particle.vy += (targetY - particle.y) * 0.02;
+        particle.vx *= 0.84;
+        particle.vy *= 0.84;
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+
+        const pulse =
+          0.72 + Math.sin(time * 0.002 + particle.phase) * 0.28;
+        const alpha = 0.24 + particle.glow * 0.5;
+        const white = i % 7 === 0;
+
         ctx.beginPath();
-        ctx.fillStyle =
-          i % 5 === 0
-            ? `rgba(255,255,255,${0.32 + pulse * 0.35})`
-            : `rgba(215,188,135,${0.22 + pulse * 0.48})`;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = i % 5 === 0 ? "rgba(255,255,255,.35)" : "rgba(215,188,135,.55)";
-        ctx.arc(p.x, p.y, p.size * pulse, 0, Math.PI * 2);
+        ctx.fillStyle = white
+          ? `rgba(255,255,255,${alpha})`
+          : `rgba(213,181,121,${alpha})`;
+        ctx.shadowBlur = 5 + particle.glow * 11;
+        ctx.shadowColor = white
+          ? "rgba(255,255,255,.34)"
+          : "rgba(213,181,121,.48)";
+        ctx.arc(
+          particle.x,
+          particle.y,
+          particle.size * pulse,
+          0,
+          Math.PI * 2,
+        );
         ctx.fill();
       }
 
@@ -261,493 +419,464 @@ function MorphingLegalParticles() {
     };
 
     resize();
-    updateProgress();
+    updateStoryProgress();
+
     window.addEventListener("resize", resize);
-    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("scroll", updateStoryProgress, { passive: true });
+    window.addEventListener("pointermove", pointerMove, { passive: true });
+    document.documentElement.addEventListener("mouseleave", pointerLeave);
+
     raf = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
-      window.removeEventListener("scroll", updateProgress);
+      window.removeEventListener("scroll", updateStoryProgress);
+      window.removeEventListener("pointermove", pointerMove);
+      document.documentElement.removeEventListener("mouseleave", pointerLeave);
     };
-  }, []);
+  }, [storyRef]);
 
-  return <canvas ref={canvasRef} className="morphing-symbol-canvas" aria-hidden="true" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="story-particles"
+      aria-hidden="true"
+    />
+  );
 }
 
 function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const particles = Array.from({ length: 38 }, (_, index) => index);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  const [storyStep, setStoryStep] = useState(0);
+  const storyRef = useRef<HTMLElement | null>(null);
+
+  const dust = useMemo(
+    () => Array.from({ length: 52 }, (_, index) => index),
+    [],
+  );
 
   useEffect(() => {
-    const revealElements = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-reveal]"),
-    );
+    let raf = 0;
 
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observerRef.current?.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.16, rootMargin: "0px 0px -8% 0px" },
-    );
-
-    revealElements.forEach((element) => observerRef.current?.observe(element));
-
-    let frame = 0;
-    const updateScroll = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const y = window.scrollY;
-        document.documentElement.style.setProperty("--scroll-y", `${y}px`);
-        const max = Math.max(
+    const update = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const height = Math.max(
           document.documentElement.scrollHeight - window.innerHeight,
           1,
         );
+        const pageProgress = window.scrollY / height;
         document.documentElement.style.setProperty(
-          "--scroll-progress",
-          String(y / max),
+          "--page-progress",
+          String(pageProgress),
+        );
+        document.documentElement.style.setProperty(
+          "--scroll-y",
+          `${window.scrollY}px`,
+        );
+
+        const story = storyRef.current;
+        if (story) {
+          const rect = story.getBoundingClientRect();
+          const travel = Math.max(story.offsetHeight - window.innerHeight, 1);
+          const progress = clamp(-rect.top / travel);
+          document.documentElement.style.setProperty(
+            "--story-progress",
+            String(progress),
+          );
+          setStoryStep(Math.min(3, Math.floor(progress * 4.02)));
+        }
+
+        document.querySelectorAll<HTMLElement>("[data-scroll-scene]").forEach(
+          (element) => {
+            const rect = element.getBoundingClientRect();
+            const travel = Math.max(element.offsetHeight - window.innerHeight, 1);
+            const progress = clamp(-rect.top / travel);
+            element.style.setProperty("--scene-progress", String(progress));
+          },
         );
       });
     };
 
-    const updatePointer = (event: PointerEvent) => {
-      document.documentElement.style.setProperty("--pointer-x", `${event.clientX}px`);
-      document.documentElement.style.setProperty("--pointer-y", `${event.clientY}px`);
+    const pointer = (event: PointerEvent) => {
       document.documentElement.style.setProperty(
-        "--pointer-rx",
-        String((event.clientY / window.innerHeight - 0.5) * -8),
+        "--pointer-x",
+        `${event.clientX}px`,
       );
       document.documentElement.style.setProperty(
-        "--pointer-ry",
-        String((event.clientX / window.innerWidth - 0.5) * 8),
+        "--pointer-y",
+        `${event.clientY}px`,
+      );
+      document.documentElement.style.setProperty(
+        "--pointer-nx",
+        String(event.clientX / window.innerWidth - 0.5),
+      );
+      document.documentElement.style.setProperty(
+        "--pointer-ny",
+        String(event.clientY / window.innerHeight - 0.5),
       );
     };
 
-    updateScroll();
-    window.addEventListener("scroll", updateScroll, { passive: true });
-    window.addEventListener("pointermove", updatePointer, { passive: true });
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    window.addEventListener("pointermove", pointer, { passive: true });
 
     return () => {
-      observerRef.current?.disconnect();
-      window.removeEventListener("scroll", updateScroll);
-      window.removeEventListener("pointermove", updatePointer);
-      cancelAnimationFrame(frame);
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      window.removeEventListener("pointermove", pointer);
     };
   }, []);
 
-  const scrollTo = (id: string) => {
+  const goTo = (id: string) => {
     setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <main className="site-shell">
-      <div className="scroll-progress" aria-hidden="true" />
-      <MorphingLegalParticles />
-      <div className="cursor-glow" aria-hidden="true" />
-      <div className="global-particles" aria-hidden="true">
-        {particles.map((particle) => (
-          <i key={particle} style={{ "--p": particle } as any} />
+    <main className="experience">
+      <div className="page-progress" aria-hidden="true" />
+      <div className="cursor-light" aria-hidden="true" />
+
+      <div className="ambient-dust" aria-hidden="true">
+        {dust.map((item) => (
+          <i
+            key={item}
+            style={{ "--dust": item } as CSSProperties}
+          />
         ))}
       </div>
-      <div className="ambient-lines" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-      </div>
-      <header className="site-header">
+
+      <header className="topbar">
         <button
-          type="button"
-          className="brand-mark"
-          onClick={() => scrollTo("inicio")}
-          aria-label="Ir para o início"
+          className="identity"
+          onClick={() => goTo("inicio")}
+          aria-label="Voltar ao início"
         >
-          <span className="brand-monogram">RD</span>
-          <span className="brand-copy">
+          <span className="identity-seal">RD</span>
+          <span>
             <strong>Renan Durso</strong>
-            <small>Advocacia & Consultoria</small>
+            <small>Advocacia • Direito da Saúde</small>
           </span>
         </button>
 
-        <nav className="desktop-nav" aria-label="Navegação principal">
-          <button type="button" onClick={() => scrollTo("sobre")}>
-            Sobre
-          </button>
-          <button type="button" onClick={() => scrollTo("atuacao")}>
-            Atuação
-          </button>
-          <button type="button" onClick={() => scrollTo("metodo")}>
-            Método
-          </button>
-          <button
-            type="button"
-            className="nav-cta"
-            onClick={() => scrollTo("contato")}
-          >
-            Fale conosco <ArrowUpRight size={15} />
+        <nav className="desktop-menu" aria-label="Navegação principal">
+          <button onClick={() => goTo("experiencia")}>Experiência</button>
+          <button onClick={() => goTo("atuacao")}>Atuação</button>
+          <button onClick={() => goTo("sobre")}>Sobre</button>
+          <button className="menu-contact" onClick={() => goTo("contato")}>
+            Falar com o escritório <ArrowUpRight size={14} />
           </button>
         </nav>
 
         <button
-          className="menu-button"
-          type="button"
-          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+          className="mobile-trigger"
           onClick={() => setMenuOpen((value) => !value)}
+          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
         >
           {menuOpen ? <X /> : <Menu />}
         </button>
 
-        <div className={`mobile-menu ${menuOpen ? "is-open" : ""}`}>
-          <button type="button" onClick={() => scrollTo("sobre")}>
-            01. Sobre
-          </button>
-          <button type="button" onClick={() => scrollTo("atuacao")}>
-            02. Atuação
-          </button>
-          <button type="button" onClick={() => scrollTo("metodo")}>
-            03. Método
-          </button>
-          <button type="button" onClick={() => scrollTo("contato")}>
-            04. Contato
-          </button>
+        <div className={`mobile-panel ${menuOpen ? "open" : ""}`}>
+          <button onClick={() => goTo("experiencia")}>Experiência</button>
+          <button onClick={() => goTo("atuacao")}>Atuação</button>
+          <button onClick={() => goTo("sobre")}>Sobre</button>
+          <button onClick={() => goTo("contato")}>Contato</button>
         </div>
       </header>
 
-      <section id="inicio" className="hero-section">
-        <div className="hero-noise" />
-        <div className="hero-light-sweep" aria-hidden="true" />
-        <div className="hero-particle-cloud" aria-hidden="true">
-          <span /><span /><span /><span /><span /><span /><span /><span />
-        </div>
-        <div className="hero-orbit hero-orbit-one" />
-        <div className="hero-orbit hero-orbit-two" />
-        <div className="hero-legal-word" aria-hidden="true">
-          DIREITO
-        </div>
-        <div className="hero-crosshair" aria-hidden="true">
-          <span />
-          <span />
-        </div>
+      <section
+        id="inicio"
+        className="hero-scroll-scene"
+        data-scroll-scene
+      >
+        <div className="scene-sticky hero-stage">
+          <div className="hero-grid" aria-hidden="true" />
+          <div className="hero-halo" aria-hidden="true" />
+          <div className="hero-index">01 — INÍCIO</div>
 
-        <div className="hero-content">
-          <div className="hero-kicker hero-load">
-            <span className="kicker-line" />
-            Advocacia especializada em Direito da Saúde
-          </div>
-
-          <h1 className="hero-title">
-            <span className="hero-title-line hero-load hero-delay-1">
-              A saúde é
-            </span>
-            <span className="hero-title-line hero-title-serif hero-load hero-delay-2">
-              um direito.
-            </span>
-          </h1>
-
-          <div className="hero-bottom hero-load hero-delay-3">
-            <p>
-              Atuação dedicada à proteção do paciente diante de negativas de tratamentos,
-              medicamentos, cirurgias, home care, terapias e tecnologias essenciais
-              à preservação da vida e da dignidade.
+          <div className="hero-copy">
+            <p className="micro-kicker">
+              <span />
+              Direito médico e da saúde
             </p>
 
-            <button
-              type="button"
-              className="magnetic-button"
-              onClick={() => scrollTo("contato")}
-            >
-              <span>Solicitar atendimento</span>
-              <span className="magnetic-icon">
-                <ArrowDownRight />
+            <h1 className="display-title">
+              <span className="title-mask">
+                <b>A saúde</b>
               </span>
-            </button>
-          </div>
-        </div>
+              <span className="title-mask title-serif">
+                <b>não pode esperar.</b>
+              </span>
+            </h1>
 
-        <div className="hero-side-note" aria-hidden="true">
-          Direito Médico & Saúde
-        </div>
-
-        <button
-          type="button"
-          className="hero-scroll"
-          onClick={() => scrollTo("sobre")}
-        >
-          <span>Explore</span>
-          <ChevronDown size={17} />
-        </button>
-      </section>
-
-      <section id="sobre" className="manifesto-section">
-        <div className="section-index" data-reveal>
-          <span>01</span>
-          <p>Essência</p>
-        </div>
-
-        <div className="manifesto-grid">
-          <div className="manifesto-sticky" data-reveal>
-            <div className="rd-seal">
-              <span>RD</span>
-              <svg viewBox="0 0 150 150" aria-hidden="true">
-                <defs>
-                  <path
-                    id="sealPath"
-                    d="M 75,75 m -55,0 a 55,55 0 1,1 110,0 a 55,55 0 1,1 -110,0"
-                  />
-                </defs>
-                <text>
-                  <textPath href="#sealPath" startOffset="0%">
-                    RENAN DURSO • ADVOCACIA • CONSULTORIA •
-                  </textPath>
-                </text>
-              </svg>
+            <div className="hero-summary">
+              <p>
+                Atuação jurídica dedicada à proteção do paciente diante de
+                negativas de tratamento, medicamentos, cirurgias, home care e
+                terapias essenciais.
+              </p>
+              <button onClick={() => goTo("experiencia")}>
+                Descobrir a atuação <ArrowDown size={16} />
+              </button>
             </div>
           </div>
 
-          <div className="manifesto-copy">
-            <p className="eyebrow" data-reveal>
-              Cada processo representa uma vida.
-            </p>
-            <h2 data-reveal>
-              Atuação técnica para transformar uma negativa em um caminho jurídico
-              <em> possível.</em>
-            </h2>
-            <div className="manifesto-columns" data-reveal>
-              <p>
-                Renan Durso atua com foco em Direito da Saúde e Direito Médico, analisando
-                cada situação a partir da documentação clínica, da urgência e da
-                cobertura contratual ou pública envolvida.
-              </p>
-              <p>
-                A formação complementar em gestão hospitalar e auditoria em documentos da
-                saúde amplia a compreensão sobre a dinâmica de planos e instituições
-                de saúde, permitindo uma estratégia jurídica mais precisa.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="section-transition" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-      </div>
-      <section className="statement-section">
-        <div className="statement-marquee" aria-hidden="true">
-          <div>
-            <span>ESTRATÉGIA</span>
-            <Sparkles />
-            <span>PRECISÃO</span>
-            <Sparkles />
-            <span>CLAREZA</span>
-            <Sparkles />
-            <span>ESTRATÉGIA</span>
-            <Sparkles />
-          </div>
-        </div>
-        <div className="statement-inner">
-          <p data-reveal>
-            O direito não deve tornar uma decisão mais difícil.
-          </p>
-          <h2 data-reveal>
-            Deve tornar o caminho
-            <span> mais claro.</span>
-          </h2>
-        </div>
-      </section>
-
-      <section id="atuacao" className="practice-section">
-        <div className="practice-stars" aria-hidden="true">
-          <span /><span /><span /><span /><span /><span />
-        </div>
-        <div className="practice-heading">
-          <div className="section-index light" data-reveal>
-            <span>02</span>
-            <p>Áreas de atuação</p>
-          </div>
-          <div>
-            <p className="eyebrow light" data-reveal>
-              Direito da Saúde na prática
-            </p>
-            <h2 data-reveal>
-              Atuação focada em
-              <br />
-              <em>situações urgentes.</em>
-            </h2>
-          </div>
-        </div>
-
-        <div className="practice-list">
-          {practiceAreas.map((area) => {
-            const Icon = area.icon;
-            return (
-              <article className="practice-card" key={area.title} data-reveal>
-                <div className="practice-number">{area.number}</div>
-                <div className="practice-icon">
-                  <Icon />
-                </div>
-                <h3>{area.title}</h3>
-                <p>{area.description}</p>
-                <div className="practice-arrow">
-                  <ArrowUpRight />
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
-      <section id="metodo" className="method-section">
-        <div className="method-visual">
-          <div className="method-image method-image-main portrait-stage" data-reveal>
-            <div className="portrait-aura" />
-            <div className="portrait-frame">
+          <div className="portrait-hero" aria-hidden="true">
+            <div className="portrait-orbit orbit-a" />
+            <div className="portrait-orbit orbit-b" />
+            <div className="portrait-light" />
+            <div className="portrait-crop">
               <img
-                className="portrait-base"
-                src="https://renandurso.lovable.app/__l5e/assets-v1/627158e5-171e-4d04-a900-3ab4beb348d8/adv-1.png"
-                alt="Renan Durso, advogado especialista em Direito da Saúde"
-              />
-              <img
-                className="portrait-chest"
-                aria-hidden="true"
-                src="https://renandurso.lovable.app/__l5e/assets-v1/627158e5-171e-4d04-a900-3ab4beb348d8/adv-1.png"
+                className="portrait-main"
+                src={portraitUrl}
                 alt=""
               />
-              <div className="tie-glint" aria-hidden="true" />
+              <img
+                className="portrait-torso"
+                src={portraitUrl}
+                alt=""
+              />
+              <div className="tie-flare" />
             </div>
-            <div className="portrait-caption" aria-hidden="true">
-              <span>ESPECIALISTA</span>
-              <span>DIREITO DA SAÚDE</span>
-            </div>
-            <div className="method-image-overlay" />
-            <div className="method-image-copy">
-              <span>RENAN DURSO</span>
-              <small>ADVOCACIA & CONSULTORIA</small>
-            </div>
+            <span className="portrait-label">
+              RENAN DURSO / ADVOCACIA
+            </span>
           </div>
-          <div className="method-floating-card" data-reveal>
-            <span>Princípio 01</span>
-            <strong>
-              Compreender
-              <br />
-              antes de agir.
-            </strong>
+
+          <div className="hero-bottomline">
+            <span>Atendimento nacional</span>
+            <span>São Paulo — SP</span>
+            <span>Role para explorar</span>
           </div>
         </div>
+      </section>
 
-        <div className="method-copy">
-          <div className="section-index" data-reveal>
-            <span>03</span>
-            <p>Método</p>
+      <section
+        id="experiencia"
+        ref={storyRef}
+        className="particle-story"
+      >
+        <ScrollParticles storyRef={storyRef} />
+
+        <div className="scene-sticky story-stage">
+          <div className="story-grid" aria-hidden="true" />
+          <div className="story-radial" aria-hidden="true" />
+
+          <div className="story-counter">
+            <span>0{storyStep + 1}</span>
+            <small>/ 04</small>
           </div>
-          <p className="eyebrow" data-reveal>
-            Técnica, urgência e acolhimento
-          </p>
-          <h2 data-reveal>
-            Cada caso de saúde exige resposta jurídica compatível com a urgência de quem está
-            <em> vivendo o problema.</em>
-          </h2>
-          <p className="method-body" data-reveal>
-            A atuação começa pela análise dos relatórios médicos, da negativa e dos documentos
-            essenciais. A partir daí, são avaliadas as medidas cabíveis, inclusive pedidos
-            de urgência quando o tempo é determinante para o tratamento.
-          </p>
 
-          <div className="capability-list" data-reveal>
-            {capabilities.map((capability, index) => (
-              <div key={capability}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <p>{capability}</p>
-                <ArrowRight />
-              </div>
+          <div className="story-copy-stack">
+            {storySteps.map((step, index) => (
+              <article
+                key={step.key}
+                className={`story-copy ${storyStep === index ? "active" : ""}`}
+              >
+                <p>{step.eyebrow}</p>
+                <h2>
+                  {step.title}
+                  <em>{step.accent}</em>
+                </h2>
+                <div className="story-rule" />
+                <span>{step.copy}</span>
+              </article>
             ))}
           </div>
-        </div>
-      </section>
 
-      <section className="quote-section">
-        <div className="quote-symbol" aria-hidden="true">
-          “
-        </div>
-        <blockquote data-reveal>
-          Uma boa orientação jurídica não entrega apenas respostas.
-          <em> Organiza possibilidades.</em>
-        </blockquote>
-        <div className="quote-meta" data-reveal>
-          <span>RD</span>
-          <p>
-            Advocacia e Consultoria
-            <small>Itaim Bibi — São Paulo</small>
-          </p>
-        </div>
-      </section>
-
-      <section id="contato" className="contact-section">
-        <div className="contact-glow" />
-        <div className="contact-top">
-          <div className="section-index light" data-reveal>
-            <span>04</span>
-            <p>Contato</p>
+          <div className="story-axis" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+            <i />
           </div>
-          <p className="contact-kicker" data-reveal>
-            Precisa conversar sobre uma questão jurídica?
+
+          <div className="story-caption">
+            partículas → símbolo → significado
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="sobre"
+        className="portrait-scroll-scene"
+        data-scroll-scene
+      >
+        <div className="scene-sticky portrait-stage">
+          <div className="portrait-backtype" aria-hidden="true">
+            SAÚDE
+          </div>
+
+          <div className="portrait-panel">
+            <div className="portrait-frame">
+              <img src={portraitUrl} alt="Renan Durso" />
+              <div className="portrait-scanline" />
+              <div className="portrait-vignette" />
+            </div>
+
+            <div className="portrait-card">
+              <span>Direito da Saúde</span>
+              <strong>
+                Técnica jurídica
+                <em>com leitura humana.</em>
+              </strong>
+            </div>
+          </div>
+
+          <div className="about-copy">
+            <p className="micro-kicker dark">
+              <span />
+              Sobre a atuação
+            </p>
+            <h2>
+              Antes da ação,
+              <em>compreender o caso.</em>
+            </h2>
+            <p className="about-lead">
+              A estratégia parte da documentação médica, da urgência, da
+              negativa e do contexto de cada paciente. O objetivo é organizar
+              as informações e transformar uma situação complexa em próximos
+              passos claros.
+            </p>
+
+            <div className="about-facts">
+              <div>
+                <small>01</small>
+                <span>Análise individualizada</span>
+              </div>
+              <div>
+                <small>02</small>
+                <span>Foco em Direito da Saúde</span>
+              </div>
+              <div>
+                <small>03</small>
+                <span>Comunicação objetiva</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="atuacao"
+        className="practice-scroll-scene"
+        data-scroll-scene
+      >
+        <div className="scene-sticky practice-stage">
+          <div className="practice-head">
+            <p className="micro-kicker">
+              <span />
+              Áreas de atuação
+            </p>
+            <h2>
+              Casos em que
+              <em>o tempo importa.</em>
+            </h2>
+          </div>
+
+          <div className="practice-stack">
+            {practiceAreas.map((area, index) => {
+              const Icon = area.icon;
+              return (
+                <article
+                  key={area.title}
+                  className="practice-slide"
+                  style={{ "--card-index": index } as CSSProperties}
+                >
+                  <div className="practice-slide-top">
+                    <span>{area.number}</span>
+                    <Icon size={22} />
+                  </div>
+                  <h3>{area.title}</h3>
+                  <strong>{area.short}</strong>
+                  <p>{area.description}</p>
+                  <div className="practice-slide-line" />
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="practice-background-word" aria-hidden="true">
+            PROTEÇÃO
+          </div>
+        </div>
+      </section>
+
+      <section className="statement-break">
+        <div className="statement-track" aria-hidden="true">
+          <span>SAÚDE</span>
+          <i>•</i>
+          <span>DIREITO</span>
+          <i>•</i>
+          <span>URGÊNCIA</span>
+          <i>•</i>
+          <span>PROTEÇÃO</span>
+          <i>•</i>
+          <span>SAÚDE</span>
+        </div>
+
+        <blockquote>
+          “Uma boa orientação jurídica não entrega apenas respostas.
+          <em> Organiza possibilidades.</em>”
+        </blockquote>
+      </section>
+
+      <section id="contato" className="contact-scene">
+        <div className="contact-orbit contact-orbit-a" aria-hidden="true" />
+        <div className="contact-orbit contact-orbit-b" aria-hidden="true" />
+        <div className="contact-glow" aria-hidden="true" />
+
+        <div className="contact-heading">
+          <p className="micro-kicker">
+            <span />
+            Contato
           </p>
-        </div>
-
-        <div className="contact-main">
-          <h2 data-reveal>
-            Vamos transformar a sua questão em um próximo passo
-            <em> claro.</em>
+          <h2>
+            Sua questão
+            <em>merece clareza.</em>
           </h2>
-
-          <a
-            className="contact-action"
-            href="mailto:renandurso@aasp.org.br"
-            data-reveal
-          >
-            <span>Iniciar uma conversa</span>
-            <ArrowUpRight />
-          </a>
         </div>
 
-        <div className="contact-footer" data-reveal>
+        <a
+          className="contact-cta"
+          href="mailto:renandurso@aasp.org.br"
+        >
+          <span>Iniciar uma conversa</span>
+          <ArrowUpRight />
+        </a>
+
+        <div className="contact-info">
           <div>
-            <Mail />
+            <Mail size={17} />
             <a href="mailto:renandurso@aasp.org.br">
               renandurso@aasp.org.br
             </a>
           </div>
           <div>
-            <MapPin />
-            <span>Itaim Bibi, São Paulo</span>
+            <MapPin size={17} />
+            <span>São Paulo — SP</span>
           </div>
           <div>
-            <Scale />
-            <span>OAB/SP 436.388</span>
+            <Scale size={17} />
+            <span>Direito Médico e da Saúde</span>
           </div>
         </div>
 
-        <footer className="site-footer">
-          <div className="footer-brand">
-            <span>RD</span>
-            <p>
-              Renan Durso
-              <small>Advocacia & Consultoria</small>
-            </p>
+        <footer className="footer">
+          <div className="identity footer-identity">
+            <span className="identity-seal">RD</span>
+            <span>
+              <strong>Renan Durso</strong>
+              <small>Advocacia • Direito da Saúde</small>
+            </span>
           </div>
-          <p className="footer-legal">
-            Conteúdo institucional de caráter informativo.
-          </p>
-          <button type="button" onClick={() => scrollTo("inicio")}>
-            Voltar ao topo <ArrowUpRight size={14} />
+          <p>Conteúdo institucional de caráter informativo.</p>
+          <button onClick={() => goTo("inicio")}>
+            Voltar ao topo <ArrowRight size={14} />
           </button>
         </footer>
       </section>
