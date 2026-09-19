@@ -138,7 +138,7 @@ function Index() {
       <div className="cursor-glow" aria-hidden="true" />
       <div className="global-particles" aria-hidden="true">
         {particles.map((particle) => (
-          <i key={particle} style={{ "--p": particle } as React.CSSProperties} />
+          <i key={particle} style={{ "--p": particle } as any} />
         ))}
       </div>
       <div className="ambient-lines" aria-hidden="true">
