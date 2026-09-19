@@ -159,8 +159,8 @@ function AnatomyFigure({ step }) {
 
   return (
     <div
-      className="tailoring-assembly tailoring-fitted"
-      aria-label="Montagem visual do traje do advogado"
+      className="tailoring-assembly tailoring-wear"
+      aria-label="Animação de um advogado vestindo o traje peça por peça"
       style={{ "--tailoring-sprite": spriteUrl ? `url("${spriteUrl}")` : "none" }}
     >
       <div className="assembly-grid" aria-hidden="true" />
@@ -169,11 +169,23 @@ function AnatomyFigure({ step }) {
       <div className="assembly-axis" aria-hidden="true" />
 
       <div className="assembly-stage">
-        <div className="assembly-frame assembly-frame-0" aria-hidden="true" />
-        <div className="assembly-frame assembly-frame-1" aria-hidden="true" />
-        <div className="assembly-frame assembly-frame-2" aria-hidden="true" />
-        <div className="assembly-frame assembly-frame-3" aria-hidden="true" />
-        <div className="assembly-frame assembly-frame-4" aria-hidden="true" />
+        <div className="wear-layer wear-base wear-frame-0" aria-hidden="true" />
+
+        <div className="wear-layer wear-shirt-body wear-frame-1" aria-hidden="true" />
+        <div className="wear-layer wear-shirt-left wear-frame-1" aria-hidden="true" />
+        <div className="wear-layer wear-shirt-right wear-frame-1" aria-hidden="true" />
+        <div className="wear-layer wear-shirt-collar wear-frame-1" aria-hidden="true" />
+
+        <div className="wear-layer wear-tie wear-frame-2" aria-hidden="true" />
+        <div className="wear-layer wear-tie-knot wear-frame-2" aria-hidden="true" />
+
+        <div className="wear-layer wear-vest-left wear-frame-3" aria-hidden="true" />
+        <div className="wear-layer wear-vest-right wear-frame-3" aria-hidden="true" />
+
+        <div className="wear-layer wear-jacket-left wear-frame-4" aria-hidden="true" />
+        <div className="wear-layer wear-jacket-right wear-frame-4" aria-hidden="true" />
+
+        <div className="wear-fit-glow" aria-hidden="true" />
 
         <div className="assembly-final-renan">
           <div className="assembly-renan-halo" aria-hidden="true" />
@@ -490,11 +502,42 @@ function App() {
           const p = clamp(-rect.top / travel);
 
           anatomyRef.current.style.setProperty("--anatomy", "1");
-          anatomyRef.current.style.setProperty("--shirt", String(range(p, 0.14, 0.28)));
-          anatomyRef.current.style.setProperty("--tie", String(range(p, 0.28, 0.40)));
-          anatomyRef.current.style.setProperty("--vest", String(range(p, 0.40, 0.54)));
-          anatomyRef.current.style.setProperty("--jacket", String(range(p, 0.54, 0.70)));
-          anatomyRef.current.style.setProperty("--complete", String(range(p, 0.70, 0.79)));
+
+          const shirtLeft = range(p, 0.14, 0.235);
+          const shirtRight = range(p, 0.155, 0.25);
+          const shirtBody = range(p, 0.175, 0.265);
+          const shirtCollar = range(p, 0.215, 0.28);
+          const shirt = range(p, 0.14, 0.28);
+
+          const tieKnot = range(p, 0.28, 0.335);
+          const tie = range(p, 0.305, 0.40);
+
+          const vestLeft = range(p, 0.40, 0.525);
+          const vestRight = range(p, 0.415, 0.54);
+          const vest = range(p, 0.40, 0.54);
+
+          const jacketLeft = range(p, 0.54, 0.695);
+          const jacketRight = range(p, 0.555, 0.71);
+          const jacket = range(p, 0.54, 0.71);
+
+          anatomyRef.current.style.setProperty("--shirt-left", String(shirtLeft));
+          anatomyRef.current.style.setProperty("--shirt-right", String(shirtRight));
+          anatomyRef.current.style.setProperty("--shirt-body", String(shirtBody));
+          anatomyRef.current.style.setProperty("--shirt-collar", String(shirtCollar));
+          anatomyRef.current.style.setProperty("--shirt", String(shirt));
+
+          anatomyRef.current.style.setProperty("--tie-knot", String(tieKnot));
+          anatomyRef.current.style.setProperty("--tie", String(tie));
+
+          anatomyRef.current.style.setProperty("--vest-left", String(vestLeft));
+          anatomyRef.current.style.setProperty("--vest-right", String(vestRight));
+          anatomyRef.current.style.setProperty("--vest", String(vest));
+
+          anatomyRef.current.style.setProperty("--jacket-left", String(jacketLeft));
+          anatomyRef.current.style.setProperty("--jacket-right", String(jacketRight));
+          anatomyRef.current.style.setProperty("--jacket", String(jacket));
+
+          anatomyRef.current.style.setProperty("--complete", String(range(p, 0.71, 0.79)));
           anatomyRef.current.style.setProperty("--portrait", String(range(p, 0.79, 0.91)));
           anatomyRef.current.style.setProperty("--split", String(range(p, 0.91, 1)));
 
