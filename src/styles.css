@@ -1474,3 +1474,291 @@ button {
     transform: none;
   }
 }
+
+
+/* Enhanced cinematic portrait motion */
+.portrait-stage {
+  background:
+    radial-gradient(circle at 62% 30%, rgba(215, 188, 135, 0.24), transparent 22%),
+    linear-gradient(180deg, rgba(8, 15, 21, 0.12), rgba(8, 15, 21, 0.72));
+  overflow: hidden;
+}
+
+.portrait-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.portrait-base,
+.portrait-chest {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  will-change: transform, filter;
+}
+
+.portrait-base {
+  transform: scale(1.04) translate3d(0, calc(var(--scroll-y) * -0.018), 0);
+  filter: saturate(0.94) contrast(1.03);
+  animation: portraitBreath 8s ease-in-out infinite;
+}
+
+.portrait-chest {
+  clip-path: inset(38% 0 0 0);
+  transform-origin: 50% 62%;
+  opacity: 0.92;
+  mix-blend-mode: normal;
+  animation: tieAdjustIllusion 6.8s cubic-bezier(.4,0,.2,1) infinite;
+}
+
+.portrait-aura {
+  position: absolute;
+  z-index: 3;
+  width: 38%;
+  aspect-ratio: 1;
+  right: 13%;
+  top: 19%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(215,188,135,.28), rgba(215,188,135,0) 70%);
+  filter: blur(24px);
+  animation: auraPulse 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.tie-glint {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 49%;
+  width: 2px;
+  height: 92px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,.4), transparent);
+  transform: translateX(-50%) rotate(2deg);
+  opacity: .18;
+  animation: tieGlint 4.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.portrait-caption {
+  position: absolute;
+  z-index: 5;
+  left: clamp(18px, 3vw, 42px);
+  top: 50%;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 8px;
+  letter-spacing: .22em;
+  color: rgba(255,255,255,.38);
+  pointer-events: none;
+}
+
+.portrait-caption span:first-child {
+  color: var(--gold-bright);
+}
+
+.method-image-copy {
+  animation: copyFloat 5s ease-in-out infinite;
+}
+
+.method-floating-card {
+  animation: cardFloat 6s ease-in-out infinite;
+}
+
+.practice-icon {
+  transition:
+    transform 320ms ease,
+    background 320ms ease,
+    border-color 320ms ease;
+}
+
+.practice-card:hover .practice-icon {
+  transform: rotate(-8deg) scale(1.08);
+  background: rgba(185,154,98,.12);
+  border-color: rgba(185,154,98,.45);
+}
+
+.practice-card:hover h3 {
+  transform: translateX(8px);
+}
+
+.practice-card h3 {
+  transition:
+    color 350ms ease,
+    transform 350ms ease;
+}
+
+.hero-title-line {
+  transform-origin: left center;
+}
+
+.hero-title-line:nth-child(1) {
+  animation: titleDriftOne 7s ease-in-out infinite 1.4s;
+}
+
+.hero-title-line:nth-child(2) {
+  animation: titleDriftTwo 8.5s ease-in-out infinite 1.8s;
+}
+
+.hero-orbit-one {
+  animation: orbitRotate 30s linear infinite;
+}
+
+.hero-orbit-two {
+  animation: orbitRotateReverse 24s linear infinite;
+}
+
+.rd-seal {
+  box-shadow: 0 0 0 0 rgba(185,154,98,0);
+  animation: sealPulse 5s ease-in-out infinite;
+}
+
+.statement-inner h2 span {
+  animation: statementFloat 6s ease-in-out infinite;
+}
+
+.contact-glow {
+  animation: contactGlow 7s ease-in-out infinite;
+}
+
+@keyframes portraitBreath {
+  0%, 100% {
+    transform: scale(1.04) translate3d(0, calc(var(--scroll-y) * -0.018), 0);
+  }
+  50% {
+    transform: scale(1.055) translate3d(0, calc(var(--scroll-y) * -0.018 - 4px), 0);
+  }
+}
+
+@keyframes tieAdjustIllusion {
+  0%, 12%, 100% {
+    transform: scale(1.002) translate3d(0, 0, 0) rotate(0deg);
+  }
+  20% {
+    transform: scale(1.008) translate3d(-2px, -1px, 0) rotate(-0.7deg);
+  }
+  27% {
+    transform: scale(1.012) translate3d(3px, -2px, 0) rotate(0.9deg);
+  }
+  34% {
+    transform: scale(1.006) translate3d(-1px, 1px, 0) rotate(-0.4deg);
+  }
+  42% {
+    transform: scale(1.002) translate3d(0, 0, 0) rotate(0deg);
+  }
+}
+
+@keyframes tieGlint {
+  0%, 18%, 100% {
+    opacity: .05;
+    transform: translateX(-50%) translateY(0) rotate(2deg);
+  }
+  26% {
+    opacity: .36;
+    transform: translateX(-50%) translateY(-5px) rotate(1deg);
+  }
+  34% {
+    opacity: .12;
+    transform: translateX(-50%) translateY(2px) rotate(2deg);
+  }
+}
+
+@keyframes auraPulse {
+  0%, 100% {
+    opacity: .45;
+    transform: scale(.92);
+  }
+  50% {
+    opacity: .9;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes copyFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes cardFloat {
+  0%, 100% { transform: translate3d(0,0,0) rotate(0deg); }
+  50% { transform: translate3d(0,-10px,0) rotate(-1deg); }
+}
+
+@keyframes titleDriftOne {
+  0%,100% { transform: translateX(0); }
+  50% { transform: translateX(8px); }
+}
+
+@keyframes titleDriftTwo {
+  0%,100% { transform: translateX(0); }
+  50% { transform: translateX(-7px); }
+}
+
+@keyframes orbitRotate {
+  from { rotate: 0deg; }
+  to { rotate: 360deg; }
+}
+
+@keyframes orbitRotateReverse {
+  from { rotate: 360deg; }
+  to { rotate: 0deg; }
+}
+
+@keyframes sealPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(185,154,98,0); }
+  50% { box-shadow: 0 0 0 18px rgba(185,154,98,.045); }
+}
+
+@keyframes statementFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes contactGlow {
+  0%,100% {
+    transform: scale(.95) translate3d(0,0,0);
+    opacity: .6;
+  }
+  50% {
+    transform: scale(1.08) translate3d(-30px, 14px, 0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .portrait-caption {
+    display: none;
+  }
+
+  .portrait-base {
+    object-position: 57% top;
+  }
+
+  .portrait-chest {
+    object-position: 57% top;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-base,
+  .portrait-chest,
+  .portrait-aura,
+  .tie-glint,
+  .method-image-copy,
+  .method-floating-card,
+  .hero-title-line,
+  .hero-orbit-one,
+  .hero-orbit-two,
+  .rd-seal,
+  .statement-inner h2 span,
+  .contact-glow {
+    animation: none !important;
+  }
+}
