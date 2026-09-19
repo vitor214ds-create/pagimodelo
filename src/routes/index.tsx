@@ -19,6 +19,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type RefObject,
 } from "react";
 
 export const Route = createFileRoute("/")({
