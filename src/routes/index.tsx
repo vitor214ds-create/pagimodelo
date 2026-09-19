@@ -516,16 +516,26 @@ function Index() {
             element.style.setProperty("--scene-shift", `${progress * 352}%`);
 
             if (element.id === "sobre") {
-              const intro = clamp(progress / 0.14);
-              const assemble = clamp((progress - 0.08) / 0.34);
-              const complete = clamp((progress - 0.38) / 0.18);
-              const open = clamp((progress - 0.56) / 0.27);
-              const copy = clamp((progress - 0.76) / 0.2);
+              const intro = clamp(progress / 0.1);
+              const shirt = clamp((progress - 0.08) / 0.12);
+              const tie = clamp((progress - 0.2) / 0.1);
+              const suit = clamp((progress - 0.28) / 0.2);
+              const finalPortrait = clamp((progress - 0.5) / 0.18);
+              const open = clamp((progress - 0.7) / 0.18);
+              const copy = clamp((progress - 0.84) / 0.14);
               const shellWidth = 100 - copy * 52;
 
+              element.style.setProperty("--advocate-intro", String(intro));
+              element.style.setProperty("--advocate-shirt", String(shirt));
+              element.style.setProperty("--advocate-tie", String(tie));
+              element.style.setProperty("--advocate-suit", String(suit));
+              element.style.setProperty("--advocate-final", String(finalPortrait));
+              element.style.setProperty("--advocate-open", String(open));
+              element.style.setProperty("--advocate-copy", String(copy));
+
               element.style.setProperty("--portrait-intro", String(intro));
-              element.style.setProperty("--portrait-assemble", String(assemble));
-              element.style.setProperty("--portrait-complete", String(complete));
+              element.style.setProperty("--portrait-assemble", String(suit));
+              element.style.setProperty("--portrait-complete", String(finalPortrait));
               element.style.setProperty("--portrait-open", String(open));
               element.style.setProperty("--portrait-copy", String(copy));
               element.style.setProperty(
@@ -778,53 +788,65 @@ function Index() {
           </div>
 
           <div className="portrait-scene-shell">
-            <div className="portrait-anatomy-stage">
-              <div className="portrait-anatomy-grid" aria-hidden="true" />
-              <div className="portrait-anatomy-title" aria-hidden="true">
-                <small>ANATOMIA DA ATUAÇÃO</small>
-                <span>Direito.</span>
-                <em>Saúde.</em>
+            <div className="portrait-anatomy-stage advocate-cinematic-stage">
+              <div className="portrait-anatomy-grid advocate-grid" aria-hidden="true" />
+              <div className="advocate-ambient-glow" aria-hidden="true" />
+              <div className="advocate-light-column" aria-hidden="true" />
+
+              <div className="portrait-anatomy-title advocate-copy-intro" aria-hidden="true">
+                <small>A ANATOMIA DA ADVOCACIA</small>
+                <span>Presença.</span>
+                <em>Estratégia.</em>
               </div>
 
-              <div className="portrait-ghost" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
-              </div>
-
-              <div className="portrait-piece portrait-piece-head" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
-              </div>
-              <div className="portrait-piece portrait-piece-left" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
-              </div>
-              <div className="portrait-piece portrait-piece-center" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
-              </div>
-              <div className="portrait-piece portrait-piece-right" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
-              </div>
-              <div className="portrait-piece portrait-piece-lower" aria-hidden="true">
+              <div className="portrait-ghost advocate-silhouette" aria-hidden="true">
                 <img src={portraitUrl} alt="" />
               </div>
 
-              <div className="portrait-complete-layer">
+              <div className="advocate-piece advocate-shirt" aria-hidden="true">
+                <img src={portraitUrl} alt="" />
+              </div>
+
+              <div className="advocate-piece advocate-tie" aria-hidden="true">
+                <img src={portraitUrl} alt="" />
+              </div>
+
+              <div className="advocate-piece advocate-left-lapel" aria-hidden="true">
+                <img src={portraitUrl} alt="" />
+              </div>
+
+              <div className="advocate-piece advocate-right-lapel" aria-hidden="true">
+                <img src={portraitUrl} alt="" />
+              </div>
+
+              <div className="advocate-piece advocate-sleeve-left" aria-hidden="true">
+                <img src={portraitUrl} alt="" />
+              </div>
+
+              <div className="advocate-piece advocate-sleeve-right" aria-hidden="true">
+                <img src={portraitUrl} alt="" />
+              </div>
+
+              <div className="advocate-final-portrait">
                 <img src={portraitUrl} alt="Renan Durso" />
-                <div className="portrait-complete-sheen" aria-hidden="true" />
+                <div className="advocate-final-shine" aria-hidden="true" />
+                <div className="advocate-rim-light" aria-hidden="true" />
               </div>
 
-              <div className="portrait-triptych">
+              <div className="portrait-triptych advocate-triptych">
                 <div
-                  className="portrait-angle-panel portrait-angle-left"
+                  className="portrait-angle-panel portrait-angle-left advocate-panel advocate-panel-left"
                   aria-hidden="true"
                 >
                   <img src={portraitUrl} alt="" />
                 </div>
 
-                <div className="portrait-angle-panel portrait-angle-center">
+                <div className="portrait-angle-panel portrait-angle-center advocate-panel advocate-panel-center">
                   <img src={portraitUrl} alt="Renan Durso" />
                 </div>
 
                 <div
-                  className="portrait-angle-panel portrait-angle-right"
+                  className="portrait-angle-panel portrait-angle-right advocate-panel advocate-panel-right"
                   aria-hidden="true"
                 >
                   <img src={portraitUrl} alt="" />
@@ -833,16 +855,17 @@ function Index() {
                 <div className="portrait-depth-glow" aria-hidden="true" />
                 <div className="portrait-scan" aria-hidden="true" />
                 <div className="portrait-floor-shadow" aria-hidden="true" />
-                <div className="portrait-angle-label portrait-label-left" aria-hidden="true">PERFIL</div>
-                <div className="portrait-angle-label portrait-label-center" aria-hidden="true">FRONTAL</div>
-                <div className="portrait-angle-label portrait-label-right" aria-hidden="true">PERFIL</div>
                 <div className="portrait-tech-ring portrait-tech-ring-a" aria-hidden="true" />
                 <div className="portrait-tech-ring portrait-tech-ring-b" aria-hidden="true" />
               </div>
 
-              <div className="portrait-phase-indicator" aria-hidden="true">
+              <div className="advocate-stitch-line advocate-stitch-left" aria-hidden="true" />
+              <div className="advocate-stitch-line advocate-stitch-right" aria-hidden="true" />
+              <div className="advocate-scan-beam" aria-hidden="true" />
+
+              <div className="portrait-phase-indicator advocate-phase-indicator" aria-hidden="true">
                 <span>01 ESTRUTURA</span>
-                <span>02 MONTAGEM</span>
+                <span>02 TRAJE</span>
                 <span>03 PRESENÇA</span>
               </div>
             </div>
