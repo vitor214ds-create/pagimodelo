@@ -61,6 +61,221 @@ const capabilities = [
   "Comunicação direta",
 ];
 
+
+function MorphingLegalParticles() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let raf = 0;
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let count = 220;
+    let progress = 0;
+
+    type P = { x: number; y: number; vx: number; vy: number; size: number; phase: number };
+    let particles: P[] = [];
+
+    const sampleLine = (
+      ax: number,
+      ay: number,
+      bx: number,
+      by: number,
+      n: number,
+    ) =>
+      Array.from({ length: n }, (_, i) => {
+        const t = n <= 1 ? 0 : i / (n - 1);
+        return [ax + (bx - ax) * t, ay + (by - ay) * t] as [number, number];
+      });
+
+    const normalizeCount = (pts: [number, number][]) =>
+      Array.from({ length: count }, (_, i) => pts[i % pts.length]);
+
+    const makeCross = () => {
+      const pts: [number, number][] = [];
+      for (let i = 0; i < count; i++) {
+        const horizontal = i % 2 === 0;
+        const x = horizontal ? -0.9 + Math.random() * 1.8 : -0.28 + Math.random() * 0.56;
+        const y = horizontal ? -0.28 + Math.random() * 0.56 : -0.9 + Math.random() * 1.8;
+        pts.push([x, y]);
+      }
+      return pts;
+    };
+
+    const makeScales = () => {
+      const pts: [number, number][] = [];
+      pts.push(...sampleLine(0, -0.82, 0, 0.78, 54));
+      pts.push(...sampleLine(-0.78, -0.35, 0.78, -0.35, 52));
+      pts.push(...sampleLine(-0.62, -0.35, -0.78, 0.28, 18));
+      pts.push(...sampleLine(0.62, -0.35, 0.78, 0.28, 18));
+      pts.push(...sampleLine(-0.96, 0.3, -0.58, 0.3, 16));
+      pts.push(...sampleLine(0.58, 0.3, 0.96, 0.3, 16));
+      for (let i = 0; i < 22; i++) {
+        const a = Math.PI * (i / 21);
+        pts.push([-0.77 + Math.cos(a) * 0.24, 0.28 + Math.sin(a) * 0.18]);
+        pts.push([0.77 + Math.cos(a) * 0.24, 0.28 + Math.sin(a) * 0.18]);
+      }
+      pts.push(...sampleLine(-0.42, 0.78, 0.42, 0.78, 30));
+      return normalizeCount(pts);
+    };
+
+    const makeHeartbeat = () => {
+      const pts: [number, number][] = [];
+      const path: [number, number][] = [
+        [-1, 0.05],
+        [-0.55, 0.05],
+        [-0.38, -0.18],
+        [-0.18, 0.44],
+        [0.02, -0.62],
+        [0.23, 0.22],
+        [0.42, 0.05],
+        [1, 0.05],
+      ];
+      for (let i = 0; i < path.length - 1; i++) {
+        pts.push(...sampleLine(path[i][0], path[i][1], path[i + 1][0], path[i + 1][1], 26));
+      }
+      for (let i = 0; i < 100; i++) {
+        const t = (i / 99) * Math.PI * 2;
+        const x = 0.48 * Math.sin(t) ** 3;
+        const y =
+          -(0.38 *
+            (13 * Math.cos(t) -
+              5 * Math.cos(2 * t) -
+              2 * Math.cos(3 * t) -
+              Math.cos(4 * t))) /
+          17;
+        pts.push([x, y - 0.06]);
+      }
+      return normalizeCount(pts);
+    };
+
+    const makeShield = () => {
+      const pts: [number, number][] = [];
+      const outline: [number, number][] = [
+        [0, -0.95],
+        [0.76, -0.62],
+        [0.68, 0.18],
+        [0.42, 0.58],
+        [0, 0.94],
+        [-0.42, 0.58],
+        [-0.68, 0.18],
+        [-0.76, -0.62],
+        [0, -0.95],
+      ];
+      for (let i = 0; i < outline.length - 1; i++) {
+        pts.push(...sampleLine(outline[i][0], outline[i][1], outline[i + 1][0], outline[i + 1][1], 30));
+      }
+      pts.push(...sampleLine(-0.35, 0.02, -0.08, 0.30, 34));
+      pts.push(...sampleLine(-0.08, 0.30, 0.42, -0.30, 50));
+      return normalizeCount(pts);
+    };
+
+    const makeConstellation = () =>
+      Array.from({ length: count }, (_, i) => {
+        const a = (i / count) * Math.PI * 8;
+        const r = 0.16 + (i / count) * 0.92;
+        return [Math.cos(a) * r, Math.sin(a) * r * 0.7] as [number, number];
+      });
+
+    let shapes: [number, number][][] = [];
+
+    const resize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      count = width < 700 ? 120 : 220;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      shapes = [makeConstellation(), makeCross(), makeScales(), makeHeartbeat(), makeShield(), makeConstellation()];
+      particles = Array.from({ length: count }, (_, i) => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: 0,
+        vy: 0,
+        size: 0.7 + Math.random() * 1.7,
+        phase: Math.random() * Math.PI * 2,
+      }));
+    };
+
+    const updateProgress = () => {
+      const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+      progress = Math.min(1, Math.max(0, window.scrollY / max));
+    };
+
+    const render = (time: number) => {
+      ctx.clearRect(0, 0, width, height);
+
+      const stageFloat = progress * (shapes.length - 1);
+      const stage = Math.min(shapes.length - 2, Math.floor(stageFloat));
+      const local = stageFloat - stage;
+      const eased = local * local * (3 - 2 * local);
+
+      const cx = width < 760 ? width * 0.5 : width * 0.78;
+      const cy = height * 0.51;
+      const scale = Math.min(width, height) * (width < 760 ? 0.26 : 0.29);
+
+      const a = shapes[stage];
+      const b = shapes[stage + 1];
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        const pa = a[i % a.length];
+        const pb = b[i % b.length];
+        const nx = pa[0] + (pb[0] - pa[0]) * eased;
+        const ny = pa[1] + (pb[1] - pa[1]) * eased;
+
+        const driftX = Math.sin(time * 0.00035 + p.phase) * 5;
+        const driftY = Math.cos(time * 0.00028 + p.phase) * 4;
+        const tx = cx + nx * scale + driftX;
+        const ty = cy + ny * scale + driftY;
+
+        p.vx += (tx - p.x) * 0.018;
+        p.vy += (ty - p.y) * 0.018;
+        p.vx *= 0.86;
+        p.vy *= 0.86;
+        p.x += p.vx;
+        p.y += p.vy;
+
+        const pulse = 0.72 + Math.sin(time * 0.002 + p.phase) * 0.28;
+        ctx.beginPath();
+        ctx.fillStyle =
+          i % 5 === 0
+            ? `rgba(255,255,255,${0.32 + pulse * 0.35})`
+            : `rgba(215,188,135,${0.22 + pulse * 0.48})`;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = i % 5 === 0 ? "rgba(255,255,255,.35)" : "rgba(215,188,135,.55)";
+        ctx.arc(p.x, p.y, p.size * pulse, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.shadowBlur = 0;
+      raf = requestAnimationFrame(render);
+    };
+
+    resize();
+    updateProgress();
+    window.addEventListener("resize", resize);
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    raf = requestAnimationFrame(render);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("scroll", updateProgress);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="morphing-symbol-canvas" aria-hidden="true" />;
+}
+
 function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
   const particles = Array.from({ length: 38 }, (_, index) => index);
@@ -135,6 +350,7 @@ function Index() {
   return (
     <main className="site-shell">
       <div className="scroll-progress" aria-hidden="true" />
+      <MorphingLegalParticles />
       <div className="cursor-glow" aria-hidden="true" />
       <div className="global-particles" aria-hidden="true">
         {particles.map((particle) => (
