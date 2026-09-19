@@ -68,8 +68,8 @@ const anatomyLabels = [
   "Estrutura",
   "Camisa",
   "Gravata",
+  "Colete",
   "Paletó",
-  "Advogado",
   "Renan Durso",
 ];
 
@@ -105,12 +105,14 @@ function AnatomyFigure({ step }) {
     <div className="anatomy-figure" aria-label="Animação de montagem de um advogado">
       <div className="anatomy-aura" aria-hidden="true" />
       <div className="anatomy-floor" aria-hidden="true" />
+      <div className="anatomy-tailor-grid" aria-hidden="true" />
 
       <svg className="anatomy-linework" viewBox="0 0 500 760" aria-hidden="true">
         <defs>
           <linearGradient id="bodyLine" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#f1dec0" />
-            <stop offset="100%" stopColor="#9d7a46" />
+            <stop offset="0%" stopColor="#f4e4c9" />
+            <stop offset="55%" stopColor="#d4b27a" />
+            <stop offset="100%" stopColor="#805e32" />
           </linearGradient>
         </defs>
         <ellipse cx="250" cy="112" rx="66" ry="82" />
@@ -125,71 +127,124 @@ function AnatomyFigure({ step }) {
         <path d="M105 432 C110 520 119 606 128 686" />
         <path d="M395 432 C390 520 381 606 372 686" />
         <path d="M204 455 C229 472 271 472 296 455" />
-        <path d="M225 246 L225 445" />
-        <path d="M275 246 L275 445" />
-        <path d="M196 282 C225 298 275 298 304 282" />
-        <path d="M190 322 C226 340 274 340 310 322" />
-        <path d="M188 364 C226 383 274 383 312 364" />
-        <path d="M190 407 C226 424 274 424 310 407" />
         <path d="M250 194 L250 466" />
+        <path d="M195 284 C230 302 270 302 305 284" />
+        <path d="M190 328 C228 348 272 348 310 328" />
+        <path d="M191 373 C228 392 272 392 309 373" />
       </svg>
 
       <svg className="wardrobe wardrobe-shirt" viewBox="0 0 500 760" aria-hidden="true">
+        <defs>
+          <linearGradient id="shirtShade" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#fffdf8" />
+            <stop offset="50%" stopColor="#e9e3d9" />
+            <stop offset="100%" stopColor="#bfb7aa" />
+          </linearGradient>
+        </defs>
         <path
-          d="M188 226 L222 200 L250 222 L278 200 L312 226 L344 270 L316 300 L300 474 L200 474 L184 300 L156 270 Z"
-          fill="#f1eee7"
+          d="M180 232 L220 198 L250 226 L280 198 L320 232 L348 276 L324 306 L308 484 L192 484 L176 306 L152 276 Z"
+          fill="url(#shirtShade)"
         />
-        <path d="M222 200 L250 246 L278 200" fill="#d8d1c5" />
-        <path d="M250 246 L250 466" stroke="#c7beb0" strokeWidth="3" />
-        <circle cx="250" cy="286" r="3" fill="#a89f92" />
-        <circle cx="250" cy="326" r="3" fill="#a89f92" />
-        <circle cx="250" cy="366" r="3" fill="#a89f92" />
-        <circle cx="250" cy="406" r="3" fill="#a89f92" />
+        <path d="M220 198 L250 248 L280 198" fill="#d8d0c3" />
+        <path d="M250 248 L250 466" stroke="#aaa094" strokeWidth="2.6" />
+        <path d="M192 482 L177 541" stroke="#e8e2d8" strokeWidth="15" strokeLinecap="round" />
+        <path d="M308 482 L323 541" stroke="#e8e2d8" strokeWidth="15" strokeLinecap="round" />
+        {[286, 326, 366, 406].map((cy) => (
+          <circle key={cy} cx="250" cy={cy} r="3" fill="#8f8579" />
+        ))}
       </svg>
 
       <svg className="wardrobe wardrobe-tie" viewBox="0 0 500 760" aria-hidden="true">
-        <path d="M236 232 L264 232 L270 256 L250 284 L230 256 Z" fill="#171c22" />
-        <path d="M250 282 L270 426 L250 464 L230 426 Z" fill="#11161c" />
-        <path d="M238 236 L250 248 L262 236" stroke="#c8a66e" strokeWidth="2" />
+        <defs>
+          <linearGradient id="tieShade" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#252d36" />
+            <stop offset="45%" stopColor="#151b22" />
+            <stop offset="100%" stopColor="#070a0e" />
+          </linearGradient>
+          <linearGradient id="tieGlow" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="rgba(255,255,255,0)" />
+            <stop offset="50%" stopColor="#d8b983" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+          </linearGradient>
+        </defs>
+        <path d="M233 229 L267 229 L276 256 L250 289 L224 256 Z" fill="url(#tieShade)" />
+        <path d="M250 286 L273 435 L250 478 L227 435 Z" fill="url(#tieShade)" />
+        <path d="M241 238 L250 247 L259 238" stroke="#d8b983" strokeWidth="2.2" />
+        <path d="M248 302 L259 410" stroke="url(#tieGlow)" strokeWidth="2.3" opacity=".7" />
+      </svg>
+
+      <svg className="wardrobe wardrobe-vest" viewBox="0 0 500 760" aria-hidden="true">
+        <defs>
+          <linearGradient id="vestShade" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#27303a" />
+            <stop offset="45%" stopColor="#151b22" />
+            <stop offset="100%" stopColor="#090d11" />
+          </linearGradient>
+        </defs>
+        <path d="M201 246 L232 226 L250 262 L268 226 L299 246 L303 469 L197 469 Z" fill="url(#vestShade)" />
+        <path d="M201 246 L233 300 L250 262 L267 300 L299 246" fill="none" stroke="#39434d" strokeWidth="3" />
+        <path d="M250 263 L250 465" stroke="#4c5660" strokeWidth="2.2" />
+        {[314, 350, 386, 422].map((cy) => (
+          <circle key={cy} cx="250" cy={cy} r="3.2" fill="#d4b27a" />
+        ))}
+        <path d="M211 383 L235 383" stroke="#666d73" strokeWidth="2" />
+        <path d="M265 383 L289 383" stroke="#666d73" strokeWidth="2" />
       </svg>
 
       <svg className="wardrobe wardrobe-jacket wardrobe-left" viewBox="0 0 500 760" aria-hidden="true">
-        <path
-          d="M166 238 L220 208 L250 248 L236 300 L214 330 L198 484 L136 486 L124 316 Z"
-          fill="#111820"
-        />
-        <path d="M220 208 L250 248 L222 346 L190 288 Z" fill="#202934" />
-        <path d="M174 354 L214 354" stroke="#c5a36a" strokeWidth="3" />
+        <defs>
+          <linearGradient id="jacketLeft" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#252e38" />
+            <stop offset="55%" stopColor="#121820" />
+            <stop offset="100%" stopColor="#070b10" />
+          </linearGradient>
+        </defs>
+        <path d="M154 255 L214 211 L249 270 L231 337 L205 370 L185 507 L128 505 L117 324 Z" fill="url(#jacketLeft)" />
+        <path d="M214 211 L249 270 L214 347 L184 298 Z" fill="#2b3540" />
+        <path d="M168 370 L211 370" stroke="#c7a66f" strokeWidth="3" />
+        <path d="M145 292 L181 345" stroke="rgba(255,255,255,.06)" strokeWidth="2" />
       </svg>
 
       <svg className="wardrobe wardrobe-jacket wardrobe-right" viewBox="0 0 500 760" aria-hidden="true">
-        <path
-          d="M334 238 L280 208 L250 248 L264 300 L286 330 L302 484 L364 486 L376 316 Z"
-          fill="#111820"
-        />
-        <path d="M280 208 L250 248 L278 346 L310 288 Z" fill="#202934" />
-        <path d="M286 354 L326 354" stroke="#c5a36a" strokeWidth="3" />
+        <defs>
+          <linearGradient id="jacketRight" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#252e38" />
+            <stop offset="55%" stopColor="#121820" />
+            <stop offset="100%" stopColor="#070b10" />
+          </linearGradient>
+        </defs>
+        <path d="M346 255 L286 211 L251 270 L269 337 L295 370 L315 507 L372 505 L383 324 Z" fill="url(#jacketRight)" />
+        <path d="M286 211 L251 270 L286 347 L316 298 Z" fill="#2b3540" />
+        <path d="M289 370 L332 370" stroke="#c7a66f" strokeWidth="3" />
+        <path d="M355 292 L319 345" stroke="rgba(255,255,255,.06)" strokeWidth="2" />
       </svg>
 
       <div className="wardrobe-cuff wardrobe-cuff-left" aria-hidden="true" />
       <div className="wardrobe-cuff wardrobe-cuff-right" aria-hidden="true" />
       <div className="wardrobe-pocket-square" aria-hidden="true" />
 
+      <div className="presence-gallery" aria-hidden="true">
+        <div className="presence-card presence-card-left">
+          <PortraitImage />
+        </div>
+        <div className="presence-card presence-card-right">
+          <PortraitImage />
+        </div>
+        <div className="presence-card presence-card-detail">
+          <PortraitImage />
+        </div>
+      </div>
+
       <div className="renan-final">
         <PortraitImage alt="Renan Durso" />
         <div className="renan-final-light" aria-hidden="true" />
+        <div className="renan-final-rim" aria-hidden="true" />
       </div>
 
       <div className="renan-triptych" aria-hidden="true">
-        <div className="renan-slice renan-slice-left">
-          <PortraitImage />
-        </div>
-        <div className="renan-slice renan-slice-center">
-          <PortraitImage />
-        </div>
-        <div className="renan-slice renan-slice-right">
-          <PortraitImage />
-        </div>
+        <div className="renan-slice renan-slice-left"><PortraitImage /></div>
+        <div className="renan-slice renan-slice-center"><PortraitImage /></div>
+        <div className="renan-slice renan-slice-right"><PortraitImage /></div>
       </div>
 
       <div className="anatomy-phase" aria-hidden="true">
@@ -198,6 +253,207 @@ function AnatomyFigure({ step }) {
       </div>
     </div>
   );
+}
+
+function sampleAreaShape(draw, count) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 420;
+  canvas.height = 420;
+  const context = canvas.getContext("2d");
+  if (!context) return Array.from({ length: count }, () => [0, 0]);
+
+  context.clearRect(0, 0, 420, 420);
+  context.strokeStyle = "#fff";
+  context.fillStyle = "#fff";
+  context.lineWidth = 20;
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  draw(context);
+
+  const data = context.getImageData(0, 0, 420, 420).data;
+  const points = [];
+  for (let y = 0; y < 420; y += 3) {
+    for (let x = 0; x < 420; x += 3) {
+      if (data[(y * 420 + x) * 4 + 3] > 24) {
+        points.push([x - 210, y - 210]);
+      }
+    }
+  }
+
+  if (!points.length) return Array.from({ length: count }, () => [0, 0]);
+
+  return Array.from({ length: count }, (_, index) => {
+    const point = points[Math.floor((index / count) * points.length) % points.length];
+    return [point[0], point[1]];
+  });
+}
+
+function buildAreaTargets(count) {
+  const home = sampleAreaShape((ctx) => {
+    ctx.beginPath();
+    ctx.moveTo(80, 210);
+    ctx.lineTo(210, 95);
+    ctx.lineTo(340, 210);
+    ctx.lineTo(340, 335);
+    ctx.lineTo(80, 335);
+    ctx.closePath();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(210, 274);
+    ctx.bezierCurveTo(166, 228, 126, 260, 210, 345);
+    ctx.bezierCurveTo(294, 260, 254, 228, 210, 274);
+    ctx.stroke();
+  }, count);
+
+  const medicine = sampleAreaShape((ctx) => {
+    ctx.save();
+    ctx.translate(210, 210);
+    ctx.rotate(-Math.PI / 4);
+    ctx.beginPath();
+    ctx.roundRect(-105, -48, 210, 96, 48);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, -48);
+    ctx.lineTo(0, 48);
+    ctx.stroke();
+    ctx.restore();
+  }, count);
+
+  const oncology = sampleAreaShape((ctx) => {
+    ctx.beginPath();
+    ctx.moveTo(205, 82);
+    ctx.bezierCurveTo(135, 105, 140, 190, 194, 230);
+    ctx.bezierCurveTo(236, 260, 265, 318, 294, 353);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(222, 83);
+    ctx.bezierCurveTo(286, 122, 276, 190, 226, 232);
+    ctx.bezierCurveTo(190, 262, 162, 318, 138, 352);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(194, 230);
+    ctx.lineTo(226, 232);
+    ctx.stroke();
+  }, count);
+
+  const surgery = sampleAreaShape((ctx) => {
+    ctx.strokeRect(175, 82, 70, 256);
+    ctx.strokeRect(82, 175, 256, 70);
+    ctx.beginPath();
+    ctx.arc(210, 210, 150, 0, Math.PI * 2);
+    ctx.stroke();
+  }, count);
+
+  return [home, medicine, oncology, surgery];
+}
+
+function AreaParticles({ activeArea }) {
+  const canvasRef = useRef(null);
+  const activeRef = useRef(activeArea);
+
+  useEffect(() => {
+    activeRef.current = activeArea;
+  }, [activeArea]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let raf = 0;
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let count = 320;
+    let targets = [];
+    let particles = [];
+
+    const seed = (index) => {
+      const n = Math.sin(index * 912.77 + 43.21) * 43758.5453;
+      return n - Math.floor(n);
+    };
+
+    const resize = () => {
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      count = width < 640 ? 180 : 320;
+
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      targets = buildAreaTargets(count);
+      particles = Array.from({ length: count }, (_, index) => ({
+        x: (seed(index + 20) - .5) * width * .65,
+        y: (seed(index + 90) - .5) * height * .65,
+        vx: 0,
+        vy: 0,
+        size: .8 + seed(index + 150) * 1.8,
+        phase: seed(index + 230) * Math.PI * 2,
+        alpha: .28 + seed(index + 320) * .54,
+      }));
+    };
+
+    const draw = (time) => {
+      ctx.clearRect(0, 0, width, height);
+      const target = targets[activeRef.current] || targets[0];
+      const scale = Math.min(width, height) / 470;
+      const centerX = width * .48;
+      const centerY = height * .49;
+
+      particles.forEach((particle, index) => {
+        const [tx, ty] = target[index % target.length];
+        const idleX = Math.cos(time * .001 + particle.phase) * 1.8;
+        const idleY = Math.sin(time * .0011 + particle.phase) * 1.8;
+        const targetX = tx * scale + idleX;
+        const targetY = ty * scale + idleY;
+
+        particle.vx += (targetX - particle.x) * .025;
+        particle.vy += (targetY - particle.y) * .025;
+        particle.vx *= .84;
+        particle.vy *= .84;
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+
+        const white = index % 11 === 0;
+        ctx.beginPath();
+        ctx.fillStyle = white
+          ? `rgba(255,255,255,${particle.alpha * .8})`
+          : `rgba(224,193,142,${particle.alpha})`;
+        ctx.shadowBlur = 6 + particle.size * 2.4;
+        ctx.shadowColor = white
+          ? "rgba(255,255,255,.28)"
+          : "rgba(224,193,142,.48)";
+        ctx.arc(
+          centerX + particle.x,
+          centerY + particle.y,
+          particle.size,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+      });
+
+      ctx.shadowBlur = 0;
+      raf = requestAnimationFrame(draw);
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+    raf = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="area-particles-canvas" aria-hidden="true" />;
 }
 
 function App() {
@@ -239,19 +495,20 @@ function App() {
           const p = clamp(-rect.top / travel);
 
           anatomyRef.current.style.setProperty("--anatomy", String(range(p, 0.03, 0.14)));
-          anatomyRef.current.style.setProperty("--shirt", String(range(p, 0.14, 0.3)));
-          anatomyRef.current.style.setProperty("--tie", String(range(p, 0.3, 0.42)));
-          anatomyRef.current.style.setProperty("--jacket", String(range(p, 0.42, 0.62)));
-          anatomyRef.current.style.setProperty("--complete", String(range(p, 0.62, 0.72)));
-          anatomyRef.current.style.setProperty("--portrait", String(range(p, 0.72, 0.86)));
-          anatomyRef.current.style.setProperty("--split", String(range(p, 0.86, 1)));
+          anatomyRef.current.style.setProperty("--shirt", String(range(p, 0.14, 0.28)));
+          anatomyRef.current.style.setProperty("--tie", String(range(p, 0.28, 0.40)));
+          anatomyRef.current.style.setProperty("--vest", String(range(p, 0.40, 0.54)));
+          anatomyRef.current.style.setProperty("--jacket", String(range(p, 0.54, 0.70)));
+          anatomyRef.current.style.setProperty("--complete", String(range(p, 0.70, 0.79)));
+          anatomyRef.current.style.setProperty("--portrait", String(range(p, 0.79, 0.91)));
+          anatomyRef.current.style.setProperty("--split", String(range(p, 0.91, 1)));
 
           const nextStep =
             p < 0.14 ? 0 :
-            p < 0.3 ? 1 :
-            p < 0.42 ? 2 :
-            p < 0.62 ? 3 :
-            p < 0.78 ? 4 : 5;
+            p < 0.28 ? 1 :
+            p < 0.40 ? 2 :
+            p < 0.54 ? 3 :
+            p < 0.79 ? 4 : 5;
 
           setAnatomyStep((current) => (current === nextStep ? current : nextStep));
         }
@@ -456,8 +713,9 @@ function App() {
               <em>Estratégia.</em>
             </h2>
             <p>
-              Uma construção visual inspirada na lógica dos vídeos de referência:
-              estrutura, traje, presença e, no final, o advogado real.
+              A construção visual acompanha a lógica da alfaiataria: primeiro a
+              estrutura, depois cada camada do traje e, por fim, a presença real
+              do advogado — com foco, sofisticação e autoridade.
             </p>
 
             <div className="anatomy-steps">
@@ -551,6 +809,9 @@ function App() {
           </div>
 
           <div className="area-visual">
+            <div className="area-particles-layer" aria-hidden="true">
+              <AreaParticles activeArea={activeArea} />
+            </div>
             <div className="area-image-frame">
               {practiceAreas.map((area, index) => (
                 <figure
