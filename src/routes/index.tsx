@@ -29,6 +29,33 @@ export const Route = createFileRoute("/")({
 const portraitUrl =
   "https://renandurso.lovable.app/__l5e/assets-v1/627158e5-171e-4d04-a900-3ab4beb348d8/adv-1.png";
 
+const portraitFallbackUrl =
+  "https://jc-fotos-correspondentes.s3.amazonaws.com/452503/RENAN_DURSO_PEREIRA-20191021135624_120x120.jpg";
+
+function PortraitImage({
+  alt = "",
+  className,
+}: {
+  alt?: string;
+  className?: string;
+}) {
+  return (
+    <img
+      src={portraitUrl}
+      alt={alt}
+      className={className}
+      loading="eager"
+      decoding="async"
+      onError={(event) => {
+        const image = event.currentTarget;
+        if (!image.src.includes("RENAN_DURSO_PEREIRA")) {
+          image.src = portraitFallbackUrl;
+        }
+      }}
+    />
+  );
+}
+
 const practiceAreas = [
   {
     number: "01",
@@ -800,35 +827,35 @@ function Index() {
               </div>
 
               <div className="portrait-ghost advocate-silhouette" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
+                <PortraitImage alt="" />
               </div>
 
               <div className="advocate-piece advocate-shirt" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
+                <PortraitImage alt="" />
               </div>
 
               <div className="advocate-piece advocate-tie" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
+                <PortraitImage alt="" />
               </div>
 
               <div className="advocate-piece advocate-left-lapel" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
+                <PortraitImage alt="" />
               </div>
 
               <div className="advocate-piece advocate-right-lapel" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
+                <PortraitImage alt="" />
               </div>
 
               <div className="advocate-piece advocate-sleeve-left" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
+                <PortraitImage alt="" />
               </div>
 
               <div className="advocate-piece advocate-sleeve-right" aria-hidden="true">
-                <img src={portraitUrl} alt="" />
+                <PortraitImage alt="" />
               </div>
 
               <div className="advocate-final-portrait">
-                <img src={portraitUrl} alt="Renan Durso" />
+                <PortraitImage alt="Renan Durso" />
                 <div className="advocate-final-shine" aria-hidden="true" />
                 <div className="advocate-rim-light" aria-hidden="true" />
               </div>
@@ -838,18 +865,18 @@ function Index() {
                   className="portrait-angle-panel portrait-angle-left advocate-panel advocate-panel-left"
                   aria-hidden="true"
                 >
-                  <img src={portraitUrl} alt="" />
+                  <PortraitImage alt="" />
                 </div>
 
                 <div className="portrait-angle-panel portrait-angle-center advocate-panel advocate-panel-center">
-                  <img src={portraitUrl} alt="Renan Durso" />
+                  <PortraitImage alt="Renan Durso" />
                 </div>
 
                 <div
                   className="portrait-angle-panel portrait-angle-right advocate-panel advocate-panel-right"
                   aria-hidden="true"
                 >
-                  <img src={portraitUrl} alt="" />
+                  <PortraitImage alt="" />
                 </div>
 
                 <div className="portrait-depth-glow" aria-hidden="true" />
