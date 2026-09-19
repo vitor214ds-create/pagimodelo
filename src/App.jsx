@@ -594,6 +594,7 @@ function App() {
             p < 0.54 ? 3 :
             p < 0.79 ? 4 : 5;
 
+          anatomyRef.current.style.setProperty("--mobile-stage", String(nextStep));
           setAnatomyStep((current) => (current === nextStep ? current : nextStep));
         }
 
