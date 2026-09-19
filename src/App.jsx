@@ -143,9 +143,7 @@ function AnatomyFigure({ step }) {
           new Blob([bytes], { type: "image/avif" }),
         );
 
-        if (!cancelled) {
-          setSpriteUrl(objectUrl);
-        }
+        if (!cancelled) setSpriteUrl(objectUrl);
       } catch (error) {
         console.error("Erro ao reconstruir a animação de alfaiataria:", error);
       }
@@ -171,17 +169,85 @@ function AnatomyFigure({ step }) {
     let raf = 0;
     let stopped = false;
     let lastFrame = -1;
+    let states = [];
+    let deltas = [];
 
     const ease = (value) => {
       const t = clamp(value);
       return t * t * (3 - 2 * t);
     };
 
+    const buildStateCanvases = () => {
+      const frameWidth = Math.round(image.naturalWidth / 5);
+      const frameHeight = image.naturalHeight;
+
+      states = Array.from({ length: 5 }, (_, stateIndex) => {
+        const offscreen = document.createElement("canvas");
+        offscreen.width = frameWidth;
+        offscreen.height = frameHeight;
+        const ctx = offscreen.getContext("2d", { willReadFrequently: true });
+        ctx.clearRect(0, 0, frameWidth, frameHeight);
+        ctx.drawImage(
+          image,
+          stateIndex * frameWidth,
+          0,
+          frameWidth,
+          frameHeight,
+          0,
+          0,
+          frameWidth,
+          frameHeight,
+        );
+        return offscreen;
+      });
+
+      deltas = states.slice(1).map((currentCanvas, index) => {
+        const previousCanvas = states[index];
+        const previous = previousCanvas
+          .getContext("2d", { willReadFrequently: true })
+          .getImageData(0, 0, frameWidth, frameHeight);
+        const current = currentCanvas
+          .getContext("2d", { willReadFrequently: true })
+          .getImageData(0, 0, frameWidth, frameHeight);
+
+        const output = document.createElement("canvas");
+        output.width = frameWidth;
+        output.height = frameHeight;
+        const outputContext = output.getContext("2d");
+        const diff = outputContext.createImageData(frameWidth, frameHeight);
+
+        for (let pixel = 0; pixel < current.data.length; pixel += 4) {
+          const alpha = current.data[pixel + 3];
+          if (alpha < 6) continue;
+
+          const delta =
+            Math.abs(current.data[pixel] - previous.data[pixel]) +
+            Math.abs(current.data[pixel + 1] - previous.data[pixel + 1]) +
+            Math.abs(current.data[pixel + 2] - previous.data[pixel + 2]) +
+            Math.abs(alpha - previous.data[pixel + 3]);
+
+          if (delta < 34) continue;
+
+          diff.data[pixel] = current.data[pixel];
+          diff.data[pixel + 1] = current.data[pixel + 1];
+          diff.data[pixel + 2] = current.data[pixel + 2];
+          diff.data[pixel + 3] = alpha;
+        }
+
+        outputContext.putImageData(diff, 0, 0);
+        return output;
+      });
+    };
+
     const draw = () => {
-      if (stopped || !image.complete || !image.naturalWidth) {
+      if (stopped) return;
+
+      if (!image.complete || !image.naturalWidth) {
         raf = requestAnimationFrame(draw);
         return;
       }
+
+      if (!states.length) buildStateCanvases();
 
       const section = wrapper.closest(".anatomy-scroll");
       const style = section ? getComputedStyle(section) : null;
@@ -199,12 +265,12 @@ function AnatomyFigure({ step }) {
 
       const rect = canvas.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const width = Math.max(1, Math.round(rect.width * dpr));
-      const height = Math.max(1, Math.round(rect.height * dpr));
+      const pixelWidth = Math.max(1, Math.round(rect.width * dpr));
+      const pixelHeight = Math.max(1, Math.round(rect.height * dpr));
 
-      if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width;
-        canvas.height = height;
+      if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
       }
 
       const context = canvas.getContext("2d", { alpha: true });
@@ -215,50 +281,59 @@ function AnatomyFigure({ step }) {
       context.imageSmoothingEnabled = true;
       context.imageSmoothingQuality = "high";
 
-      const frameWidth = image.naturalWidth / 5;
-      const frameHeight = image.naturalHeight;
-      const targetRatio = frameWidth / frameHeight;
-      const maxW = rect.width * (window.innerWidth <= 760 ? 0.92 : 0.84);
-      const maxH = rect.height * 0.86;
+      const sourceWidth = states[0].width;
+      const sourceHeight = states[0].height;
+      const ratio = sourceWidth / sourceHeight;
 
-      let drawW = maxW;
-      let drawH = drawW / targetRatio;
-      if (drawH > maxH) {
-        drawH = maxH;
-        drawW = drawH * targetRatio;
+      const maxWidth = rect.width * (window.innerWidth <= 760 ? 0.94 : 0.86);
+      const maxHeight = rect.height * (window.innerWidth <= 760 ? 0.88 : 0.90);
+      let drawWidth = maxWidth;
+      let drawHeight = drawWidth / ratio;
+
+      if (drawHeight > maxHeight) {
+        drawHeight = maxHeight;
+        drawWidth = drawHeight * ratio;
       }
 
-      const baseX = (rect.width - drawW) / 2;
-      const baseY =
-        (rect.height - drawH) / 2 +
-        rect.height * (window.innerWidth <= 760 ? 0.105 : 0.085);
+      const x = (rect.width - drawWidth) / 2;
+      const y = (rect.height - drawHeight) / 2;
 
-      const drawRegion = ({
-        sourceFrame,
+      const drawState = (stateIndex, alpha = 1) => {
+        context.save();
+        context.globalAlpha = clamp(alpha);
+        context.drawImage(states[stateIndex], x, y, drawWidth, drawHeight);
+        context.restore();
+      };
+
+      const drawDelta = ({
+        deltaIndex,
         x0 = 0,
         y0 = 0,
         x1 = 1,
         y1 = 1,
         dx = 0,
         dy = 0,
-        scale = 1,
         alpha = 1,
+        scaleX = 1,
+        scaleY = 1,
       }) => {
         if (alpha <= 0.001) return;
-        const sw = (x1 - x0) * frameWidth;
-        const sh = (y1 - y0) * frameHeight;
-        const sx = sourceFrame * frameWidth + x0 * frameWidth;
-        const sy = y0 * frameHeight;
 
-        const dw = (x1 - x0) * drawW * scale;
-        const dh = (y1 - y0) * drawH * scale;
-        const centerX = baseX + ((x0 + x1) / 2) * drawW + dx;
-        const centerY = baseY + ((y0 + y1) / 2) * drawH + dy;
+        const source = deltas[deltaIndex];
+        const sx = x0 * sourceWidth;
+        const sy = y0 * sourceHeight;
+        const sw = (x1 - x0) * sourceWidth;
+        const sh = (y1 - y0) * sourceHeight;
+
+        const dw = (x1 - x0) * drawWidth * scaleX;
+        const dh = (y1 - y0) * drawHeight * scaleY;
+        const centerX = x + ((x0 + x1) / 2) * drawWidth + dx;
+        const centerY = y + ((y0 + y1) / 2) * drawHeight + dy;
 
         context.save();
         context.globalAlpha = clamp(alpha);
         context.drawImage(
-          image,
+          source,
           sx,
           sy,
           sw,
@@ -271,121 +346,122 @@ function AnatomyFigure({ step }) {
         context.restore();
       };
 
-      // 00–12: fixed anatomical structure.
-      drawRegion({ sourceFrame: 0 });
+      if (frameIndex <= 11) {
+        drawState(0);
+      } else if (frameIndex <= 31) {
+        drawState(0);
 
-      // 13–37: shirt truly "dresses" the torso: body settles, then sleeves slide in.
-      const shirt = ease(range(frameIndex, 12, 37));
-      const shirtBody = ease(range(frameIndex, 12, 31));
-      const shirtLeft = ease(range(frameIndex, 14, 34));
-      const shirtRight = ease(range(frameIndex, 16, 36));
-      const collar = ease(range(frameIndex, 24, 37));
+        const left = ease(range(frameIndex, 12, 27));
+        const right = ease(range(frameIndex, 14, 29));
+        const body = ease(range(frameIndex, 12, 28));
+        const collar = ease(range(frameIndex, 22, 31));
 
-      drawRegion({
-        sourceFrame: 1,
-        x0: 0.27,
-        x1: 0.73,
-        y0: 0.08,
-        y1: 0.79,
-        dy: -34 * (1 - shirtBody),
-        scale: 0.96 + 0.04 * shirtBody,
-        alpha: shirtBody,
-      });
-      drawRegion({
-        sourceFrame: 1,
-        x0: 0.03,
-        x1: 0.43,
-        y0: 0.12,
-        y1: 0.83,
-        dx: -135 * (1 - shirtLeft),
-        dy: -10 * (1 - shirtLeft),
-        alpha: shirtLeft,
-      });
-      drawRegion({
-        sourceFrame: 1,
-        x0: 0.57,
-        x1: 0.97,
-        y0: 0.12,
-        y1: 0.83,
-        dx: 135 * (1 - shirtRight),
-        dy: -10 * (1 - shirtRight),
-        alpha: shirtRight,
-      });
-      drawRegion({
-        sourceFrame: 1,
-        x0: 0.34,
-        x1: 0.66,
-        y0: 0.02,
-        y1: 0.29,
-        dy: -32 * (1 - collar),
-        alpha: collar,
-      });
+        drawDelta({
+          deltaIndex: 0,
+          x0: 0.00,
+          x1: 0.43,
+          y0: 0.12,
+          y1: 0.92,
+          dx: -90 * (1 - left),
+          dy: -10 * (1 - left),
+          alpha: left,
+        });
+        drawDelta({
+          deltaIndex: 0,
+          x0: 0.57,
+          x1: 1.00,
+          y0: 0.12,
+          y1: 0.92,
+          dx: 90 * (1 - right),
+          dy: -10 * (1 - right),
+          alpha: right,
+        });
+        drawDelta({
+          deltaIndex: 0,
+          x0: 0.25,
+          x1: 0.75,
+          y0: 0.14,
+          y1: 0.88,
+          dy: -42 * (1 - body),
+          scaleY: 0.94 + body * 0.06,
+          alpha: body,
+        });
+        drawDelta({
+          deltaIndex: 0,
+          x0: 0.31,
+          x1: 0.69,
+          y0: 0.04,
+          y1: 0.31,
+          dy: -28 * (1 - collar),
+          alpha: collar,
+        });
 
-      // 38–51: tie drops from the collar along the center line.
-      const tie = ease(range(frameIndex, 37, 51));
-      drawRegion({
-        sourceFrame: 2,
-        x0: 0.40,
-        x1: 0.60,
-        y0: 0.10,
-        y1: 0.88,
-        dy: -120 * (1 - tie),
-        scale: 0.90 + 0.10 * tie,
-        alpha: tie,
-      });
-
-      // 52–67: waistcoat wraps the torso from both sides.
-      const vestLeft = ease(range(frameIndex, 51, 66));
-      const vestRight = ease(range(frameIndex, 53, 68));
-      drawRegion({
-        sourceFrame: 3,
-        x0: 0.17,
-        x1: 0.515,
-        y0: 0.10,
-        y1: 0.88,
-        dx: -115 * (1 - vestLeft),
-        alpha: vestLeft,
-      });
-      drawRegion({
-        sourceFrame: 3,
-        x0: 0.485,
-        x1: 0.83,
-        y0: 0.10,
-        y1: 0.88,
-        dx: 115 * (1 - vestRight),
-        alpha: vestRight,
-      });
-
-      // 68–88: jacket enters as two broad shells and closes over shoulders/chest.
-      const jacketLeft = ease(range(frameIndex, 67, 87));
-      const jacketRight = ease(range(frameIndex, 69, 89));
-      drawRegion({
-        sourceFrame: 4,
-        x0: 0,
-        x1: 0.505,
-        y0: 0.04,
-        y1: 0.96,
-        dx: -175 * (1 - jacketLeft),
-        scale: 0.97 + 0.03 * jacketLeft,
-        alpha: jacketLeft,
-      });
-      drawRegion({
-        sourceFrame: 4,
-        x0: 0.495,
-        x1: 1,
-        y0: 0.04,
-        y1: 0.96,
-        dx: 175 * (1 - jacketRight),
-        scale: 0.97 + 0.03 * jacketRight,
-        alpha: jacketRight,
-      });
-
-      // 89–95: lock the completed state so seams disappear before Renan is revealed.
-      const complete = ease(range(frameIndex, 88, 94));
-      drawRegion({
-        sourceFrame: 4,
-        alpha: complete,
-      });
+        if (frameIndex >= 30) drawState(1, ease(range(frameIndex, 30, 31)));
+      } else if (frameIndex <= 43) {
+        drawState(1);
+        const tie = ease(range(frameIndex, 32, 43));
+        drawDelta({
+          deltaIndex: 1,
+          x0: 0.38,
+          x1: 0.62,
+          y0: 0.10,
+          y1: 0.89,
+          dy: -105 * (1 - tie),
+          scaleY: 0.78 + tie * 0.22,
+          alpha: tie,
+        });
+        if (frameIndex >= 42) drawState(2, ease(range(frameIndex, 42, 43)));
+      } else if (frameIndex <= 59) {
+        drawState(2);
+        const left = ease(range(frameIndex, 44, 57));
+        const right = ease(range(frameIndex, 46, 59));
+        drawDelta({
+          deltaIndex: 2,
+          x0: 0.14,
+          x1: 0.51,
+          y0: 0.10,
+          y1: 0.90,
+          dx: -105 * (1 - left),
+          alpha: left,
+        });
+        drawDelta({
+          deltaIndex: 2,
+          x0: 0.49,
+          x1: 0.86,
+          y0: 0.10,
+          y1: 0.90,
+          dx: 105 * (1 - right),
+          alpha: right,
+        });
+        if (frameIndex >= 58) drawState(3, ease(range(frameIndex, 58, 59)));
+      } else if (frameIndex <= 79) {
+        drawState(3);
+        const left = ease(range(frameIndex, 60, 77));
+        const right = ease(range(frameIndex, 62, 79));
+        drawDelta({
+          deltaIndex: 3,
+          x0: 0.00,
+          x1: 0.505,
+          y0: 0.04,
+          y1: 0.97,
+          dx: -145 * (1 - left),
+          scaleX: 0.96 + left * 0.04,
+          alpha: left,
+        });
+        drawDelta({
+          deltaIndex: 3,
+          x0: 0.495,
+          x1: 1.00,
+          y0: 0.04,
+          y1: 0.97,
+          dx: 145 * (1 - right),
+          scaleX: 0.96 + right * 0.04,
+          alpha: right,
+        });
+        if (frameIndex >= 78) drawState(4, ease(range(frameIndex, 78, 79)));
+      } else {
+        drawState(4);
+      }
 
       raf = requestAnimationFrame(draw);
     };
@@ -403,7 +479,7 @@ function AnatomyFigure({ step }) {
     <div
       ref={wrapperRef}
       className="tailoring-assembly tailoring-canvas-sequence"
-      aria-label="Animação quadro a quadro de um advogado vestindo o traje"
+      aria-label="Animação de um advogado vestindo o traje peça por peça"
     >
       <div className="assembly-grid" aria-hidden="true" />
       <div className="assembly-aura" aria-hidden="true" />
