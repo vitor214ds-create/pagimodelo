@@ -1,17 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
+  Activity,
   ArrowDownRight,
   ArrowRight,
   ArrowUpRight,
-  Building2,
   ChevronDown,
-  Landmark,
+  HeartPulse,
   Mail,
   MapPin,
   Menu,
   Scale,
   ShieldCheck,
   Sparkles,
+  Stethoscope,
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -23,41 +24,41 @@ export const Route = createFileRoute("/")({
 const practiceAreas = [
   {
     number: "01",
-    title: "Direito Civil",
+    title: "Home Care",
     description:
-      "Atuação consultiva e contenciosa em relações privadas, obrigações, responsabilidade civil e proteção de direitos.",
-    icon: Scale,
+      "Atuação em negativas de internação domiciliar, fornecimento de equipe, insumos e continuidade do tratamento prescrito.",
+    icon: HeartPulse,
   },
   {
     number: "02",
-    title: "Direito Empresarial",
+    title: "Medicamentos de Alto Custo",
     description:
-      "Assessoria jurídica para empresas, contratos, relações societárias, prevenção de riscos e decisões estratégicas.",
-    icon: Building2,
+      "Medidas para obtenção de medicamentos de uso contínuo, importados ou de alto custo quando há negativa de cobertura.",
+    icon: Stethoscope,
   },
   {
     number: "03",
-    title: "Direito do Consumidor",
+    title: "Tratamentos Oncológicos",
     description:
-      "Orientação e representação em conflitos de consumo, práticas abusivas, contratos e responsabilidade de fornecedores.",
-    icon: ShieldCheck,
+      "Atuação em negativas envolvendo quimioterapia, imunoterapia, radioterapia e demais tratamentos indispensáveis.",
+    icon: Activity,
   },
   {
     number: "04",
-    title: "Direito Bancário",
+    title: "Cirurgias e Terapias",
     description:
-      "Análise de relações bancárias, contratos, cobranças, operações financeiras e medidas de proteção patrimonial.",
-    icon: Landmark,
+      "Análise de negativas de cirurgias, exames, próteses, terapias multidisciplinares e outros procedimentos prescritos.",
+    icon: ShieldCheck,
   },
 ];
 
 const capabilities = [
-  "Consultoria jurídica",
-  "Contencioso estratégico",
-  "Análise contratual",
-  "Negociação",
-  "Pareceres",
-  "Prevenção de riscos",
+  "Análise de casos urgentes",
+  "Direito Médico e da Saúde",
+  "Planos de saúde",
+  "Tutelas de urgência",
+  "Atendimento nacional",
+  "Comunicação direta",
 ];
 
 function Index() {
@@ -187,23 +188,23 @@ function Index() {
         <div className="hero-content">
           <div className="hero-kicker hero-load">
             <span className="kicker-line" />
-            Advocacia estratégica em Birigui — SP
+            Advocacia especializada em Direito da Saúde
           </div>
 
           <h1 className="hero-title">
             <span className="hero-title-line hero-load hero-delay-1">
-              Clareza para
+              A saúde é
             </span>
             <span className="hero-title-line hero-title-serif hero-load hero-delay-2">
-              decisões complexas.
+              um direito.
             </span>
           </h1>
 
           <div className="hero-bottom hero-load hero-delay-3">
             <p>
-              Atuação jurídica pautada em análise, estratégia e comunicação
-              direta para pessoas e empresas que precisam transformar questões
-              jurídicas em decisões seguras.
+              Atuação dedicada à proteção do paciente diante de negativas de tratamentos,
+              medicamentos, cirurgias, home care, terapias e tecnologias essenciais
+              à preservação da vida e da dignidade.
             </p>
 
             <button
@@ -220,7 +221,7 @@ function Index() {
         </div>
 
         <div className="hero-side-note" aria-hidden="true">
-          OAB/SP 436.388
+          Direito Médico & Saúde
         </div>
 
         <button
@@ -261,22 +262,22 @@ function Index() {
 
           <div className="manifesto-copy">
             <p className="eyebrow" data-reveal>
-              A advocacia começa antes do processo.
+              Cada processo representa uma vida.
             </p>
             <h2 data-reveal>
-              Estratégia jurídica é entender o cenário inteiro antes de definir
-              o próximo <em>movimento.</em>
+              Atuação técnica para transformar uma negativa em um caminho jurídico
+              <em> possível.</em>
             </h2>
             <div className="manifesto-columns" data-reveal>
               <p>
-                Renan Durso atua na advocacia e consultoria jurídica em Birigui,
-                com abordagem voltada à compreensão individual de cada demanda,
-                seus riscos e seus possíveis caminhos.
+                Renan Durso atua com foco em Direito da Saúde e Direito Médico, analisando
+                cada situação a partir da documentação clínica, da urgência e da
+                cobertura contratual ou pública envolvida.
               </p>
               <p>
-                O trabalho combina análise técnica, comunicação objetiva e
-                construção de estratégias adequadas às particularidades de cada
-                caso, tanto na prevenção quanto na condução de conflitos.
+                A formação complementar em gestão hospitalar e auditoria em documentos da
+                saúde amplia a compreensão sobre a dinâmica de planos e instituições
+                de saúde, permitindo uma estratégia jurídica mais precisa.
               </p>
             </div>
           </div>
@@ -315,12 +316,12 @@ function Index() {
           </div>
           <div>
             <p className="eyebrow light" data-reveal>
-              Atuação consultiva e contenciosa
+              Direito da Saúde na prática
             </p>
             <h2 data-reveal>
-              Direito pensado para
+              Atuação focada em
               <br />
-              <em>situações reais.</em>
+              <em>situações urgentes.</em>
             </h2>
           </div>
         </div>
@@ -347,7 +348,26 @@ function Index() {
 
       <section id="metodo" className="method-section">
         <div className="method-visual">
-          <div className="method-image method-image-main" data-reveal>
+          <div className="method-image method-image-main portrait-stage" data-reveal>
+            <div className="portrait-aura" />
+            <div className="portrait-frame">
+              <img
+                className="portrait-base"
+                src="https://renandurso.lovable.app/__l5e/assets-v1/627158e5-171e-4d04-a900-3ab4beb348d8/adv-1.png"
+                alt="Renan Durso, advogado especialista em Direito da Saúde"
+              />
+              <img
+                className="portrait-chest"
+                aria-hidden="true"
+                src="https://renandurso.lovable.app/__l5e/assets-v1/627158e5-171e-4d04-a900-3ab4beb348d8/adv-1.png"
+                alt=""
+              />
+              <div className="tie-glint" aria-hidden="true" />
+            </div>
+            <div className="portrait-caption" aria-hidden="true">
+              <span>ESPECIALISTA</span>
+              <span>DIREITO DA SAÚDE</span>
+            </div>
             <div className="method-image-overlay" />
             <div className="method-image-copy">
               <span>RENAN DURSO</span>
@@ -370,17 +390,16 @@ function Index() {
             <p>Método</p>
           </div>
           <p className="eyebrow" data-reveal>
-            Técnica, proximidade e direção
+            Técnica, urgência e acolhimento
           </p>
           <h2 data-reveal>
-            Cada caso exige uma estratégia que faça sentido para quem está
+            Cada caso de saúde exige resposta jurídica compatível com a urgência de quem está
             <em> vivendo o problema.</em>
           </h2>
           <p className="method-body" data-reveal>
-            A atuação parte de uma leitura cuidadosa do contexto, segue pela
-            definição de prioridades e chega à construção de uma estratégia
-            jurídica compreensível. O cliente acompanha o raciocínio, conhece
-            os próximos passos e participa das decisões importantes.
+            A atuação começa pela análise dos relatórios médicos, da negativa e dos documentos
+            essenciais. A partir daí, são avaliadas as medidas cabíveis, inclusive pedidos
+            de urgência quando o tempo é determinante para o tratamento.
           </p>
 
           <div className="capability-list" data-reveal>
@@ -407,7 +426,7 @@ function Index() {
           <span>RD</span>
           <p>
             Advocacia e Consultoria
-            <small>Birigui — São Paulo</small>
+            <small>Itaim Bibi — São Paulo</small>
           </p>
         </div>
       </section>
@@ -449,7 +468,7 @@ function Index() {
           </div>
           <div>
             <MapPin />
-            <span>Birigui, São Paulo</span>
+            <span>Itaim Bibi, São Paulo</span>
           </div>
           <div>
             <Scale />
