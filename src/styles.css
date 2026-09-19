@@ -3869,3 +3869,44 @@ svg {
     height: 57vh !important;
   }
 }
+
+
+/* Critical visibility defaults for tailoring scene */
+.anatomy-scroll {
+  --anatomy: 1;
+  --shirt: 0;
+  --tie: 0;
+  --vest: 0;
+  --jacket: 0;
+  --complete: 0;
+  --portrait: 0;
+  --split: 0;
+}
+
+.tailoring-assembly .assembly-anatomy {
+  visibility: visible !important;
+  opacity: calc(1 - var(--portrait)) !important;
+}
+
+.tailoring-assembly .assembly-shirt {
+  visibility: visible !important;
+}
+
+.tailoring-assembly .assembly-tie {
+  visibility: visible !important;
+}
+
+.tailoring-assembly .assembly-vest {
+  visibility: visible !important;
+}
+
+.tailoring-assembly .assembly-jacket {
+  visibility: visible !important;
+}
+
+/* Prevent the first frame from ever rendering empty */
+.anatomy-step-0 .assembly-anatomy,
+.anatomy-visual.anatomy-step-0 .assembly-anatomy {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+}
