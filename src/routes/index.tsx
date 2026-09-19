@@ -335,16 +335,38 @@ function ScrollParticles({
     const render = (time: number) => {
       ctx.clearRect(0, 0, width, height);
 
-      const stageFloat = storyProgress * (targets.length - 1);
-      const stage = Math.min(
-        targets.length - 2,
-        Math.max(0, Math.floor(stageFloat)),
-      );
-      const local = stageFloat - stage;
-      const eased = smoothstep(local);
+      let stage = 0;
+      let nextStage = 0;
+      let eased = 0;
+
+      if (storyProgress < 0.18) {
+        stage = 0;
+        nextStage = 0;
+      } else if (storyProgress < 0.25) {
+        stage = 0;
+        nextStage = 1;
+        eased = smoothstep((storyProgress - 0.18) / 0.07);
+      } else if (storyProgress < 0.43) {
+        stage = 1;
+        nextStage = 1;
+      } else if (storyProgress < 0.5) {
+        stage = 1;
+        nextStage = 2;
+        eased = smoothstep((storyProgress - 0.43) / 0.07);
+      } else if (storyProgress < 0.68) {
+        stage = 2;
+        nextStage = 2;
+      } else if (storyProgress < 0.75) {
+        stage = 2;
+        nextStage = 3;
+        eased = smoothstep((storyProgress - 0.68) / 0.07);
+      } else {
+        stage = 3;
+        nextStage = 3;
+      }
 
       const from = targets[stage];
-      const to = targets[stage + 1];
+      const to = targets[nextStage];
       const mobile = width < 760;
       const centerX = mobile ? width * 0.5 : width * 0.73;
       const centerY = mobile ? height * 0.64 : height * 0.5;
@@ -480,7 +502,9 @@ function Index() {
             "--story-progress",
             String(progress),
           );
-          setStoryStep(Math.min(3, Math.floor(progress * 4.02)));
+          const nextStep =
+            progress < 0.25 ? 0 : progress < 0.5 ? 1 : progress < 0.75 ? 2 : 3;
+          setStoryStep(nextStep);
         }
 
         document.querySelectorAll<HTMLElement>("[data-scroll-scene]").forEach(
@@ -592,6 +616,16 @@ function Index() {
         <div className="scene-sticky hero-stage">
           <div className="hero-grid" aria-hidden="true" />
           <div className="hero-halo" aria-hidden="true" />
+          <div className="hero-beam hero-beam-a" aria-hidden="true" />
+          <div className="hero-beam hero-beam-b" aria-hidden="true" />
+          <div className="hero-medical-line" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+          <div className="hero-backword" aria-hidden="true">HEALTH / LAW</div>
           <div className="hero-index">01 — INÍCIO</div>
 
           <div className="hero-copy">
@@ -608,6 +642,12 @@ function Index() {
                 <b>não pode esperar.</b>
               </span>
             </h1>
+
+            <div className="hero-premium-meta" aria-hidden="true">
+              <span>Direito da Saúde</span>
+              <span>Urgência</span>
+              <span>Proteção</span>
+            </div>
 
             <div className="hero-summary">
               <p>
@@ -665,6 +705,13 @@ function Index() {
           <div className="story-counter">
             <span>0{storyStep + 1}</span>
             <small>/ 04</small>
+          </div>
+
+          <div className="story-symbol-name" aria-hidden="true">
+            {storyStep === 0 && "SAÚDE"}
+            {storyStep === 1 && "JUSTIÇA"}
+            {storyStep === 2 && "VIDA"}
+            {storyStep === 3 && "PROTEÇÃO"}
           </div>
 
           <div className="story-copy-stack">
@@ -730,6 +777,11 @@ function Index() {
               <div className="portrait-depth-glow" aria-hidden="true" />
               <div className="portrait-scan" aria-hidden="true" />
               <div className="portrait-floor-shadow" aria-hidden="true" />
+              <div className="portrait-angle-label portrait-label-left" aria-hidden="true">PERFIL</div>
+              <div className="portrait-angle-label portrait-label-center" aria-hidden="true">FRONTAL</div>
+              <div className="portrait-angle-label portrait-label-right" aria-hidden="true">PERFIL</div>
+              <div className="portrait-tech-ring portrait-tech-ring-a" aria-hidden="true" />
+              <div className="portrait-tech-ring portrait-tech-ring-b" aria-hidden="true" />
             </div>
 
             <div className="portrait-card">
