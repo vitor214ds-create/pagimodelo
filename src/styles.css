@@ -3111,3 +3111,76 @@ button {
     display: none;
   }
 }
+
+
+/* visibility safeguards for advocate sequence */
+.portrait-scroll-scene {
+  --advocate-intro: 0;
+  --advocate-shirt: 0;
+  --advocate-tie: 0;
+  --advocate-suit: 0;
+  --advocate-final: 0;
+  --advocate-open: 0;
+  --advocate-copy: 0;
+  --portrait-intro: 0;
+  --portrait-assemble: 0;
+  --portrait-complete: 0;
+  --portrait-open: 0;
+  --portrait-copy: 0;
+}
+
+.advocate-cinematic-stage {
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(227,201,144,.12), transparent 28%),
+    linear-gradient(145deg, #0b1118 0%, #111b25 58%, #090f15 100%);
+}
+
+.advocate-silhouette {
+  opacity: max(.14, calc((1 - var(--advocate-shirt)) * .32));
+}
+
+.advocate-silhouette img {
+  opacity: .78;
+  filter:
+    grayscale(1)
+    contrast(1.55)
+    brightness(.62);
+}
+
+.advocate-final-portrait {
+  min-width: 280px;
+  min-height: 420px;
+}
+
+.advocate-final-portrait img,
+.advocate-piece img,
+.advocate-panel img {
+  opacity: 1;
+  visibility: visible;
+}
+
+.advocate-copy-intro {
+  opacity: max(.2, calc(1 - var(--advocate-final) * 1.2));
+}
+
+@supports not (opacity: max(.2, .5)) {
+  .advocate-silhouette {
+    opacity: .24;
+  }
+
+  .advocate-copy-intro {
+    opacity: .9;
+  }
+}
+
+@media (max-width: 720px) {
+  .advocate-cinematic-stage {
+    min-height: 58svh;
+  }
+
+  .advocate-final-portrait {
+    min-width: 220px;
+    min-height: 320px;
+  }
+}
