@@ -9,15 +9,11 @@ import {
   Menu,
   Scale,
   ShieldCheck,
+  Sparkles,
   Stethoscope,
   X,
 } from "lucide-react";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const portraitUrl =
   "https://renandurso.lovable.app/__l5e/assets-v1/627158e5-171e-4d04-a900-3ab4beb348d8/adv-1.png";
@@ -25,7 +21,67 @@ const portraitUrl =
 const portraitFallbackUrl =
   "https://jc-fotos-correspondentes.s3.amazonaws.com/452503/RENAN_DURSO_PEREIRA-20191021135624_120x120.jpg";
 
-function PortraitImage({ alt = "", className }) {
+const practiceAreas = [
+  {
+    number: "01",
+    title: "Home Care",
+    short: "Continuidade do cuidado em casa.",
+    description:
+      "Atuação em negativas de internação domiciliar, equipe, insumos e continuidade do tratamento prescrito.",
+    icon: HeartPulse,
+    image:
+      "https://images.pexels.com/photos/7659685/pexels-photo-7659685.jpeg?auto=compress&cs=tinysrgb&w=1600",
+  },
+  {
+    number: "02",
+    title: "Medicamentos",
+    short: "Acesso ao tratamento prescrito.",
+    description:
+      "Medidas relacionadas a medicamentos de alto custo, uso contínuo, importados e negativas de cobertura.",
+    icon: Stethoscope,
+    image:
+      "https://images.pexels.com/photos/4989187/pexels-photo-4989187.jpeg?auto=compress&cs=tinysrgb&w=1600",
+  },
+  {
+    number: "03",
+    title: "Oncologia",
+    short: "Tempo importa quando o tratamento é urgente.",
+    description:
+      "Atuação em negativas envolvendo quimioterapia, imunoterapia, radioterapia e tratamentos indispensáveis.",
+    icon: Activity,
+    image:
+      "https://images.pexels.com/photos/7659870/pexels-photo-7659870.jpeg?auto=compress&cs=tinysrgb&w=1600",
+  },
+  {
+    number: "04",
+    title: "Cirurgias e terapias",
+    short: "Proteção jurídica diante da negativa.",
+    description:
+      "Análise de negativas de cirurgias, exames, próteses, terapias multidisciplinares e outros procedimentos.",
+    icon: ShieldCheck,
+    image:
+      "https://images.pexels.com/photos/28736007/pexels-photo-28736007.jpeg?auto=compress&cs=tinysrgb&w=1600",
+  },
+];
+
+const anatomyLabels = [
+  "Estrutura",
+  "Camisa",
+  "Gravata",
+  "Paletó",
+  "Advogado",
+  "Renan Durso",
+];
+
+function clamp(value, min = 0, max = 1) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function range(value, start, end) {
+  return clamp((value - start) / Math.max(end - start, 0.0001));
+}
+
+function PortraitImage({ alt = "", className = "" }) {
   return (
     <img
       src={portraitUrl}
@@ -44,423 +100,115 @@ function PortraitImage({ alt = "", className }) {
   );
 }
 
-const practiceAreas = [
-  {
-    number: "01",
-    title: "Home Care",
-    short: "Continuidade do cuidado em casa.",
-    description:
-      "Atuação em negativas de internação domiciliar, equipe, insumos e continuidade do tratamento prescrito.",
-    icon: HeartPulse,
-  },
-  {
-    number: "02",
-    title: "Medicamentos",
-    short: "Acesso ao tratamento prescrito.",
-    description:
-      "Medidas relacionadas a medicamentos de alto custo, uso contínuo, importados e negativas de cobertura.",
-    icon: Stethoscope,
-  },
-  {
-    number: "03",
-    title: "Oncologia",
-    short: "Tempo importa quando o tratamento é urgente.",
-    description:
-      "Atuação em negativas envolvendo quimioterapia, imunoterapia, radioterapia e tratamentos indispensáveis.",
-    icon: Activity,
-  },
-  {
-    number: "04",
-    title: "Cirurgias e terapias",
-    short: "Proteção jurídica diante da negativa.",
-    description:
-      "Análise de negativas de cirurgias, exames, próteses, terapias multidisciplinares e outros procedimentos.",
-    icon: ShieldCheck,
-  },
-];
-
-const storySteps = [
-  {
-    key: "cross",
-    index: "01",
-    eyebrow: "Direito da Saúde",
-    title: "Saúde",
-    accent: "não pode esperar.",
-    copy: "A primeira leitura é clínica: entender a prescrição, a urgência e o que está sendo negado.",
-  },
-  {
-    key: "scales",
-    index: "02",
-    eyebrow: "Estratégia jurídica",
-    title: "Técnica",
-    accent: "para equilibrar forças.",
-    copy: "Documentos, contrato, cobertura e contexto são organizados para definir a medida juridicamente adequada.",
-  },
-  {
-    key: "pulse",
-    index: "03",
-    eyebrow: "Urgência",
-    title: "Tempo",
-    accent: "também é parte do caso.",
-    copy: "Quando o tratamento não pode esperar, a estratégia precisa acompanhar a urgência real do paciente.",
-  },
-  {
-    key: "shield",
-    index: "04",
-    eyebrow: "Proteção",
-    title: "Direito",
-    accent: "aplicado à vida real.",
-    copy: "O objetivo é tornar o caminho compreensível, técnico e focado na proteção do paciente.",
-  },
-];
-
-function clamp(value, min = 0, max = 1) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function smoothstep(value) {
-  const t = clamp(value);
-  return t * t * (3 - 2 * t);
-}
-
-function sampleOpaquePoints(ctx, width, height, desiredCount) {
-  const image = ctx.getImageData(0, 0, width, height).data;
-  const points = [];
-
-  for (let y = 0; y < height; y += 2) {
-    for (let x = 0; x < width; x += 2) {
-      const index = (y * width + x) * 4;
-      if (image[index + 3] > 26) {
-        points.push([(x / width) * 2 - 1, (y / height) * 2 - 1]);
-      }
-    }
-  }
-
-  if (!points.length) {
-    return Array.from({ length: desiredCount }, () => [0, 0]);
-  }
-
-  const result = [];
-  const step = points.length / desiredCount;
-
-  for (let i = 0; i < desiredCount; i++) {
-    result.push(points[Math.floor(i * step) % points.length]);
-  }
-
-  return result;
-}
-
-function buildSymbolPoints(symbol, count) {
-  const offscreen = document.createElement("canvas");
-  offscreen.width = 420;
-  offscreen.height = 420;
-  const ctx = offscreen.getContext("2d");
-
-  if (!ctx) {
-    return Array.from({ length: count }, () => [0, 0]);
-  }
-
-  ctx.clearRect(0, 0, offscreen.width, offscreen.height);
-  ctx.fillStyle = "#fff";
-  ctx.strokeStyle = "#fff";
-  ctx.lineWidth = 22;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-
-  if (symbol === "cross") {
-    ctx.fillRect(167, 46, 86, 328);
-    ctx.fillRect(46, 167, 328, 86);
-  }
-
-  if (symbol === "scales") {
-    ctx.beginPath();
-    ctx.moveTo(210, 34);
-    ctx.lineTo(210, 338);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(92, 108);
-    ctx.lineTo(328, 108);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(210, 332);
-    ctx.lineTo(139, 370);
-    ctx.lineTo(281, 370);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(120, 108);
-    ctx.lineTo(76, 201);
-    ctx.moveTo(300, 108);
-    ctx.lineTo(344, 201);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(76, 217, 46, 0, Math.PI);
-    ctx.moveTo(298, 217);
-    ctx.arc(344, 217, 46, Math.PI, 0, true);
-    ctx.stroke();
-  }
-
-  if (symbol === "pulse") {
-    ctx.beginPath();
-    ctx.moveTo(34, 225);
-    ctx.lineTo(104, 225);
-    ctx.lineTo(139, 184);
-    ctx.lineTo(175, 275);
-    ctx.lineTo(218, 108);
-    ctx.lineTo(260, 252);
-    ctx.lineTo(300, 225);
-    ctx.lineTo(386, 225);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(210, 154);
-    ctx.bezierCurveTo(150, 78, 80, 136, 210, 315);
-    ctx.bezierCurveTo(340, 136, 270, 78, 210, 154);
-    ctx.stroke();
-  }
-
-  if (symbol === "shield") {
-    ctx.beginPath();
-    ctx.moveTo(210, 40);
-    ctx.lineTo(320, 86);
-    ctx.lineTo(301, 230);
-    ctx.lineTo(210, 365);
-    ctx.lineTo(119, 230);
-    ctx.lineTo(100, 86);
-    ctx.closePath();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(145, 210);
-    ctx.lineTo(192, 258);
-    ctx.lineTo(277, 160);
-    ctx.stroke();
-  }
-
-  return sampleOpaquePoints(
-    ctx,
-    offscreen.width,
-    offscreen.height,
-    count,
-  );
-}
-
-function ScrollParticles({ storyRef }) {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const story = storyRef.current;
-    if (!canvas || !story) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let raf = 0;
-    let width = 0;
-    let height = 0;
-    let dpr = 1;
-    let particleCount = 360;
-    let particles = [];
-    let targets = [];
-    let storyProgress = 0;
-    let pointerX = 0;
-    let pointerY = 0;
-    let pointerActive = false;
-
-    const seeded = (index) => {
-      const value = Math.sin(index * 918.37 + 17.31) * 43758.5453;
-      return value - Math.floor(value);
-    };
-
-    const resize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      particleCount = width < 720 ? 210 : 360;
-
-      canvas.width = Math.floor(width * dpr);
-      canvas.height = Math.floor(height * dpr);
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      targets = [
-        buildSymbolPoints("cross", particleCount),
-        buildSymbolPoints("scales", particleCount),
-        buildSymbolPoints("pulse", particleCount),
-        buildSymbolPoints("shield", particleCount),
-      ];
-
-      particles = Array.from({ length: particleCount }, (_, i) => ({
-        x: width * (0.56 + seeded(i + 10) * 0.28),
-        y: height * (0.22 + seeded(i + 40) * 0.56),
-        vx: 0,
-        vy: 0,
-        size: 0.75 + seeded(i + 90) * 1.65,
-        phase: seeded(i + 150) * Math.PI * 2,
-        glow: seeded(i + 320),
-        alpha: 0.34 + seeded(i + 510) * 0.5,
-      }));
-    };
-
-    const updateStoryProgress = () => {
-      const rect = story.getBoundingClientRect();
-      const travel = Math.max(story.offsetHeight - window.innerHeight, 1);
-      storyProgress = clamp(-rect.top / travel);
-    };
-
-    const pointerMove = (event: PointerEvent) => {
-      pointerX = event.clientX;
-      pointerY = event.clientY;
-      pointerActive = true;
-    };
-
-    const pointerLeave = () => {
-      pointerActive = false;
-    };
-
-    const render = (time) => {
-      ctx.clearRect(0, 0, width, height);
-
-      let stage = 0;
-      let nextStage = 0;
-      let eased = 0;
-
-      if (storyProgress < 0.18) {
-        stage = 0;
-        nextStage = 0;
-      } else if (storyProgress < 0.25) {
-        stage = 0;
-        nextStage = 1;
-        eased = smoothstep((storyProgress - 0.18) / 0.07);
-      } else if (storyProgress < 0.43) {
-        stage = 1;
-        nextStage = 1;
-      } else if (storyProgress < 0.5) {
-        stage = 1;
-        nextStage = 2;
-        eased = smoothstep((storyProgress - 0.43) / 0.07);
-      } else if (storyProgress < 0.68) {
-        stage = 2;
-        nextStage = 2;
-      } else if (storyProgress < 0.75) {
-        stage = 2;
-        nextStage = 3;
-        eased = smoothstep((storyProgress - 0.68) / 0.07);
-      } else {
-        stage = 3;
-        nextStage = 3;
-      }
-
-      const from = targets[stage];
-      const to = targets[nextStage];
-      const mobile = width < 760;
-      const centerX = mobile ? width * 0.5 : width * 0.73;
-      const centerY = mobile ? height * 0.64 : height * 0.5;
-      const scale = Math.min(width, height) * (mobile ? 0.27 : 0.32);
-
-      for (let i = 0; i < particles.length; i++) {
-        const particle = particles[i];
-        const a = from[i % from.length];
-        const b = to[i % to.length];
-
-        const nx = a[0] + (b[0] - a[0]) * eased;
-        const ny = a[1] + (b[1] - a[1]) * eased;
-
-        const idleX =
-          Math.sin(time * 0.001 + particle.phase) *
-          (0.75 + particle.glow * 1.5);
-        const idleY =
-          Math.cos(time * 0.0012 + particle.phase) *
-          (0.75 + particle.glow * 1.25);
-
-        let targetX = centerX + nx * scale + idleX;
-        let targetY = centerY + ny * scale + idleY;
-
-        if (pointerActive && !mobile) {
-          const dx = particle.x - pointerX;
-          const dy = particle.y - pointerY;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < 105 && distance > 0) {
-            const force = (1 - distance / 105) * 15;
-            targetX += (dx / distance) * force;
-            targetY += (dy / distance) * force;
-          }
-        }
-
-        particle.vx += (targetX - particle.x) * 0.026;
-        particle.vy += (targetY - particle.y) * 0.026;
-        particle.vx *= 0.82;
-        particle.vy *= 0.82;
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-
-        const pulse =
-          0.85 + Math.sin(time * 0.0022 + particle.phase) * 0.15;
-        const white = i % 8 === 0;
-
-        ctx.beginPath();
-        ctx.fillStyle = white
-          ? `rgba(255,255,255,${particle.alpha})`
-          : `rgba(220,189,128,${particle.alpha})`;
-        ctx.shadowBlur = 7 + particle.glow * 10;
-        ctx.shadowColor = white
-          ? "rgba(255,255,255,.36)"
-          : "rgba(220,189,128,.55)";
-        ctx.arc(
-          particle.x,
-          particle.y,
-          particle.size * pulse,
-          0,
-          Math.PI * 2,
-        );
-        ctx.fill();
-      }
-
-      ctx.shadowBlur = 0;
-      raf = requestAnimationFrame(render);
-    };
-
-    resize();
-    updateStoryProgress();
-
-    window.addEventListener("resize", resize);
-    window.addEventListener("scroll", updateStoryProgress, { passive: true });
-    window.addEventListener("pointermove", pointerMove, { passive: true });
-    document.documentElement.addEventListener("mouseleave", pointerLeave);
-
-    raf = requestAnimationFrame(render);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("scroll", updateStoryProgress);
-      window.removeEventListener("pointermove", pointerMove);
-      document.documentElement.removeEventListener("mouseleave", pointerLeave);
-    };
-  }, [storyRef]);
-
+function AnatomyFigure({ step }) {
   return (
-    <canvas
-      ref={canvasRef}
-      className="story-particles perfect-particles-canvas"
-      aria-hidden="true"
-    />
+    <div className="anatomy-figure" aria-label="Animação de montagem de um advogado">
+      <div className="anatomy-aura" aria-hidden="true" />
+      <div className="anatomy-floor" aria-hidden="true" />
+
+      <svg className="anatomy-linework" viewBox="0 0 500 760" aria-hidden="true">
+        <defs>
+          <linearGradient id="bodyLine" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#f1dec0" />
+            <stop offset="100%" stopColor="#9d7a46" />
+          </linearGradient>
+        </defs>
+        <ellipse cx="250" cy="112" rx="66" ry="82" />
+        <path d="M212 178 C206 205 196 224 179 240" />
+        <path d="M288 178 C294 205 304 224 321 240" />
+        <path d="M179 240 C132 268 110 332 105 432" />
+        <path d="M321 240 C368 268 390 332 395 432" />
+        <path d="M179 240 C196 296 205 357 204 455" />
+        <path d="M321 240 C304 296 295 357 296 455" />
+        <path d="M204 455 C198 526 184 600 174 704" />
+        <path d="M296 455 C302 526 316 600 326 704" />
+        <path d="M105 432 C110 520 119 606 128 686" />
+        <path d="M395 432 C390 520 381 606 372 686" />
+        <path d="M204 455 C229 472 271 472 296 455" />
+        <path d="M225 246 L225 445" />
+        <path d="M275 246 L275 445" />
+        <path d="M196 282 C225 298 275 298 304 282" />
+        <path d="M190 322 C226 340 274 340 310 322" />
+        <path d="M188 364 C226 383 274 383 312 364" />
+        <path d="M190 407 C226 424 274 424 310 407" />
+        <path d="M250 194 L250 466" />
+      </svg>
+
+      <svg className="wardrobe wardrobe-shirt" viewBox="0 0 500 760" aria-hidden="true">
+        <path
+          d="M188 226 L222 200 L250 222 L278 200 L312 226 L344 270 L316 300 L300 474 L200 474 L184 300 L156 270 Z"
+          fill="#f1eee7"
+        />
+        <path d="M222 200 L250 246 L278 200" fill="#d8d1c5" />
+        <path d="M250 246 L250 466" stroke="#c7beb0" strokeWidth="3" />
+        <circle cx="250" cy="286" r="3" fill="#a89f92" />
+        <circle cx="250" cy="326" r="3" fill="#a89f92" />
+        <circle cx="250" cy="366" r="3" fill="#a89f92" />
+        <circle cx="250" cy="406" r="3" fill="#a89f92" />
+      </svg>
+
+      <svg className="wardrobe wardrobe-tie" viewBox="0 0 500 760" aria-hidden="true">
+        <path d="M236 232 L264 232 L270 256 L250 284 L230 256 Z" fill="#171c22" />
+        <path d="M250 282 L270 426 L250 464 L230 426 Z" fill="#11161c" />
+        <path d="M238 236 L250 248 L262 236" stroke="#c8a66e" strokeWidth="2" />
+      </svg>
+
+      <svg className="wardrobe wardrobe-jacket wardrobe-left" viewBox="0 0 500 760" aria-hidden="true">
+        <path
+          d="M166 238 L220 208 L250 248 L236 300 L214 330 L198 484 L136 486 L124 316 Z"
+          fill="#111820"
+        />
+        <path d="M220 208 L250 248 L222 346 L190 288 Z" fill="#202934" />
+        <path d="M174 354 L214 354" stroke="#c5a36a" strokeWidth="3" />
+      </svg>
+
+      <svg className="wardrobe wardrobe-jacket wardrobe-right" viewBox="0 0 500 760" aria-hidden="true">
+        <path
+          d="M334 238 L280 208 L250 248 L264 300 L286 330 L302 484 L364 486 L376 316 Z"
+          fill="#111820"
+        />
+        <path d="M280 208 L250 248 L278 346 L310 288 Z" fill="#202934" />
+        <path d="M286 354 L326 354" stroke="#c5a36a" strokeWidth="3" />
+      </svg>
+
+      <div className="wardrobe-cuff wardrobe-cuff-left" aria-hidden="true" />
+      <div className="wardrobe-cuff wardrobe-cuff-right" aria-hidden="true" />
+      <div className="wardrobe-pocket-square" aria-hidden="true" />
+
+      <div className="renan-final">
+        <PortraitImage alt="Renan Durso" />
+        <div className="renan-final-light" aria-hidden="true" />
+      </div>
+
+      <div className="renan-triptych" aria-hidden="true">
+        <div className="renan-slice renan-slice-left">
+          <PortraitImage />
+        </div>
+        <div className="renan-slice renan-slice-center">
+          <PortraitImage />
+        </div>
+        <div className="renan-slice renan-slice-right">
+          <PortraitImage />
+        </div>
+      </div>
+
+      <div className="anatomy-phase" aria-hidden="true">
+        <span>0{Math.min(step + 1, 6)}</span>
+        <strong>{anatomyLabels[step]}</strong>
+      </div>
+    </div>
   );
 }
 
-export default function App() {
+function App() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [storyStep, setStoryStep] = useState(0);
-  const storyRef = useRef(null);
+  const [activeArea, setActiveArea] = useState(0);
+  const [anatomyStep, setAnatomyStep] = useState(0);
+  const anatomyRef = useRef(null);
+  const areasRef = useRef(null);
 
   const dust = useMemo(
-    () => Array.from({ length: 52 }, (_, index) => index),
+    () => Array.from({ length: 28 }, (_, index) => index),
     [],
   );
 
@@ -470,93 +218,57 @@ export default function App() {
     const update = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        const height = Math.max(
+        const root = document.documentElement;
+        const scrollRange = Math.max(
           document.documentElement.scrollHeight - window.innerHeight,
           1,
         );
-        const pageProgress = window.scrollY / height;
-        document.documentElement.style.setProperty(
-          "--page-progress",
-          String(pageProgress),
-        );
-        document.documentElement.style.setProperty(
-          "--scroll-y",
-          `${window.scrollY}px`,
-        );
+        root.style.setProperty("--page-progress", String(window.scrollY / scrollRange));
 
-        const story = storyRef.current;
-        if (story) {
-          const rect = story.getBoundingClientRect();
-          const travel = Math.max(story.offsetHeight - window.innerHeight, 1);
+        document.querySelectorAll("[data-scroll-scene]").forEach((element) => {
+          const rect = element.getBoundingClientRect();
+          const travel = Math.max(element.offsetHeight - window.innerHeight, 1);
           const progress = clamp(-rect.top / travel);
-          document.documentElement.style.setProperty(
-            "--story-progress",
-            String(progress),
-          );
+          element.style.setProperty("--progress", String(progress));
+        });
+
+        if (anatomyRef.current) {
+          const rect = anatomyRef.current.getBoundingClientRect();
+          const travel = Math.max(anatomyRef.current.offsetHeight - window.innerHeight, 1);
+          const p = clamp(-rect.top / travel);
+
+          anatomyRef.current.style.setProperty("--anatomy", String(range(p, 0.03, 0.14)));
+          anatomyRef.current.style.setProperty("--shirt", String(range(p, 0.14, 0.3)));
+          anatomyRef.current.style.setProperty("--tie", String(range(p, 0.3, 0.42)));
+          anatomyRef.current.style.setProperty("--jacket", String(range(p, 0.42, 0.62)));
+          anatomyRef.current.style.setProperty("--complete", String(range(p, 0.62, 0.72)));
+          anatomyRef.current.style.setProperty("--portrait", String(range(p, 0.72, 0.86)));
+          anatomyRef.current.style.setProperty("--split", String(range(p, 0.86, 1)));
+
           const nextStep =
-            progress < 0.25 ? 0 : progress < 0.5 ? 1 : progress < 0.75 ? 2 : 3;
-          setStoryStep(nextStep);
+            p < 0.14 ? 0 :
+            p < 0.3 ? 1 :
+            p < 0.42 ? 2 :
+            p < 0.62 ? 3 :
+            p < 0.78 ? 4 : 5;
+
+          setAnatomyStep((current) => (current === nextStep ? current : nextStep));
         }
 
-        document.querySelectorAll("[data-scroll-scene]").forEach(
-          (element) => {
-            const rect = element.getBoundingClientRect();
-            const travel = Math.max(element.offsetHeight - window.innerHeight, 1);
-            const progress = clamp(-rect.top / travel);
-            element.style.setProperty("--scene-progress", String(progress));
-            element.style.setProperty("--scene-shift", `${progress * 352}%`);
-
-            if (element.id === "sobre") {
-              const intro = clamp(progress / 0.1);
-              const shirt = clamp((progress - 0.08) / 0.12);
-              const tie = clamp((progress - 0.2) / 0.1);
-              const suit = clamp((progress - 0.28) / 0.2);
-              const finalPortrait = clamp((progress - 0.5) / 0.18);
-              const open = clamp((progress - 0.7) / 0.18);
-              const copy = clamp((progress - 0.84) / 0.14);
-              const shellWidth = 100 - copy * 52;
-              const copyWidth = copy * 52;
-
-              element.style.setProperty("--advocate-intro", String(intro));
-              element.style.setProperty("--advocate-shirt", String(shirt));
-              element.style.setProperty("--advocate-tie", String(tie));
-              element.style.setProperty("--advocate-suit", String(suit));
-              element.style.setProperty("--advocate-final", String(finalPortrait));
-              element.style.setProperty("--advocate-open", String(open));
-              element.style.setProperty("--advocate-copy", String(copy));
-
-              element.style.setProperty("--portrait-intro", String(intro));
-              element.style.setProperty("--portrait-assemble", String(suit));
-              element.style.setProperty("--portrait-complete", String(finalPortrait));
-              element.style.setProperty("--portrait-open", String(open));
-              element.style.setProperty("--portrait-copy", String(copy));
-              element.style.setProperty(
-                "--portrait-shell-width",
-                `${shellWidth}%`,
-              );
-              element.style.setProperty(
-                "--portrait-copy-width",
-                `${copyWidth}%`,
-              );
-              element.style.setProperty(
-                "--portrait-copy-shift",
-                `${(1 - copy) * 46}px`,
-              );
-            }
-          },
-        );
+        if (areasRef.current) {
+          const rect = areasRef.current.getBoundingClientRect();
+          const travel = Math.max(areasRef.current.offsetHeight - window.innerHeight, 1);
+          const p = clamp(-rect.top / travel);
+          const nextArea = Math.min(3, Math.floor(p * 4.001));
+          setActiveArea((current) => (current === nextArea ? current : nextArea));
+          areasRef.current.style.setProperty("--area-progress", String(p));
+        }
       });
     };
 
-    const pointer = (event: PointerEvent) => {
-      document.documentElement.style.setProperty(
-        "--pointer-x",
-        `${event.clientX}px`,
-      );
-      document.documentElement.style.setProperty(
-        "--pointer-y",
-        `${event.clientY}px`,
-      );
+    const pointer = (event) => {
+      document.documentElement.style.setProperty("--pointer-x", `${event.clientX}px`);
+      document.documentElement.style.setProperty("--pointer-y", `${event.clientY}px`);
       document.documentElement.style.setProperty(
         "--pointer-nx",
         String(event.clientX / window.innerWidth - 0.5),
@@ -585,452 +297,365 @@ export default function App() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const submitContact = (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const name = data.get("name") || "";
+    const phone = data.get("phone") || "";
+    const message = data.get("message") || "";
+    const subject = encodeURIComponent(`Contato pelo site — ${name}`);
+    const body = encodeURIComponent(
+      `Nome: ${name}\nTelefone: ${phone}\n\nMensagem:\n${message}`,
+    );
+    window.location.href = `mailto:renandurso@aasp.org.br?subject=${subject}&body=${body}`;
+  };
+
   return (
-    <main className="experience">
+    <main className="site-shell">
       <div className="page-progress" aria-hidden="true" />
-      <div className="cursor-light" aria-hidden="true" />
+      <div className="cursor-glow" aria-hidden="true" />
 
       <div className="ambient-dust" aria-hidden="true">
         {dust.map((item) => (
-          <i
-            key={item}
-            style={{ "--dust": item }}
-          />
+          <i key={item} style={{ "--dust": item }} />
         ))}
       </div>
 
-      <header className="topbar">
-        <button
-          className="identity"
-          onClick={() => goTo("inicio")}
-          aria-label="Voltar ao início"
-        >
-          <span className="identity-seal">RD</span>
-          <span>
+      <header className="site-header">
+        <button className="brand" onClick={() => goTo("inicio")}>
+          <span className="brand-seal">RD</span>
+          <span className="brand-copy">
             <strong>Renan Durso</strong>
-            <small>Advocacia • Direito da Saúde</small>
+            <small>Direito Médico e da Saúde</small>
           </span>
         </button>
 
-        <nav className="desktop-menu" aria-label="Navegação principal">
-          <button onClick={() => goTo("experiencia")}>Experiência</button>
+        <nav className="desktop-nav">
+          <button onClick={() => goTo("anatomia")}>Experiência</button>
           <button onClick={() => goTo("atuacao")}>Atuação</button>
-          <button onClick={() => goTo("sobre")}>Sobre</button>
-          <button className="menu-contact" onClick={() => goTo("contato")}>
+          <button onClick={() => goTo("contato")}>Contato</button>
+          <button className="nav-cta" onClick={() => goTo("contato")}>
             Falar com o escritório <ArrowUpRight size={14} />
           </button>
         </nav>
 
         <button
-          className="mobile-trigger"
+          className="mobile-menu"
           onClick={() => setMenuOpen((value) => !value)}
           aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
         >
           {menuOpen ? <X /> : <Menu />}
         </button>
 
-        <div className={`mobile-panel ${menuOpen ? "open" : ""}`}>
-          <button onClick={() => goTo("experiencia")}>Experiência</button>
+        <div className={`mobile-drawer ${menuOpen ? "open" : ""}`}>
+          <button onClick={() => goTo("inicio")}>Início</button>
+          <button onClick={() => goTo("anatomia")}>Experiência</button>
           <button onClick={() => goTo("atuacao")}>Atuação</button>
-          <button onClick={() => goTo("sobre")}>Sobre</button>
           <button onClick={() => goTo("contato")}>Contato</button>
         </div>
       </header>
 
       <section
         id="inicio"
-        className="hero-scroll-scene"
+        className="hero-scroll"
         data-scroll-scene
       >
-        <div className="scene-sticky hero-stage">
+        <div className="sticky hero">
           <div className="hero-grid" aria-hidden="true" />
-          <div className="hero-halo" aria-hidden="true" />
-          <div className="hero-beam hero-beam-a" aria-hidden="true" />
-          <div className="hero-beam hero-beam-b" aria-hidden="true" />
-          <div className="hero-medical-line" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-          </div>
+          <div className="hero-beam hero-beam-one" aria-hidden="true" />
+          <div className="hero-beam hero-beam-two" aria-hidden="true" />
+          <div className="hero-orbit" aria-hidden="true" />
           <div className="hero-backword" aria-hidden="true">HEALTH / LAW</div>
-          <div className="hero-index">01 — INÍCIO</div>
 
           <div className="hero-copy">
-            <p className="micro-kicker">
+            <p className="eyebrow">
               <span />
               Direito médico e da saúde
             </p>
 
-            <h1 className="display-title">
-              <span className="title-mask">
-                <b>A saúde</b>
-              </span>
-              <span className="title-mask title-serif">
-                <b>não pode esperar.</b>
-              </span>
+            <h1>
+              <span>Quando a saúde</span>
+              <em>não pode esperar.</em>
             </h1>
 
-            <div className="hero-premium-meta" aria-hidden="true">
-              <span>Direito da Saúde</span>
-              <span>Urgência</span>
-              <span>Proteção</span>
-            </div>
+            <p className="hero-lead">
+              Estratégia jurídica para situações em que tratamento, cuidado,
+              cobertura e tempo precisam ser analisados com precisão.
+            </p>
 
-            <div className="hero-summary">
-              <p>
-                Atuação jurídica dedicada à proteção do paciente diante de
-                negativas de tratamento, medicamentos, cirurgias, home care e
-                terapias essenciais.
-              </p>
-              <button onClick={() => goTo("experiencia")}>
-                Descobrir a atuação <ArrowDown size={16} />
+            <div className="hero-actions">
+              <button onClick={() => goTo("contato")}>
+                Falar com o escritório <ArrowRight size={16} />
+              </button>
+              <button className="ghost-button" onClick={() => goTo("anatomia")}>
+                Conhecer a atuação <ArrowDown size={16} />
               </button>
             </div>
-          </div>
 
-          <div className="portrait-hero" aria-hidden="true">
-            <div className="portrait-orbit orbit-a" />
-            <div className="portrait-orbit orbit-b" />
-            <div className="portrait-light" />
-            <div className="portrait-crop">
-              <img
-                className="portrait-main"
-                src={portraitUrl}
-                alt=""
-              />
-              <img
-                className="portrait-torso"
-                src={portraitUrl}
-                alt=""
-              />
-              <div className="tie-flare" />
-            </div>
-            <span className="portrait-label">
-              RENAN DURSO / ADVOCACIA
-            </span>
-          </div>
-
-          <div className="hero-bottomline">
-            <span>Atendimento nacional</span>
-            <span>São Paulo — SP</span>
-            <span>Role para explorar</span>
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="experiencia"
-        ref={storyRef}
-        className="particle-story"
-      >
-        <ScrollParticles storyRef={storyRef} />
-
-        <div className="scene-sticky story-stage">
-          <div className="story-grid" aria-hidden="true" />
-          <div className="story-radial" aria-hidden="true" />
-
-          <div className="story-counter">
-            <span>0{storyStep + 1}</span>
-            <small>/ 04</small>
-          </div>
-
-          <div className="story-symbol-name" aria-hidden="true">
-            {storyStep === 0 && "SAÚDE"}
-            {storyStep === 1 && "JUSTIÇA"}
-            {storyStep === 2 && "VIDA"}
-            {storyStep === 3 && "PROTEÇÃO"}
-          </div>
-
-          <div className="story-copy-stack">
-            {storySteps.map((step, index) => (
-              <article
-                key={step.key}
-                className={`story-copy ${storyStep === index ? "active" : ""}`}
-              >
-                <p>{step.eyebrow}</p>
-                <h2>
-                  {step.title}
-                  <em>{step.accent}</em>
-                </h2>
-                <div className="story-rule" />
-                <span>{step.copy}</span>
-              </article>
-            ))}
-          </div>
-
-          <div className="story-axis" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-            <i />
-          </div>
-
-          <div className="story-caption">
-            partículas → símbolo → significado
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="sobre"
-        className="portrait-scroll-scene"
-        data-scroll-scene
-      >
-        <div className="scene-sticky portrait-stage">
-          <div className="portrait-backtype" aria-hidden="true">
-            SAÚDE
-          </div>
-
-          <div className="portrait-scene-shell">
-            <div className="portrait-anatomy-stage advocate-cinematic-stage">
-              <div className="portrait-anatomy-grid advocate-grid" aria-hidden="true" />
-              <div className="advocate-ambient-glow" aria-hidden="true" />
-              <div className="advocate-light-column" aria-hidden="true" />
-
-              <div className="portrait-anatomy-title advocate-copy-intro" aria-hidden="true">
-                <small>A ANATOMIA DA ADVOCACIA</small>
-                <span>Presença.</span>
-                <em>Estratégia.</em>
-              </div>
-
-              <div className="portrait-ghost advocate-silhouette" aria-hidden="true">
-                <PortraitImage alt="" />
-              </div>
-
-              <div className="advocate-piece advocate-shirt" aria-hidden="true">
-                <PortraitImage alt="" />
-              </div>
-
-              <div className="advocate-piece advocate-tie" aria-hidden="true">
-                <PortraitImage alt="" />
-              </div>
-
-              <div className="advocate-piece advocate-left-lapel" aria-hidden="true">
-                <PortraitImage alt="" />
-              </div>
-
-              <div className="advocate-piece advocate-right-lapel" aria-hidden="true">
-                <PortraitImage alt="" />
-              </div>
-
-              <div className="advocate-piece advocate-sleeve-left" aria-hidden="true">
-                <PortraitImage alt="" />
-              </div>
-
-              <div className="advocate-piece advocate-sleeve-right" aria-hidden="true">
-                <PortraitImage alt="" />
-              </div>
-
-              <div className="advocate-final-portrait">
-                <PortraitImage alt="Renan Durso" />
-                <div className="advocate-final-shine" aria-hidden="true" />
-                <div className="advocate-rim-light" aria-hidden="true" />
-              </div>
-
-              <div className="portrait-triptych advocate-triptych">
-                <div
-                  className="portrait-angle-panel portrait-angle-left advocate-panel advocate-panel-left"
-                  aria-hidden="true"
-                >
-                  <PortraitImage alt="" />
-                </div>
-
-                <div className="portrait-angle-panel portrait-angle-center advocate-panel advocate-panel-center">
-                  <PortraitImage alt="Renan Durso" />
-                </div>
-
-                <div
-                  className="portrait-angle-panel portrait-angle-right advocate-panel advocate-panel-right"
-                  aria-hidden="true"
-                >
-                  <PortraitImage alt="" />
-                </div>
-
-                <div className="portrait-depth-glow" aria-hidden="true" />
-                <div className="portrait-scan" aria-hidden="true" />
-                <div className="portrait-floor-shadow" aria-hidden="true" />
-                <div className="portrait-tech-ring portrait-tech-ring-a" aria-hidden="true" />
-                <div className="portrait-tech-ring portrait-tech-ring-b" aria-hidden="true" />
-              </div>
-
-              <div className="advocate-stitch-line advocate-stitch-left" aria-hidden="true" />
-              <div className="advocate-stitch-line advocate-stitch-right" aria-hidden="true" />
-              <div className="advocate-scan-beam" aria-hidden="true" />
-
-              <div className="portrait-phase-indicator advocate-phase-indicator" aria-hidden="true">
-                <span>01 ESTRUTURA</span>
-                <span>02 TRAJE</span>
-                <span>03 PRESENÇA</span>
-              </div>
-            </div>
-
-            <div className="portrait-card">
+            <div className="hero-meta">
               <span>Direito da Saúde</span>
-              <strong>
-                Técnica jurídica
-                <em>com leitura humana.</em>
-              </strong>
+              <span>Atuação estratégica</span>
+              <span>Atendimento individualizado</span>
             </div>
           </div>
 
-          <div className="about-copy">
-            <p className="micro-kicker dark">
+          <div className="hero-portrait">
+            <div className="hero-portrait-back" aria-hidden="true" />
+            <PortraitImage alt="Renan Durso" />
+            <div className="hero-portrait-shine" aria-hidden="true" />
+            <div className="hero-name">
+              <small>ADVOCACIA</small>
+              <strong>RENAN DURSO</strong>
+            </div>
+          </div>
+
+          <div className="hero-scroll-note">
+            <span>Role para explorar</span>
+            <i />
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="anatomia"
+        ref={anatomyRef}
+        className="anatomy-scroll"
+      >
+        <div className="sticky anatomy-stage">
+          <div className="anatomy-copy">
+            <p className="eyebrow light">
               <span />
-              Sobre a atuação
+              A anatomia da advocacia
             </p>
             <h2>
-              Antes da ação,
-              <em>compreender o caso.</em>
+              Presença.
+              <em>Estratégia.</em>
             </h2>
-            <p className="about-lead">
-              A estratégia parte da documentação médica, da urgência, da
-              negativa e do contexto de cada paciente. O objetivo é organizar
-              as informações e transformar uma situação complexa em próximos
-              passos claros.
+            <p>
+              Uma construção visual inspirada na lógica dos vídeos de referência:
+              estrutura, traje, presença e, no final, o advogado real.
             </p>
 
-            <div className="about-facts">
-              <div>
-                <small>01</small>
-                <span>Análise individualizada</span>
-              </div>
-              <div>
-                <small>02</small>
-                <span>Foco em Direito da Saúde</span>
-              </div>
-              <div>
-                <small>03</small>
-                <span>Comunicação objetiva</span>
-              </div>
+            <div className="anatomy-steps">
+              {anatomyLabels.map((label, index) => (
+                <span
+                  key={label}
+                  className={index === anatomyStep ? "active" : ""}
+                >
+                  0{index + 1} — {label}
+                </span>
+              ))}
             </div>
           </div>
+
+          <div className="anatomy-visual">
+            <AnatomyFigure step={anatomyStep} />
+          </div>
+
+          <div className="anatomy-sideword" aria-hidden="true">
+            COUNSEL
+          </div>
         </div>
+      </section>
+
+      <section className="statement-section">
+        <div className="statement-line">
+          <span>Saúde</span>
+          <i />
+          <span>Direito</span>
+          <i />
+          <span>Urgência</span>
+          <i />
+          <span>Proteção</span>
+        </div>
+        <h2>
+          Cada caso tem uma história.
+          <em>Cada estratégia precisa entender o contexto.</em>
+        </h2>
       </section>
 
       <section
         id="atuacao"
-        className="practice-scroll-scene"
-        data-scroll-scene
+        ref={areasRef}
+        className="areas-scroll"
       >
-        <div className="scene-sticky practice-stage">
-          <div className="practice-head">
-            <p className="micro-kicker">
+        <div className="sticky areas-stage">
+          <div className="areas-copy">
+            <p className="eyebrow">
               <span />
               Áreas de atuação
             </p>
-            <h2>
-              Casos em que
-              <em>o tempo importa.</em>
-            </h2>
-          </div>
 
-          <div className="practice-stack">
-            {practiceAreas.map((area, index) => {
-              const Icon = area.icon;
-              return (
-                <article
+            <div className="area-text-stack">
+              {practiceAreas.map((area, index) => {
+                const Icon = area.icon;
+                return (
+                  <article
+                    key={area.title}
+                    className={`area-text ${index === activeArea ? "active" : ""}`}
+                  >
+                    <span className="area-number">{area.number}</span>
+                    <Icon size={24} />
+                    <h2>{area.title}</h2>
+                    <strong>{area.short}</strong>
+                    <p>{area.description}</p>
+                    <button onClick={() => goTo("contato")}>
+                      Falar sobre este caso <ArrowUpRight size={15} />
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+
+            <div className="area-progress">
+              {practiceAreas.map((area, index) => (
+                <button
                   key={area.title}
-                  className="practice-slide"
-                  style={{
-                    "--card-index": index,
-                    "--card-base": `${index * 110}%`,
+                  className={index === activeArea ? "active" : ""}
+                  onClick={() => {
+                    const section = areasRef.current;
+                    if (!section) return;
+                    const target =
+                      section.offsetTop +
+                      ((section.offsetHeight - window.innerHeight) * index) / 3;
+                    window.scrollTo({ top: target, behavior: "smooth" });
                   }}
+                  aria-label={`Ver ${area.title}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="area-visual">
+            <div className="area-image-frame">
+              {practiceAreas.map((area, index) => (
+                <figure
+                  key={area.title}
+                  className={`area-image ${index === activeArea ? "active" : ""}`}
                 >
-                  <div className="practice-slide-top">
+                  <img src={area.image} alt="" loading="lazy" />
+                  <figcaption>
                     <span>{area.number}</span>
-                    <Icon size={22} />
-                  </div>
-                  <h3>{area.title}</h3>
-                  <strong>{area.short}</strong>
-                  <p>{area.description}</p>
-                  <div className="practice-slide-line" />
-                </article>
-              );
-            })}
-          </div>
+                    <strong>{area.title}</strong>
+                  </figcaption>
+                </figure>
+              ))}
+              <div className="area-image-grid" aria-hidden="true" />
+              <div className="area-image-scan" aria-hidden="true" />
+            </div>
 
-          <div className="practice-background-word" aria-hidden="true">
-            PROTEÇÃO
+            <div className="area-orbit orbit-a" aria-hidden="true" />
+            <div className="area-orbit orbit-b" aria-hidden="true" />
           </div>
         </div>
       </section>
 
-      <section className="statement-break">
-        <div className="statement-track" aria-hidden="true">
-          <span>SAÚDE</span>
-          <i>•</i>
-          <span>DIREITO</span>
-          <i>•</i>
-          <span>URGÊNCIA</span>
-          <i>•</i>
-          <span>PROTEÇÃO</span>
-          <i>•</i>
-          <span>SAÚDE</span>
+      <section className="method-section">
+        <div className="method-heading">
+          <p className="eyebrow">
+            <span />
+            Método
+          </p>
+          <h2>
+            Clareza antes da decisão.
+            <em>Estratégia antes da ação.</em>
+          </h2>
         </div>
 
-        <blockquote>
-          “Uma boa orientação jurídica não entrega apenas respostas.
-          <em> Organiza possibilidades.</em>”
-        </blockquote>
+        <div className="method-grid">
+          {[
+            ["01", "Leitura do caso", "Documentos, prescrição, urgência e negativa organizados em uma visão única."],
+            ["02", "Estratégia", "Definição do caminho jurídico adequado ao contexto e ao objetivo do paciente."],
+            ["03", "Comunicação", "Próximos passos explicados com linguagem clara e acompanhamento objetivo."],
+          ].map(([number, title, copy]) => (
+            <article key={number}>
+              <span>{number}</span>
+              <h3>{title}</h3>
+              <p>{copy}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
-      <section id="contato" className="contact-scene">
-        <div className="contact-orbit contact-orbit-a" aria-hidden="true" />
-        <div className="contact-orbit contact-orbit-b" aria-hidden="true" />
-        <div className="contact-glow" aria-hidden="true" />
+      <section id="contato" className="contact-section">
+        <div className="contact-background" aria-hidden="true">
+          <div />
+          <div />
+        </div>
 
-        <div className="contact-heading">
-          <p className="micro-kicker">
+        <div className="contact-copy">
+          <p className="eyebrow light">
             <span />
             Contato
           </p>
           <h2>
-            Sua questão
-            <em>merece clareza.</em>
+            Quando o cuidado é urgente,
+            <em>a informação precisa ser clara.</em>
           </h2>
-        </div>
+          <p>
+            Conte o que aconteceu. Organize os principais documentos e entre em
+            contato para uma análise inicial do contexto.
+          </p>
 
-        <a
-          className="contact-cta"
-          href="mailto:renandurso@aasp.org.br"
-        >
-          <span>Iniciar uma conversa</span>
-          <ArrowUpRight />
-        </a>
-
-        <div className="contact-info">
-          <div>
-            <Mail size={17} />
-            <a href="mailto:renandurso@aasp.org.br">
-              renandurso@aasp.org.br
-            </a>
-          </div>
-          <div>
-            <MapPin size={17} />
-            <span>São Paulo — SP</span>
-          </div>
-          <div>
-            <Scale size={17} />
-            <span>Direito Médico e da Saúde</span>
+          <div className="contact-info">
+            <div>
+              <Mail size={17} />
+              <a href="mailto:renandurso@aasp.org.br">renandurso@aasp.org.br</a>
+            </div>
+            <div>
+              <MapPin size={17} />
+              <span>São Paulo — SP</span>
+            </div>
+            <div>
+              <Scale size={17} />
+              <span>Direito Médico e da Saúde</span>
+            </div>
           </div>
         </div>
 
-        <footer className="footer">
-          <div className="identity footer-identity">
-            <span className="identity-seal">RD</span>
-            <span>
+        <form className="contact-form" onSubmit={submitContact}>
+          <div className="form-kicker">
+            <Sparkles size={16} />
+            Iniciar uma conversa
+          </div>
+          <label>
+            Nome
+            <input name="name" required placeholder="Como podemos chamar você?" />
+          </label>
+          <label>
+            Telefone
+            <input name="phone" placeholder="(00) 00000-0000" />
+          </label>
+          <label>
+            Conte brevemente o caso
+            <textarea
+              name="message"
+              required
+              rows="5"
+              placeholder="Explique a situação em poucas linhas."
+            />
+          </label>
+          <button type="submit">
+            Enviar mensagem <ArrowUpRight size={16} />
+          </button>
+        </form>
+
+        <footer className="site-footer">
+          <div className="brand footer-brand">
+            <span className="brand-seal">RD</span>
+            <span className="brand-copy">
               <strong>Renan Durso</strong>
-              <small>Advocacia • Direito da Saúde</small>
+              <small>Direito Médico e da Saúde</small>
             </span>
           </div>
           <p>Conteúdo institucional de caráter informativo.</p>
           <button onClick={() => goTo("inicio")}>
-            Voltar ao topo <ArrowRight size={14} />
+            Voltar ao topo <ArrowUpRight size={14} />
           </button>
         </footer>
       </section>
     </main>
   );
 }
+
+export default App;
