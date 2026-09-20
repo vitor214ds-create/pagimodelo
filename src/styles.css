@@ -545,122 +545,71 @@ p {
   height: min(84svh, 890px);
 }
 
-.tailoring-vector {
+.tailoring-scroll-video {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  perspective: 1400px;
+  isolation: isolate;
 }
 
-.tailoring-vector::before {
+.tailoring-scroll-video::before {
   content: "";
   position: absolute;
+  z-index: 0;
   left: 50%;
-  top: 49%;
-  width: min(68vh, 560px);
+  top: 50%;
+  width: min(70vh, 620px);
   aspect-ratio: 1;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  background:
-    radial-gradient(circle, rgba(215,183,126,.11), rgba(215,183,126,.035) 42%, transparent 70%);
-  filter: blur(8px);
+  background: radial-gradient(circle, rgba(215,183,126,.12), rgba(215,183,126,.035) 42%, transparent 72%);
+  filter: blur(18px);
   pointer-events: none;
 }
 
-.tailoring-vector-stage {
+.tailoring-source-video {
   position: relative;
-  z-index: 4;
-  width: min(74%, 620px);
-  height: min(88%, 820px);
-  display: grid;
-  place-items: center;
-  transform-style: preserve-3d;
-  will-change: transform, opacity, filter;
-}
-
-.tailoring-svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  filter:
-    drop-shadow(0 34px 52px rgba(0,0,0,.38))
-    drop-shadow(0 0 26px rgba(215,183,126,.08));
-}
-
-.tailoring-svg .vector-body {
-  filter: url(#softGlow);
-}
-
-.tailoring-svg .vector-shirt,
-.tailoring-svg [ref] {
-  transform-box: fill-box;
-}
-
-.tailoring-renan-vector {
-  position: absolute;
-  z-index: 8;
-  left: 50%;
-  top: 50%;
-  width: min(52vw, 640px);
-  height: min(84vh, 840px);
-  transform: translate(-50%, -50%);
-  transform-origin: center bottom;
-  pointer-events: none;
-  will-change: transform, opacity;
-}
-
-.tailoring-renan-vector img {
-  position: absolute;
   z-index: 3;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  width: min(96%, 860px);
+  height: min(88vh, 820px);
   object-fit: contain;
-  object-position: center bottom;
+  object-position: center;
+  background: transparent;
+  pointer-events: none;
+  user-select: none;
+  transform: translateZ(0);
   filter:
-    saturate(.92)
-    contrast(1.05)
-    drop-shadow(0 36px 48px rgba(0,0,0,.38));
+    drop-shadow(0 34px 54px rgba(0,0,0,.38))
+    drop-shadow(0 0 24px rgba(215,183,126,.08));
 }
 
-.renan-vector-halo {
+.tailoring-video-glow {
   position: absolute;
   z-index: 1;
   left: 50%;
-  top: 20%;
-  width: 62%;
-  aspect-ratio: 1;
-  border: 1px solid rgba(215,183,126,.26);
+  top: 49%;
+  width: min(64%, 560px);
+  height: min(76%, 700px);
+  transform: translate(-50%, -50%);
   border-radius: 50%;
-  transform: translateX(-50%);
+  border: 1px solid rgba(215,183,126,.11);
   box-shadow:
-    0 0 70px rgba(215,183,126,.08),
-    inset 0 0 55px rgba(215,183,126,.035);
+    0 0 80px rgba(215,183,126,.06),
+    inset 0 0 60px rgba(215,183,126,.025);
+  pointer-events: none;
 }
 
-.renan-vector-halo::before,
-.renan-vector-halo::after {
-  content: "";
-  position: absolute;
-  inset: 12%;
-  border: 1px solid rgba(255,255,255,.05);
-  border-radius: 50%;
-}
-
-.renan-vector-halo::after {
-  inset: 27%;
-}
-
-.renan-vector-rim {
+.tailoring-video-line {
   position: absolute;
   z-index: 4;
   left: 12%;
   right: 12%;
-  top: 49%;
+  top: 50%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(215,183,126,.78), transparent);
-  box-shadow: 0 0 20px rgba(215,183,126,.28);
+  background: linear-gradient(90deg, transparent, rgba(215,183,126,.34), transparent);
+  opacity: .5;
+  pointer-events: none;
 }
 
 .anatomy-word {
@@ -1086,12 +1035,9 @@ footer small {
     width: min(52vw, 630px);
   }
 
-  .tailoring-vector-stage {
-    width: min(78%, 590px);
-  }
-
-  .tailoring-renan-vector {
-    width: min(56vw, 600px);
+  .tailoring-source-video {
+    width: min(94%, 760px);
+    height: min(84vh, 760px);
   }
 }
 
@@ -1271,24 +1217,18 @@ footer small {
     height: 57vh;
   }
 
-  .tailoring-vector {
-    top: 2vh;
+  .tailoring-scroll-video {
+    top: 1vh;
   }
 
-  .tailoring-vector-stage {
-    width: 88vw;
-    height: 55vh;
+  .tailoring-source-video {
+    width: 96vw;
+    height: 54vh;
   }
 
-  .tailoring-svg {
-    width: 100%;
-    height: 100%;
-  }
-
-  .tailoring-renan-vector {
-    width: 88vw;
-    height: 57vh;
-    top: 52%;
+  .tailoring-video-glow {
+    width: 78vw;
+    height: 48vh;
   }
 
   .anatomy-word {
