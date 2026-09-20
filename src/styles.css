@@ -545,88 +545,122 @@ p {
   height: min(84svh, 890px);
 }
 
-.tailoring-master {
+.tailoring-vector {
   position: absolute;
   inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 1400px;
 }
 
-.tailoring-video {
-  position: absolute;
-  z-index: 4;
-  left: 50%;
-  top: 50%;
-  width: min(92%, 720px);
-  height: min(92%, 900px);
-  object-fit: contain;
-  object-position: center;
-  opacity: calc(1 - var(--portrait-progress));
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  background: transparent;
-  filter:
-    drop-shadow(0 34px 48px rgba(0,0,0,.32))
-    drop-shadow(0 0 25px rgba(215,183,126,.08));
-}
-
-.tailoring-rings {
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  pointer-events: none;
-}
-
-.tailoring-rings i {
+.tailoring-vector::before {
+  content: "";
   position: absolute;
   left: 50%;
-  top: 45%;
-  width: min(56vh, 480px);
+  top: 49%;
+  width: min(68vh, 560px);
   aspect-ratio: 1;
-  border: 1px solid rgba(215,183,126,.085);
   border-radius: 50%;
   transform: translate(-50%, -50%);
+  background:
+    radial-gradient(circle, rgba(215,183,126,.11), rgba(215,183,126,.035) 42%, transparent 70%);
+  filter: blur(8px);
+  pointer-events: none;
 }
 
-.tailoring-rings i:nth-child(2) {
-  width: min(42vh, 360px);
+.tailoring-vector-stage {
+  position: relative;
+  z-index: 4;
+  width: min(74%, 620px);
+  height: min(88%, 820px);
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
 }
 
-.tailoring-rings i:nth-child(3) {
-  width: min(28vh, 250px);
+.tailoring-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter:
+    drop-shadow(0 34px 52px rgba(0,0,0,.38))
+    drop-shadow(0 0 26px rgba(215,183,126,.08));
 }
 
-.tailoring-renan {
+.tailoring-svg .vector-body {
+  filter: url(#softGlow);
+}
+
+.tailoring-svg .vector-shirt,
+.tailoring-svg [ref] {
+  transform-box: fill-box;
+}
+
+.tailoring-renan-vector {
   position: absolute;
   z-index: 8;
   left: 50%;
   top: 50%;
-  width: min(50vw, 620px);
-  height: min(84vh, 830px);
-  opacity: var(--portrait-progress);
-  transform:
-    translate(-50%, -50%)
-    translateY(calc((1 - var(--portrait-progress)) * 22px))
-    scale(calc(.97 + var(--portrait-progress) * .03));
+  width: min(52vw, 640px);
+  height: min(84vh, 840px);
+  transform: translate(-50%, -50%);
   transform-origin: center bottom;
+  pointer-events: none;
+  will-change: transform, opacity;
 }
 
-.tailoring-renan img {
+.tailoring-renan-vector img {
   position: absolute;
+  z-index: 3;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
   object-position: center bottom;
-  filter: saturate(.9) contrast(1.04) drop-shadow(0 34px 45px rgba(0,0,0,.35));
+  filter:
+    saturate(.92)
+    contrast(1.05)
+    drop-shadow(0 36px 48px rgba(0,0,0,.38));
 }
 
-.renan-rim {
+.renan-vector-halo {
   position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 20%;
+  width: 62%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(215,183,126,.26);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow:
+    0 0 70px rgba(215,183,126,.08),
+    inset 0 0 55px rgba(215,183,126,.035);
+}
+
+.renan-vector-halo::before,
+.renan-vector-halo::after {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 50%;
+}
+
+.renan-vector-halo::after {
+  inset: 27%;
+}
+
+.renan-vector-rim {
+  position: absolute;
+  z-index: 4;
   left: 12%;
   right: 12%;
-  top: 48%;
+  top: 49%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(215,183,126,.7), transparent);
-  box-shadow: 0 0 20px rgba(215,183,126,.25);
+  background: linear-gradient(90deg, transparent, rgba(215,183,126,.78), transparent);
+  box-shadow: 0 0 20px rgba(215,183,126,.28);
 }
 
 .anatomy-word {
@@ -1052,8 +1086,12 @@ footer small {
     width: min(52vw, 630px);
   }
 
-  .tailoring-renan {
-    width: min(54vw, 590px);
+  .tailoring-vector-stage {
+    width: min(78%, 590px);
+  }
+
+  .tailoring-renan-vector {
+    width: min(56vw, 600px);
   }
 }
 
@@ -1233,15 +1271,24 @@ footer small {
     height: 57vh;
   }
 
-  .tailoring-video {
-    width: 94vw;
-    height: 56vh;
-    top: 53%;
+  .tailoring-vector {
+    top: 2vh;
   }
 
-  .tailoring-renan {
+  .tailoring-vector-stage {
+    width: 88vw;
+    height: 55vh;
+  }
+
+  .tailoring-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .tailoring-renan-vector {
     width: 88vw;
     height: 57vh;
+    top: 52%;
   }
 
   .anatomy-word {
