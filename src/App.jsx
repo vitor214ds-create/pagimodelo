@@ -75,11 +75,6 @@ const anatomyLabels = [
   "Renan Durso",
 ];
 
-const tailoringVideoChunks = Array.from(
-  { length: 31 },
-  (_, index) => `/anatomia/video-${String(index).padStart(2, "0")}.txt`,
-);
-
 function clamp(value, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value));
 }
